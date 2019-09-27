@@ -75,7 +75,9 @@ class NostalgicCounter {
     }
 
     let html = "error: counter not found.";
-    const res = await fetch(url).catch(() => null);
+    const res = await fetch(url, {
+      mode: "cors"
+    }).catch(() => null);
     if (res) {
       const json = await res.json();
       if (json && json.total !== undefined) {
