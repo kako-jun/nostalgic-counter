@@ -91,7 +91,7 @@ class NostalgicCounter {
             image_dir_path,
             image_ext
           );
-          html += _.map(imagePaths, p => {
+          html = _.map(imagePaths, p => {
             return '<img src="' + p + '"></img>';
           }).join("");
         }
