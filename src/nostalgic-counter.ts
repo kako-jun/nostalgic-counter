@@ -198,6 +198,7 @@ class NostalgicCounter {
       }
     }
 
+    message = message.replace("{total}", String(total));
     return message;
   }
 }
