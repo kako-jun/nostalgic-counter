@@ -2,6 +2,7 @@
 import _ from "lodash";
 
 interface Option {
+  format: string;
   zero_padding_length: number;
   image_dir_path: string;
   image_ext: string;
@@ -19,16 +20,35 @@ interface NormalMessage {
 }
 
 interface SpecialMessage {
-  total: number;
+  count: number;
   message: string;
 }
 
 class NostalgicCounter {
-  constructor() {
+  constructor(url: string) {
     // instance variables
   }
 
-  public static async createCounter(id: string, url: string, option: Option) {
+  public static async createCounter(url: string) {
+    const res = await fetch(url, {
+      mode: "cors"
+    }).catch(() => null);
+    if (res) {
+      const counter = await res.json();
+      if (counter && counter.total !== undefined) {
+        return counter;
+      }
+    }
+
+    return null;
+  }
+
+  public static showCounter(id: string, count: number, option: Option): void {
+    let format = "{count}";
+    if (option && option.format) {
+      format = option.format;
+    }
+
     let zero_padding_length = 0;
     if (option && option.zero_padding_length) {
       zero_padding_length = option.zero_padding_length;
@@ -44,6 +64,21 @@ class NostalgicCounter {
       image_ext = option.image_ext;
     }
 
+    let html = this.generateCounterHTML(
+      count,
+      format,
+      zero_padding_length,
+      image_dir_path,
+      image_ext
+    );
+
+    const counterElement = document.getElementById(id);
+    if (counterElement) {
+      counterElement.innerHTML = html;
+    }
+  }
+
+  public static showKiriban(id: string, count: number, option: Option): void {
     let normal_messages: Array<NormalMessage> = [];
     if (option && option.normal_messages) {
       normal_messages = option.normal_messages;
@@ -74,40 +109,17 @@ class NostalgicCounter {
       next_kiriban_message_right = option.next_kiriban_message_right;
     }
 
-    let html = "error: counter not found.";
-    const res = await fetch(url, {
-      mode: "cors"
-    }).catch(() => null);
-    if (res) {
-      const json = await res.json();
-      if (json && json.total !== undefined) {
-        const totalString = this.zeroPadding(json.total, zero_padding_length);
-
-        if (image_dir_path === "") {
-          html = totalString;
-        } else {
-          const imagePaths = this.convertNumbersToImagePaths(
-            totalString,
-            image_dir_path,
-            image_ext
-          );
-          html = _.map(imagePaths, p => {
-            return '<img src="' + p + '"></img>';
-          }).join("");
-        }
-
-        if (normal_messages || special_messages) {
-          html += this.generateKiribanMessage(
-            json.total,
-            normal_messages,
-            special_messages,
-            no_kiriban_message,
-            no_more_kiriban_message,
-            next_kiriban_message_left,
-            next_kiriban_message_right
-          );
-        }
-      }
+    let html = "";
+    if (normal_messages || special_messages) {
+      html = this.generateKiribanHTML(
+        count,
+        normal_messages,
+        special_messages,
+        no_kiriban_message,
+        no_more_kiriban_message,
+        next_kiriban_message_left,
+        next_kiriban_message_right
+      );
     }
 
     const counterElement = document.getElementById(id);
@@ -116,7 +128,7 @@ class NostalgicCounter {
     }
   }
 
-  private static zeroPadding(num: number, length: number) {
+  private static zeroPadding(num: number, length: number): string {
     if (String(num).length < length) {
       return ("0000000000" + num).slice(-length);
     }
@@ -125,86 +137,119 @@ class NostalgicCounter {
   }
 
   private static convertNumbersToImagePaths(
-    totalString: string,
+    countString: string,
     dirPath: string,
     ext: string
-  ) {
-    const splited = String(totalString).split("");
+  ): Array<string> {
+    const splited = String(countString).split("");
     return _.map(splited, n => {
       return dirPath + "/" + n + ext;
     });
   }
 
-  private static generateKiribanMessage(
-    total: number,
+  private static generateCounterHTML(
+    count: number,
+    format: string,
+    zero_padding_length: number,
+    image_dir_path: string,
+    image_ext: string
+  ): string {
+    let html = format;
+    let countHTML = this.zeroPadding(count, zero_padding_length);
+
+    if (image_dir_path !== "") {
+      const imagePaths = this.convertNumbersToImagePaths(
+        countHTML,
+        image_dir_path,
+        image_ext
+      );
+
+      countHTML = _.map(imagePaths, p => {
+        return '<img src="' + p + '"></img>';
+      }).join("");
+    }
+
+    html = html.replace("{count}", countHTML);
+
+    return html;
+  }
+
+  private static generateKiribanHTML(
+    count: number,
     normal_messages: Array<NormalMessage>,
     special_messages: Array<SpecialMessage>,
     no_kiriban_message: string,
     no_more_kiriban_message: string,
     next_kiriban_message_left: string,
     next_kiriban_message_right: string
-  ) {
-    let message = "";
+  ): string {
+    let html = "";
 
     let normalFound = _.find(normal_messages, m => {
-      return total % m.step === 0;
+      return count % m.step === 0;
     });
     if (normalFound) {
-      message += "<p><strong>" + normalFound.message + "</strong></p>";
+      html += normalFound.message;
     }
 
     let specialFound = _.find(special_messages, m => {
-      return total === m.total;
+      return count === m.count;
     });
     if (specialFound) {
-      message += "<p><strong>" + specialFound.message + "</strong></p>";
+      html += specialFound.message;
     }
 
     if (!normalFound && !specialFound) {
-      message += no_kiriban_message;
+      html += no_kiriban_message;
+    }
 
-      let next = Number.MAX_VALUE;
-      if (
-        next_kiriban_message_left !== "" ||
-        next_kiriban_message_right !== ""
-      ) {
-        let normalNext = Number.MAX_VALUE;
-        normalFound = _.minBy(normal_messages, "step");
-        if (normalFound) {
-          const minStep = normalFound.step;
-          normalNext = total + minStep - (total % minStep);
-        }
-
-        let specialNext = Number.MAX_VALUE;
-        specialFound = _.find(special_messages, m => {
-          return total < m.total;
-        });
-        if (specialFound) {
-          specialNext = specialFound.total;
-        }
-
-        const found = _.min([normalNext, specialNext]);
-        if (found) {
-          next = found;
-        }
+    let next = Number.MAX_VALUE;
+    if (next_kiriban_message_left !== "" || next_kiriban_message_right !== "") {
+      let normalNext = Number.MAX_VALUE;
+      normalFound = _.minBy(normal_messages, "step");
+      if (normalFound) {
+        const minStep = normalFound.step;
+        normalNext = count + minStep - (count % minStep);
       }
 
-      if (next === Number.MAX_VALUE) {
-        message += no_more_kiriban_message;
-      } else {
-        message += next_kiriban_message_left;
-        message += next;
-        message += next_kiriban_message_right;
+      let specialNext = Number.MAX_VALUE;
+      specialFound = _.find(special_messages, m => {
+        return count < m.count;
+      });
+      if (specialFound) {
+        specialNext = specialFound.count;
+      }
+
+      const found = _.min([normalNext, specialNext]);
+      if (found) {
+        next = found;
       }
     }
 
-    message = message.replace("{total}", String(total));
-    return message;
+    if (next === Number.MAX_VALUE) {
+      html += no_more_kiriban_message;
+    } else {
+      html += next_kiriban_message_left;
+      html += next;
+      html += next_kiriban_message_right;
+    }
+
+    html = html.replace("{count}", String(count));
+
+    return html;
   }
 }
 
-export function beNostalgic(id: string, url: string, option: Option) {
-  NostalgicCounter.createCounter(id, url, option);
+export async function createCounter(url: string) {
+  return await NostalgicCounter.createCounter(url);
+}
+
+export function showCounter(id: string, count: number, option: Option): void {
+  NostalgicCounter.showCounter(id, count, option);
+}
+
+export function showKiriban(id: string, count: number, option: Option): void {
+  NostalgicCounter.showKiriban(id, count, option);
 }
 
 export default NostalgicCounter;
