@@ -64,13 +64,7 @@ class NostalgicCounter {
       image_ext = option.image_ext;
     }
 
-    let html = this.generateCounterHTML(
-      count,
-      format,
-      zero_padding_length,
-      image_dir_path,
-      image_ext
-    );
+    let html = this.generateCounterHTML(count, format, zero_padding_length, image_dir_path, image_ext);
 
     const counterElement = document.getElementById(id);
     if (counterElement) {
@@ -136,11 +130,7 @@ class NostalgicCounter {
     return String(num);
   }
 
-  private static convertNumbersToImagePaths(
-    countString: string,
-    dirPath: string,
-    ext: string
-  ): Array<string> {
+  private static convertNumbersToImagePaths(countString: string, dirPath: string, ext: string): Array<string> {
     const splited = String(countString).split("");
     return _.map(splited, n => {
       return dirPath + "/" + n + ext;
@@ -158,11 +148,7 @@ class NostalgicCounter {
     let countHTML = this.zeroPadding(count, zero_padding_length);
 
     if (image_dir_path !== "") {
-      const imagePaths = this.convertNumbersToImagePaths(
-        countHTML,
-        image_dir_path,
-        image_ext
-      );
+      const imagePaths = this.convertNumbersToImagePaths(countHTML, image_dir_path, image_ext);
 
       countHTML = _.map(imagePaths, p => {
         return '<img src="' + p + '"></img>';
