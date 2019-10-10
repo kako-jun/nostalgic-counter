@@ -25,11 +25,11 @@ interface SpecialMessage {
 }
 
 class NostalgicCounter {
-  constructor(url: string) {
+  constructor() {
     // instance variables
   }
 
-  public static async createCounter(url: string) {
+  public static async getCounter(url: string) {
     const res = await fetch(url, {
       mode: "cors"
     }).catch(() => null);
@@ -145,8 +145,8 @@ class NostalgicCounter {
     image_ext: string
   ): string {
     let html = format;
-    let countHTML = this.zeroPadding(count, zero_padding_length);
 
+    let countHTML = this.zeroPadding(count, zero_padding_length);
     if (image_dir_path !== "") {
       const imagePaths = this.convertNumbersToImagePaths(countHTML, image_dir_path, image_ext);
 
@@ -155,7 +155,8 @@ class NostalgicCounter {
       }).join("");
     }
 
-    html = html.replace("{count}", countHTML);
+    html = html.replace("{count}", '<span class="nostalgic-counter-count">' + countHTML + "</span>");
+    html = '<span class="nostalgic-counter">' + html + "</span>";
 
     return html;
   }
@@ -220,14 +221,15 @@ class NostalgicCounter {
       html += next_kiriban_message_right;
     }
 
-    html = html.replace("{count}", String(count));
+    html = html.replace("{count}", '<span class="nostalgic-counter-count">' + count + "</span>");
+    html = '<span class="nostalgic-counter">' + html + "</span>";
 
     return html;
   }
 }
 
-export async function createCounter(url: string) {
-  return await NostalgicCounter.createCounter(url);
+export async function getCounter(url: string) {
+  return await NostalgicCounter.getCounter(url);
 }
 
 export function showCounter(id: string, count: number, option: Option): void {
