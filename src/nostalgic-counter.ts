@@ -155,7 +155,7 @@ class NostalgicCounter {
       }).join("");
     }
 
-    html = html.replace("{count}", '<span class="nostalgic-counter-count">' + countHTML + "</span>");
+    html = html.replace(/{count}/g, '<span class="nostalgic-counter-count">' + countHTML + "</span>");
     html = '<span class="nostalgic-counter">' + html + "</span>";
 
     return html;
@@ -221,7 +221,7 @@ class NostalgicCounter {
       html += next_kiriban_message_right;
     }
 
-    html = html.replace("{count}", '<span class="nostalgic-counter-count">' + count + "</span>");
+    html = html.replace(/{count}/g, '<span class="nostalgic-counter-count">' + count + "</span>");
     html = '<span class="nostalgic-counter">' + html + "</span>";
 
     return html;
