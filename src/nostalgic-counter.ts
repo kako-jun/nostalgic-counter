@@ -66,9 +66,9 @@ class NostalgicCounter {
 
     let html = this.generateCounterHTML(count, format, zero_padding_length, image_dir_path, image_ext);
 
-    const counterElement = document.getElementById(id);
-    if (counterElement) {
-      counterElement.innerHTML = html;
+    const targetElement = document.getElementById(id);
+    if (targetElement) {
+      targetElement.innerHTML = html;
     }
   }
 
@@ -116,9 +116,9 @@ class NostalgicCounter {
       );
     }
 
-    const counterElement = document.getElementById(id);
-    if (counterElement) {
-      counterElement.innerHTML = html;
+    const targetElement = document.getElementById(id);
+    if (targetElement) {
+      targetElement.innerHTML = html;
     }
   }
 
@@ -155,7 +155,7 @@ class NostalgicCounter {
       }).join("");
     }
 
-    html = html.replace(/{count}/g, '<span class="nostalgic-counter-count">' + countHTML + "</span>");
+    html = html.replace(/{count}/g, '<span class="nc-count">' + countHTML + "</span>");
     html = '<span class="nostalgic-counter">' + html + "</span>";
 
     return html;
@@ -221,7 +221,7 @@ class NostalgicCounter {
       html += next_kiriban_message_right;
     }
 
-    html = html.replace(/{count}/g, '<span class="nostalgic-counter-count">' + count + "</span>");
+    html = html.replace(/{count}/g, '<span class="nc-count">' + count + "</span>");
     html = '<span class="nostalgic-counter">' + html + "</span>";
 
     return html;
