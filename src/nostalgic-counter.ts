@@ -45,22 +45,22 @@ class NostalgicCounter {
 
   public static showCounter(id: string, count: number, option: Option): void {
     let format = "{count}";
-    if (option && option.format) {
+    if (option && option.format !== undefined) {
       format = option.format;
     }
 
     let zero_padding_length = 0;
-    if (option && option.zero_padding_length) {
+    if (option && option.zero_padding_length !== undefined) {
       zero_padding_length = option.zero_padding_length;
     }
 
     let image_dir_path = "";
-    if (option && option.image_dir_path) {
+    if (option && option.image_dir_path !== undefined) {
       image_dir_path = option.image_dir_path;
     }
 
     let image_ext = ".gif";
-    if (option && option.image_ext) {
+    if (option && option.image_ext !== undefined) {
       image_ext = option.image_ext;
     }
 
@@ -74,32 +74,32 @@ class NostalgicCounter {
 
   public static showKiriban(id: string, count: number, option: Option): void {
     let normal_messages: Array<NormalMessage> = [];
-    if (option && option.normal_messages) {
+    if (option && option.normal_messages !== undefined) {
       normal_messages = option.normal_messages;
     }
 
     let special_messages: Array<SpecialMessage> = [];
-    if (option && option.special_messages) {
+    if (option && option.special_messages !== undefined) {
       special_messages = option.special_messages;
     }
 
     let no_kiriban_message = "";
-    if (option && option.no_kiriban_message) {
+    if (option && option.no_kiriban_message !== undefined) {
       no_kiriban_message = option.no_kiriban_message;
     }
 
     let no_more_kiriban_message = "";
-    if (option && option.no_more_kiriban_message) {
+    if (option && option.no_more_kiriban_message !== undefined) {
       no_more_kiriban_message = option.no_more_kiriban_message;
     }
 
     let next_kiriban_message_left = "";
-    if (option && option.next_kiriban_message_left) {
+    if (option && option.next_kiriban_message_left !== undefined) {
       next_kiriban_message_left = option.next_kiriban_message_left;
     }
 
     let next_kiriban_message_right = "";
-    if (option && option.next_kiriban_message_right) {
+    if (option && option.next_kiriban_message_right !== undefined) {
       next_kiriban_message_right = option.next_kiriban_message_right;
     }
 
