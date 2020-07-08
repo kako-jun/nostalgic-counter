@@ -10,8 +10,7 @@ interface Option {
   special_messages: Array<SpecialMessage>;
   no_kiriban_message: string;
   no_more_kiriban_message: string;
-  next_kiriban_message_left: string;
-  next_kiriban_message_right: string;
+  next_kiriban_message: string;
 }
 
 interface NormalMessage {
@@ -31,8 +30,9 @@ class NostalgicCounter {
 
   public static async getCounter(url: string) {
     const res = await fetch(url, {
-      mode: "cors"
+      mode: "cors",
     }).catch(() => null);
+
     if (res) {
       const counter = await res.json();
       if (counter && counter.total !== undefined) {
@@ -93,14 +93,9 @@ class NostalgicCounter {
       no_more_kiriban_message = option.no_more_kiriban_message;
     }
 
-    let next_kiriban_message_left = "";
-    if (option && option.next_kiriban_message_left !== undefined) {
-      next_kiriban_message_left = option.next_kiriban_message_left;
-    }
-
-    let next_kiriban_message_right = "";
-    if (option && option.next_kiriban_message_right !== undefined) {
-      next_kiriban_message_right = option.next_kiriban_message_right;
+    let next_kiriban_message = "";
+    if (option && option.next_kiriban_message !== undefined) {
+      next_kiriban_message = option.next_kiriban_message;
     }
 
     let html = "";
@@ -111,8 +106,7 @@ class NostalgicCounter {
         special_messages,
         no_kiriban_message,
         no_more_kiriban_message,
-        next_kiriban_message_left,
-        next_kiriban_message_right
+        next_kiriban_message
       );
     }
 
@@ -132,7 +126,7 @@ class NostalgicCounter {
 
   private static convertNumbersToImagePaths(countString: string, dirPath: string, ext: string): Array<string> {
     const splited = String(countString).split("");
-    return _.map(splited, n => {
+    return _.map(splited, (n) => {
       return dirPath + "/" + n + ext;
     });
   }
@@ -150,7 +144,7 @@ class NostalgicCounter {
     if (image_dir_path !== "") {
       const imagePaths = this.convertNumbersToImagePaths(countHTML, image_dir_path, image_ext);
 
-      countHTML = _.map(imagePaths, p => {
+      countHTML = _.map(imagePaths, (p) => {
         return '<img src="' + p + '"></img>';
       }).join("");
     }
@@ -167,19 +161,19 @@ class NostalgicCounter {
     special_messages: Array<SpecialMessage>,
     no_kiriban_message: string,
     no_more_kiriban_message: string,
-    next_kiriban_message_left: string,
-    next_kiriban_message_right: string
+    next_kiriban_message: string
   ): string {
     let html = "";
 
-    let normalFound = _.find(normal_messages, m => {
+    let normalFound = _.find(normal_messages, (m) => {
       return count % m.step === 0;
     });
     if (normalFound) {
       html += normalFound.message;
+      html = html.replace(/{step}/g, '<span class="nc-step">' + normalFound.step + "</span>");
     }
 
-    let specialFound = _.find(special_messages, m => {
+    let specialFound = _.find(special_messages, (m) => {
       return count === m.count;
     });
     if (specialFound) {
@@ -191,7 +185,7 @@ class NostalgicCounter {
     }
 
     let next = Number.MAX_VALUE;
-    if (next_kiriban_message_left !== "" || next_kiriban_message_right !== "") {
+    if (next_kiriban_message !== "") {
       let normalNext = Number.MAX_VALUE;
       normalFound = _.minBy(normal_messages, "step");
       if (normalFound) {
@@ -200,7 +194,7 @@ class NostalgicCounter {
       }
 
       let specialNext = Number.MAX_VALUE;
-      specialFound = _.find(special_messages, m => {
+      specialFound = _.find(special_messages, (m) => {
         return count < m.count;
       });
       if (specialFound) {
@@ -216,12 +210,12 @@ class NostalgicCounter {
     if (next === Number.MAX_VALUE) {
       html += no_more_kiriban_message;
     } else {
-      html += next_kiriban_message_left;
-      html += next;
-      html += next_kiriban_message_right;
+      html += next_kiriban_message;
+      html = html.replace(/{next}/g, '<span class="nc-next">' + next + "</span>");
     }
 
     html = html.replace(/{count}/g, '<span class="nc-count">' + count + "</span>");
+    html = html.replace(/{raw_count}/g, String(count));
     html = '<span class="nostalgic-counter">' + html + "</span>";
 
     return html;
