@@ -1,6 +1,6 @@
 {
   "name": "nostalgic-counter",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "a nostalgic counter.",
   "main": "dist/nostalgic-counter.min.js",
   "scripts": {
