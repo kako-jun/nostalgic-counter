@@ -131,7 +131,7 @@ const counter = await window.NostalgicCounter.getCounter("https://nostalgic-coun
 新規作成された直後のカウンターは、以下のような設定になっています。
 
 - アクセス数: 0
-- 別アクセスとみなす経過時間": 0 分
+- 別アクセスとみなす経過時間: 0 分
 - アクセス数に履かせるゲタ: 0
 
 アクセス数を 0 にリセットする操作は、以下です。
