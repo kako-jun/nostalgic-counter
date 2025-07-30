@@ -1,43 +1,83 @@
-# Nostalgic Counter プロジェクト概要
+# Nostalgic Counter - プロジェクト目次
 
-## 背景
-昔、インターネットにはカウンタという文化があった。
-ホームページを訪れた人をカウントして、訪れた人に対して表示する仕組みである。
-それを最新の技術で実現して、自分のサイトに埋め込むほか、APIを公開して使ってもらいたい。
-名前をNostalgic Counterとする。
+## プロジェクト概要
+昔のWebカウンターを最新技術で復活させたサービス。Next.js + Vercel KV で実装。
 
-## 機能要件
+## 実装済み機能
+- ✅ カウンター作成・管理（公開ID方式）
+- ✅ 複数期間統計（累計・今日・昨日・週間・月間）
+- ✅ オーナートークン認証（8-16文字制限）
+- ✅ 24時間重複防止
+- ✅ Web Components による埋め込み
+- ✅ SVG画像生成（3スタイル：classic/modern/retro）
+- ✅ テキスト・画像両対応
 
-### カウンタ機能
-- 累計の人数だけでなく、今日、昨日、直近一週間、直近一ヶ月での表示も可能
-- 累計のリセットや、10000からスタートなども可能
+## アーキテクチャ
+### API構成
+- `/api/count` - カウンター作成・カウントアップ
+- `/api/counter` - 画像・データ取得
+- `/api/owner` - 管理操作（値設定）
 
-### 認証・セキュリティ
-- ユーザー登録やログイン、認証の仕組みは必要ない。個人情報保護法に配慮する必要のないシンプルな仕組みにする
-- 累計の記録をただURLごとにしてしまっては、他人のサイトのURLを登録できてしまうし、0へのリセットを誰でも行えてしまう
-- 0へのリセットなどは私だけの操作にして、ユーザーIDなしでただURLごとに累計を管理すべきかもしれない
-- 私だけができる操作の仕方が必要
-- 管理画面を作りたくないので、管理者用の秘密のAPIとか？
+### データ構造（Vercel KV）
+```
+counter:{id}                    → メタデータ
+counter:{id}:total             → 累計
+counter:{id}:daily:{date}      → 日別カウント
+counter:{id}:owner             → オーナートークン（ハッシュ化）
+visit:{id}:{hash}              → 重複防止（24h TTL）
+```
 
-### 技術スタック
-- ほかのサービスをすでにVercelで作っているため、このプロダクトもNextで作るならば、永続化はVercelの仕組みを使う
-- すべて無料で可能な設計が条件
-- 細かく検索する必要がないため、RDBよりKeyValue型のDBが良い？
+### 公開ID形式
+`{domain}-{hash8桁}` (例: blog-a7b9c3d4)
 
-### データ管理
-- 累計はサイトごとにもつ必要がある。ドメイン単位なのかその中の1ページだけの累計なのかは、設置するユーザーのニーズによる
+## ファイル構成
+### API Routes
+- `src/app/api/count/route.ts` - カウンター作成・カウントアップ
+- `src/app/api/counter/route.ts` - 画像・データ取得
+- `src/app/api/owner/route.ts` - 管理操作
 
-### 実装方式
-- ユーザーがサイトを訪れた、ということを認識する仕組みが必要
-- ユーザーに長いスクリプトを設置してもらうのはハードルが高い。しかし、なにかしら自身のサイトであるという証明ができないと、他人のサイトの累計を調べることができてしまう
-- カウンタのAPIは24時間稼働するが、そこから各URLのサイトの訪問人数を調べに行く仕組みは存在しないと思う
-- なので、各URLからAPIを呼んでもらうという仕組みに限られるはず
-- scriptタグで、このサービスのAPI（いま訪問したという報告用）を呼ぶように、短いスクリプトを設置してもらうことは避けられないのでは
-- 連続訪問など多重カウントを防ぐ
+### Core Logic
+- `src/lib/db.ts` - Vercel KV操作
+- `src/lib/utils.ts` - ID生成・認証・重複防止
+- `src/lib/image-generator.ts` - SVG画像生成
 
-### 表示機能
-- カウンタ画像の表示方法だが、テキスト、画像で表示できる
-- 累計、今日で2回呼ぶと負荷がかかるため、1回でそのURLとしてのすべての情報は取得し、どれを表示するかはユーザーに任せる
-- 画像をユーザーに用意してもらう方法は自由度が高まるが、ユーザー側でAPIをfetchし、JavaScriptで動的に画像を表示してもらう必要があり、そのfetch用関数などをパッケージにしないと勧めにくい
-- 将来的にNPMとして公開するのも良いが、まずは自分のサイトでAPIとしてホストし、ユーザーにはそこにアクセスしてもらうだけの仕組みのほうがシンプルで良い
-- そう考えると、画像ごとAPIで返すのがシンプルと言える。小さいサイズのwebpで数種類を用意すれば転送量も少なくなるだろう
+### Frontend
+- `src/app/page.tsx` - ランディングページ
+- `public/components/counter.js` - Web Component
+
+### Documentation
+- `docs/specification.md` - 公開API仕様
+- `docs/landing-page.md` - ランディングページ設計
+- `.claude/implementation.md` - 内部実装詳細
+- `.claude/web-components.md` - コンポーネント仕様
+- `.claude/tasks.md` - タスク管理
+
+## 使用方法
+### 1. カウンター作成
+ブラウザのアドレスバーに直接入力：
+```
+https://nostalgic-counter.vercel.app/api/count?url=https://example.com&token=your-secret
+```
+→ ブラウザにJSONが表示され、公開IDが確認できる
+
+### 2. 埋め込み
+```html
+<script src="/components/counter.js"></script>
+<nostalgic-counter id="your-id" type="total" style="classic"></nostalgic-counter>
+```
+
+### 3. 管理操作
+```javascript
+fetch('/api/owner?action=set&url=https://example.com&token=your-secret&total=0')
+```
+
+## セキュリティ
+- オーナートークンはSHA256でハッシュ化保存
+- 公開IDは表示専用（管理操作不可）
+- IP+UserAgent+日付での重複防止
+- トークン長8-16文字制限
+
+## デプロイメント
+- Vercel自動デプロイ
+- Vercel KV自動設定（環境変数設定不要）
+- 完全無料運用可能

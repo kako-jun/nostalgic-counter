@@ -1,110 +1,160 @@
-import { CounterData, DailyCount } from '@/types/counter'
+import { CounterData, CounterMetadata, DailyCount } from '@/types/counter'
+import { kv } from '@vercel/kv'
+import { generatePublicId, hashOwnerToken, verifyOwnerToken, generateVisitKey } from './utils'
 
-// Vercel KVを使用する場合は、@vercel/kvをインストールして使用
-// 開発環境では、メモリ内ストレージを使用
 class CounterDB {
-  private data: Map<string, CounterData> = new Map()
-  private dailyCounts: Map<string, DailyCount[]> = new Map()
 
-  async getCounter(url: string): Promise<CounterData | null> {
-    // 本番環境ではVercel KVから取得
-    // 開発環境ではメモリから取得
-    return this.data.get(url) || null
+  // 公開IDでカウンターデータを取得
+  async getCounterById(id: string): Promise<CounterData | null> {
+    const metadata = await kv.get<CounterMetadata>(`counter:${id}`)
+    if (!metadata) return null
+
+    const [total, today, yesterday] = await Promise.all([
+      kv.get<number>(`counter:${id}:total`) || 0,
+      this.getTodayCount(id),
+      this.getYesterdayCount(id)
+    ])
+
+    const week = await this.getPeriodCount(id, 7)
+    const month = await this.getPeriodCount(id, 30)
+
+    return {
+      id: metadata.id,
+      url: metadata.url,
+      total,
+      today,
+      yesterday,
+      week,
+      month,
+      lastVisit: metadata.created, // 簡易実装
+      firstVisit: metadata.created
+    }
   }
 
-  async setCounter(url: string, data: CounterData): Promise<void> {
-    // 本番環境ではVercel KVに保存
-    // 開発環境ではメモリに保存
-    this.data.set(url, data)
+  // URL+トークンでカウンターを検索
+  async getCounterByUrl(url: string): Promise<{ id: string; metadata: CounterMetadata } | null> {
+    // URL→ID のマッピングを検索
+    const id = await kv.get<string>(`url:${encodeURIComponent(url)}`)
+    if (!id) return null
+
+    const metadata = await kv.get<CounterMetadata>(`counter:${id}`)
+    if (!metadata) return null
+
+    return { id, metadata }
   }
 
-  async getDailyCounts(url: string): Promise<DailyCount[]> {
-    return this.dailyCounts.get(url) || []
+  // 今日のカウント取得
+  private async getTodayCount(id: string): Promise<number> {
+    const today = new Date().toISOString().split('T')[0]
+    return await kv.get<number>(`counter:${id}:daily:${today}`) || 0
   }
 
-  async setDailyCounts(url: string, counts: DailyCount[]): Promise<void> {
-    this.dailyCounts.set(url, counts)
+  // 昨日のカウント取得
+  private async getYesterdayCount(id: string): Promise<number> {
+    const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+    return await kv.get<number>(`counter:${id}:daily:${yesterday}`) || 0
   }
 
-  async incrementCounter(url: string): Promise<CounterData> {
-    const existing = await this.getCounter(url)
+  // 期間カウント計算（週間・月間）
+  private async getPeriodCount(id: string, days: number): Promise<number> {
+    const promises: Promise<number>[] = []
     const now = new Date()
-    const today = now.toISOString().split('T')[0]
     
-    if (!existing) {
-      // 新規カウンター
-      const newData: CounterData = {
-        url,
-        total: 1,
-        today: 1,
-        yesterday: 0,
-        week: 1,
-        month: 1,
-        lastVisit: now,
-        firstVisit: now
-      }
-      
-      await this.setCounter(url, newData)
-      await this.setDailyCounts(url, [{ date: today, count: 1 }])
-      
-      return newData
-    }
-
-    // 既存カウンターの更新
-    const lastVisitDate = existing.lastVisit.toISOString().split('T')[0]
-    const dailyCounts = await this.getDailyCounts(url)
-    
-    // 日付が変わっている場合の処理
-    if (lastVisitDate !== today) {
-      // 昨日のカウントを更新
-      existing.yesterday = existing.today
-      existing.today = 1
-    } else {
-      existing.today++
+    for (let i = 0; i < days; i++) {
+      const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
+      const dateStr = date.toISOString().split('T')[0]
+      promises.push(kv.get<number>(`counter:${id}:daily:${dateStr}`).then(count => count || 0))
     }
     
-    existing.total++
-    existing.lastVisit = now
-    
-    // 週間・月間カウントの計算
-    const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-    const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
-    
-    existing.week = this.calculatePeriodCount(dailyCounts, weekAgo)
-    existing.month = this.calculatePeriodCount(dailyCounts, monthAgo)
-    
-    // 日別カウントの更新
-    const todayCount = dailyCounts.find(d => d.date === today)
-    if (todayCount) {
-      todayCount.count++
-    } else {
-      dailyCounts.push({ date: today, count: 1 })
-    }
-    
-    await this.setCounter(url, existing)
-    await this.setDailyCounts(url, dailyCounts)
-    
-    return existing
+    const counts = await Promise.all(promises)
+    return counts.reduce((sum, count) => sum + count, 0)
   }
 
-  private calculatePeriodCount(dailyCounts: DailyCount[], fromDate: Date): number {
-    const fromDateStr = fromDate.toISOString().split('T')[0]
-    return dailyCounts
-      .filter(d => d.date >= fromDateStr)
-      .reduce((sum, d) => sum + d.count, 0)
+  // 新規カウンター作成（URL+トークン）
+  async createCounter(url: string, token: string): Promise<{ id: string; counterData: CounterData }> {
+    const id = generatePublicId(url)
+    const now = new Date()
+    const hashedToken = hashOwnerToken(token)
+    
+    const metadata: CounterMetadata = {
+      id,
+      url,
+      created: now,
+      ownerTokenHash: hashedToken
+    }
+    
+    // KVに保存
+    await Promise.all([
+      kv.set(`counter:${id}`, metadata),
+      kv.set(`counter:${id}:total`, 0),
+      kv.set(`url:${encodeURIComponent(url)}`, id) // URL→ID マッピング
+    ])
+    
+    const counterData: CounterData = {
+      id,
+      url,
+      total: 0,
+      today: 0,
+      yesterday: 0,
+      week: 0,
+      month: 0,
+      lastVisit: now,
+      firstVisit: now
+    }
+    
+    return { id, counterData }
   }
 
-  async resetCounter(url: string, startValue: number = 0): Promise<void> {
-    const existing = await this.getCounter(url)
-    if (existing) {
-      existing.total = startValue
-      existing.today = 0
-      existing.yesterday = 0
-      existing.week = 0
-      existing.month = 0
-      await this.setCounter(url, existing)
-      await this.setDailyCounts(url, [])
+  // カウンターのインクリメント（公開ID）
+  async incrementCounterById(id: string): Promise<CounterData | null> {
+    const metadata = await kv.get<CounterMetadata>(`counter:${id}`)
+    if (!metadata) return null
+    
+    const today = new Date().toISOString().split('T')[0]
+    
+    // アトミックにカウントアップ
+    const [newTotal, newToday] = await Promise.all([
+      kv.incr(`counter:${id}:total`),
+      kv.incr(`counter:${id}:daily:${today}`)
+    ])
+    
+    // TTLを設定（日別データは90日で自動削除）
+    await kv.expire(`counter:${id}:daily:${today}`, 90 * 24 * 60 * 60)
+    
+    return await this.getCounterById(id)
+  }
+  
+  // オーナートークンの検証
+  async verifyOwnership(url: string, token: string): Promise<boolean> {
+    const result = await this.getCounterByUrl(url)
+    if (!result) return false
+    
+    return verifyOwnerToken(token, result.metadata.ownerTokenHash)
+  }
+  
+  // カウンターの値を設定（管理用）
+  async setCounterValue(url: string, token: string, total: number): Promise<boolean> {
+    const result = await this.getCounterByUrl(url)
+    if (!result || !verifyOwnerToken(token, result.metadata.ownerTokenHash)) {
+      return false
     }
+    
+    await kv.set(`counter:${result.id}:total`, total)
+    return true
+  }
+  
+  // 重複チェック（24時間以内の同一IP+UserAgent）
+  async checkDuplicateVisit(id: string, ip: string, userAgent: string): Promise<boolean> {
+    const visitKey = generateVisitKey(id, ip, userAgent)
+    const hasVisited = await kv.get(visitKey)
+    
+    if (hasVisited) {
+      return true // 重複
+    }
+    
+    // 24時間のTTLで記録
+    await kv.setex(visitKey, 24 * 60 * 60, '1')
+    return false // 新規訪問
   }
 }
 

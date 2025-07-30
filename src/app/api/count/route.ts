@@ -1,55 +1,82 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { counterDB } from '@/lib/db'
-import { getClientIP, getUserAgent, validateURL, generateCounterKey } from '@/lib/utils'
-
-// 重複訪問防止用のメモリキャッシュ（本番環境ではRedisなどを使用）
-const visitCache = new Map<string, number>()
-const CACHE_DURATION = 24 * 60 * 60 * 1000 // 24時間
+import { getClientIP, getUserAgent, validateURL, validateOwnerToken } from '@/lib/utils'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const url = searchParams.get('url')
-    
-    if (!url) {
-      return NextResponse.json({ error: 'URL parameter is required' }, { status: 400 })
-    }
-    
-    if (!validateURL(url)) {
-      return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 })
-    }
+    const token = searchParams.get('token')
+    const id = searchParams.get('id')
     
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
-    const cacheKey = generateCounterKey(url, clientIP, userAgent)
     
-    // 重複訪問チェック
-    const now = Date.now()
-    const lastVisit = visitCache.get(cacheKey)
-    
-    if (lastVisit && (now - lastVisit) < CACHE_DURATION) {
-      // 24時間以内の重複訪問は無視
-      const existingData = await counterDB.getCounter(url)
-      return NextResponse.json(existingData || { url, total: 0, today: 0, yesterday: 0, week: 0, month: 0 })
-    }
-    
-    // カウンターをインクリメント
-    const counterData = await counterDB.incrementCounter(url)
-    
-    // 訪問キャッシュを更新
-    visitCache.set(cacheKey, now)
-    
-    // 古いキャッシュエントリを定期的にクリーンアップ
-    if (Math.random() < 0.01) { // 1%の確率でクリーンアップ
-      const cutoff = now - CACHE_DURATION
-      for (const [key, timestamp] of visitCache.entries()) {
-        if (timestamp < cutoff) {
-          visitCache.delete(key)
+    // パターン1: URL+トークン（新規作成・ID取得）
+    if (url && token) {
+      if (!validateURL(url)) {
+        return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 })
+      }
+      
+      if (!validateOwnerToken(token)) {
+        return NextResponse.json({ 
+          error: 'Token must be 8-16 characters long' 
+        }, { status: 400 })
+      }
+      
+      // 既存カウンターを検索
+      const existing = await counterDB.getCounterByUrl(url)
+      
+      if (existing) {
+        // 既存カウンター：オーナー確認してカウントアップ
+        if (!await counterDB.verifyOwnership(url, token)) {
+          return NextResponse.json({ error: 'Invalid token for this URL' }, { status: 403 })
         }
+        
+        // 重複チェック
+        const isDuplicate = await counterDB.checkDuplicateVisit(existing.id, clientIP, userAgent)
+        if (isDuplicate) {
+          // 重複の場合は現在値を返す（カウントアップしない）
+          const counterData = await counterDB.getCounterById(existing.id)
+          return NextResponse.json({ ...counterData, id: existing.id })
+        }
+        
+        // カウントアップ
+        const counterData = await counterDB.incrementCounterById(existing.id)
+        return NextResponse.json({ ...counterData, id: existing.id })
+      } else {
+        // 新規作成
+        const { id: newId, counterData } = await counterDB.createCounter(url, token)
+        
+        // 最初の訪問として記録
+        await counterDB.checkDuplicateVisit(newId, clientIP, userAgent)
+        
+        return NextResponse.json({ ...counterData, id: newId })
       }
     }
     
-    return NextResponse.json(counterData)
+    // パターン2: 公開ID（通常のカウントアップ）
+    if (id) {
+      // 重複チェック
+      const isDuplicate = await counterDB.checkDuplicateVisit(id, clientIP, userAgent)
+      if (isDuplicate) {
+        // 重複の場合は現在値を返す
+        const counterData = await counterDB.getCounterById(id)
+        return NextResponse.json(counterData || { error: 'Counter not found' })
+      }
+      
+      // カウントアップ
+      const counterData = await counterDB.incrementCounterById(id)
+      if (!counterData) {
+        return NextResponse.json({ error: 'Counter not found' }, { status: 404 })
+      }
+      
+      return NextResponse.json(counterData)
+    }
+    
+    return NextResponse.json({ 
+      error: 'Either url+token or id parameter is required' 
+    }, { status: 400 })
     
   } catch (error) {
     console.error('Error in count API:', error)

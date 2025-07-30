@@ -9,9 +9,9 @@ export default function Home() {
         <section className="mb-12 text-center">
           <h2 className="text-2xl font-semibold mb-4">デモ</h2>
           <div className="flex flex-wrap justify-center gap-4 mb-4">
-            <img src="/api/counter?url=https://example.com&type=total&style=classic" alt="classic style counter" />
-            <img src="/api/counter?url=https://example.com&type=today&style=modern" alt="modern style counter" />
-            <img src="/api/counter?url=https://example.com&type=week&style=retro" alt="retro style counter" />
+            <img src="/api/counter?id=example-a1b2c3d4&type=total&style=classic" alt="classic style counter" />
+            <img src="/api/counter?id=example-a1b2c3d4&type=today&style=modern" alt="modern style counter" />
+            <img src="/api/counter?id=example-a1b2c3d4&type=week&style=retro" alt="retro style counter" />
           </div>
           <p className="text-sm text-gray-500">クラシック・モダン・レトロの3つのスタイルが利用可能</p>
         </section>
@@ -22,19 +22,21 @@ export default function Home() {
             <div className="bg-gray-100 p-4 rounded-lg mb-4">
               <p className="mb-2 font-medium">1. 訪問数をカウントするスクリプトを設置:</p>
               <code className="block bg-gray-800 text-white p-3 rounded text-sm overflow-x-auto">
-                {`<script>
-fetch('/api/count?url=' + encodeURIComponent(window.location.href))
-  .then(r => r.json())
-  .then(d => console.log('カウント完了:', d));
-</script>`}
+                {`<script src="https://nostalgic-counter.vercel.app/components/counter.js"></script>
+<nostalgic-counter 
+  id="your-counter-id"
+  type="total"
+  style="classic">
+</nostalgic-counter>`}
               </code>
             </div>
 
             <div className="bg-gray-100 p-4 rounded-lg">
-              <p className="mb-2 font-medium">2. カウンター画像を表示:</p>
+              <p className="mb-2 font-medium">2. ブラウザのアドレスバーに入力して公開IDを取得:</p>
               <code className="block bg-gray-800 text-white p-3 rounded text-sm overflow-x-auto">
-                {`<img src="/api/counter?url=https://yoursite.com&type=total&style=classic" alt="counter" />`}
+                {`https://nostalgic-counter.vercel.app/api/count?url=https://yoursite.com&token=your-secret`}
               </code>
+              <p className="text-xs text-gray-600 mt-1">→ ブラウザにJSONが表示され、"id": "yoursite-a7b9c3d4" が確認できます</p>
             </div>
           </section>
 
@@ -130,12 +132,6 @@ fetch('/api/count?url=' + encodeURIComponent(window.location.href))
             >
               ブログサンプル
             </a>
-            <a
-              href="/admin-test"
-              className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition-colors"
-            >
-              🛠️ 管理テスト
-            </a>
           </div>
         </section>
 
@@ -143,15 +139,15 @@ fetch('/api/count?url=' + encodeURIComponent(window.location.href))
           <h2 className="text-2xl font-semibold mb-4">💡 使用例</h2>
           <div className="space-y-4">
             <div>
-              <h3 className="font-semibold">ブログやWebサイトに設置:</h3>
+              <h3 className="font-semibold">Web Components（推奨）:</h3>
               <code className="block bg-white p-2 rounded text-sm mt-1">
-                {`<img src="/api/counter?url=https://myblog.com&type=total" alt="総訪問者数" />`}
+                {`<nostalgic-counter id="myblog-a7b9c3d4" type="total" style="classic"></nostalgic-counter>`}
               </code>
             </div>
             <div>
-              <h3 className="font-semibold">個別ページごとのカウンター:</h3>
+              <h3 className="font-semibold">直接画像表示:</h3>
               <code className="block bg-white p-2 rounded text-sm mt-1">
-                {`<img src="/api/counter?url=https://myblog.com/article1&type=today" alt="今日の閲覧数" />`}
+                {`<img src="/api/counter?id=myblog-a7b9c3d4&type=today" alt="今日の閲覧数" />`}
               </code>
             </div>
           </div>

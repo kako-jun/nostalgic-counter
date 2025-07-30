@@ -7,17 +7,14 @@ import { CounterType } from '@/types/counter'
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const url = searchParams.get('url')
+    const id = searchParams.get('id')
     const type = (searchParams.get('type') || 'total') as CounterType
     const style = searchParams.get('style') || 'classic'
     const digits = parseInt(searchParams.get('digits') || '6')
+    const format = searchParams.get('format') || 'image'
     
-    if (!url) {
-      return NextResponse.json({ error: 'URL parameter is required' }, { status: 400 })
-    }
-    
-    if (!validateURL(url)) {
-      return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 })
+    if (!id) {
+      return NextResponse.json({ error: 'ID parameter is required' }, { status: 400 })
     }
     
     if (!['total', 'today', 'yesterday', 'week', 'month'].includes(type)) {
@@ -29,10 +26,19 @@ export async function GET(request: NextRequest) {
     }
     
     // カウンターデータを取得
-    const counterData = await counterDB.getCounter(url)
+    const counterData = await counterDB.getCounterById(id)
     
     if (!counterData) {
-      // カウンターが存在しない場合は0を表示
+      // カウンターが存在しない場合
+      if (format === 'text') {
+        return new NextResponse('0', {
+          headers: {
+            'Content-Type': 'text/plain',
+            'Cache-Control': 'public, max-age=60',
+          },
+        })
+      }
+      
       const svg = generateCounterSVG({
         value: 0,
         type,
@@ -43,13 +49,23 @@ export async function GET(request: NextRequest) {
       return new NextResponse(svg, {
         headers: {
           'Content-Type': 'image/svg+xml',
-          'Cache-Control': 'public, max-age=60', // 1分キャッシュ
+          'Cache-Control': 'public, max-age=60',
         },
       })
     }
     
     // 指定されたタイプの値を取得
     const value = counterData[type]
+    
+    // フォーマットに応じてレスポンス
+    if (format === 'text') {
+      return new NextResponse(value.toString(), {
+        headers: {
+          'Content-Type': 'text/plain',
+          'Cache-Control': 'public, max-age=60',
+        },
+      })
+    }
     
     // SVG画像を生成
     const svg = generateCounterSVG({
@@ -62,7 +78,7 @@ export async function GET(request: NextRequest) {
     return new NextResponse(svg, {
       headers: {
         'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=60', // 1分キャッシュ
+        'Cache-Control': 'public, max-age=60',
       },
     })
     

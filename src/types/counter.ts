@@ -1,4 +1,5 @@
 export interface CounterData {
+  id: string        // 公開ID（例: blog-2025-a7b9）
   url: string
   total: number
   today: number
@@ -7,6 +8,13 @@ export interface CounterData {
   month: number
   lastVisit: Date
   firstVisit: Date
+}
+
+export interface CounterMetadata {
+  id: string
+  url: string
+  created: Date
+  ownerTokenHash: string  // SHA256ハッシュ化されたオーナートークン
 }
 
 export interface DailyCount {
