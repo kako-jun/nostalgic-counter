@@ -56,7 +56,7 @@ visit:{id}:{hash}              → 重複防止（24h TTL）
 ### 1. カウンター作成
 ブラウザのアドレスバーに直接入力：
 ```
-https://nostalgic-counter.vercel.app/api/count?url=https://example.com&token=your-secret
+https://nostalgic-counter.llll-ll.com/api/count?url=https://example.com&token=your-secret
 ```
 → ブラウザにJSONが表示され、公開IDが確認できる
 

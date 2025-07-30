@@ -2,6 +2,16 @@
 
 *[日本語版はこちら](README_ja.md)*
 
+<div align="center">
+  <img src="docs/images/classic-total.svg" alt="Classic Style" />
+  <img src="docs/images/modern-today.svg" alt="Modern Style" />
+  <img src="docs/images/retro-week.svg" alt="Retro Style" />
+  <br>
+  <img src="docs/images/classic-large.svg" alt="Large Counter" />
+  <img src="docs/images/modern-small.svg" alt="Small Counter" />
+  <img src="docs/images/retro-medium.svg" alt="Medium Counter" />
+</div>
+
 A nostalgic web counter service that brings back the 90s internet culture with modern technology. Remember those visitor counters that used to be on every personal homepage? Now you can add them to your site with just a few lines of code.
 
 ## ✨ Features
@@ -20,89 +30,60 @@ A nostalgic web counter service that brings back the 90s internet culture with m
 Paste this URL in your browser (replace with your site and secret token):
 
 ```
-https://nostalgic-counter.vercel.app/api/count?url=https://yoursite.com&token=your-secret-token
+https://nostalgic-counter.llll-ll.com/api/count?url=https://yoursite.com&token=your-secret-token
 ```
 
 The browser will show JSON with your public counter ID: `"id": "yoursite-a7b9c3d4"`
 
-**Important**: The `url` parameter is just used as a **counter identifier**, not to track other people's websites. Each URL+token combination creates a separate counter that only you can manage with your secret token. Use different URLs for different pages if you want separate counters (e.g., `https://yoursite.com/blog`, `https://yoursite.com/about`).
-
-*Note: This uses our hosted service. For self-hosting, see the [Service Options](#-service-options) section.*
-
-**💡 Practice Mode**: You can click the example URL above to see how it works! It will create a demo counter that everyone can use for testing. Try management operations too:
-
-```
-https://nostalgic-counter.vercel.app/api/owner?action=set&url=https://yoursite.com&token=your-secret-token&total=12345
-```
-
-### 2. Choose your integration method
+### 2. Choose how to use
 
 ```mermaid
 flowchart TD
-    A[I want to add a counter] --> B{Want automatic counting?}
-    B -->|Yes| C[Use Web Component]
-    B -->|No, display only| D[Use Direct Image]
+    A[I want to add a counter] --> B{Use hosted service or self-host?}
+    B -->|Use hosted service| C[Use nostalgic-counter.llll-ll.com]
+    B -->|Self-host| D[Deploy your own to Vercel]
     
-    C --> E[✅ Method A: Web Component<br/>Counts + Displays automatically]
+    C --> E[Add to your website]
+    D --> E
     
-    D --> F{Need custom logic?}
-    F -->|No| G[✅ Method B: Direct Image<br/>Display only, no counting]
-    F -->|Yes| H[✅ Method B + C: Custom Logic<br/>Manual count + Display]
+    E --> F{Integration method?}
+    F -->|Simple| G[✅ Web Component<br/>Auto count + display]
+    F -->|Custom| H[✅ Manual Control<br/>JavaScript + img tag]
     
-    style E fill:#e1f5fe
-    style G fill:#fff3e0
-    style H fill:#f3e5f5
+    style G stroke:#2196F3,stroke-width:2px
+    style H stroke:#FF9800,stroke-width:2px
 ```
 
-**Method A: Web Component (Recommended - All-in-one)**
+**Web Component (Simple)**
 ```html
-<script src="https://nostalgic-counter.vercel.app/components/counter.js"></script>
+<script src="https://nostalgic-counter.llll-ll.com/components/counter.js"></script>
 <nostalgic-counter id="yoursite-a7b9c3d4" type="total" style="classic"></nostalgic-counter>
 ```
 
-**Method B: Direct Image (Display only)**
-```html
-<img src="https://nostalgic-counter.vercel.app/api/counter?id=yoursite-a7b9c3d4&type=total&style=classic" alt="Visitor Counter" />
-```
-
-**Method B + C: Custom Logic (Manual control)**
+**Manual Control (Custom)**
 ```javascript
-// 1. Count the visit when you want
-fetch('https://nostalgic-counter.vercel.app/api/count?id=yoursite-a7b9c3d4')
+// 1. Count the visit
+fetch('https://nostalgic-counter.llll-ll.com/api/count?id=yoursite-a7b9c3d4')
   .then(response => response.json())
   .then(data => console.log('Current count:', data.total));
 
-// 2. Display the counter image
-<img src="https://nostalgic-counter.vercel.app/api/counter?id=yoursite-a7b9c3d4&type=total&style=classic" alt="Counter" />
+// 2. Display the counter
+<img src="https://nostalgic-counter.llll-ll.com/api/counter?id=yoursite-a7b9c3d4&type=total&style=classic" alt="Counter" />
 ```
 
 That's it! Your counter will automatically count unique visitors and display the nostalgic counter image.
 
+### Service Options
+
+**Hosted Service (Recommended)**: Just use `https://nostalgic-counter.llll-ll.com` in the examples above. No setup required!
+
+**Self-Hosting**: Want your own? Fork this repo and deploy to Vercel. Web Components will automatically use your domain.
+
 ## 📖 Documentation
 
 - **[API Reference](docs/API.md)** - Complete API documentation
-- **[Live Demo](https://nostalgic-counter.vercel.app)** - Try it on our nostalgic homepage
+- **[Live Demo](https://nostalgic-counter.llll-ll.com)** - Try it on our nostalgic homepage
 
-## 🎯 Parameters
-
-### Counter Types
-- `total` - All-time visitors (default)
-- `today` - Today's visitors  
-- `yesterday` - Yesterday's visitors
-- `week` - Last 7 days
-- `month` - Last 30 days
-
-### Styles
-- `classic` - Green text on black background (90s terminal style)
-- `modern` - White text on gray background (2000s clean style)
-- `retro` - Yellow text on purple background (80s neon style)
-
-## 🔧 Management
-
-Reset or set your counter value:
-```
-https://nostalgic-counter.vercel.app/api/owner?action=set&url=https://yoursite.com&token=your-secret-token&total=0
-```
 
 ## 🛡️ Security & Privacy
 
@@ -134,32 +115,6 @@ https://nostalgic-counter.vercel.app/api/owner?action=set&url=https://yoursite.c
 - Use at your own risk for non-critical applications only
 - For production use, consider [self-hosting](#-service-options)
 
-## 💝 Why Nostalgic Counter?
-
-In the early days of the web (90s-2000s), visitor counters were everywhere - on GeoCities pages, personal blogs, and fan sites. They were a simple way to show "Hey, people actually visit my site!" 
-
-This project brings back that nostalgic feeling with modern, reliable technology. No more broken counter services or lost visitor counts.
-
-## 🌐 Service Options
-
-### Option 1: Use Our Hosted Service (Recommended)
-
-Just use `https://nostalgic-counter.vercel.app` in all the examples above. No setup required!
-
-### Option 2: Self-Hosting (Advanced)
-
-Want your own private counter service? Deploy your own instance:
-
-1. Fork this repository
-2. Deploy to Vercel
-3. Add Vercel KV storage to your project
-4. Replace `nostalgic-counter.vercel.app` with your domain in the examples
-
-**Why self-host?**
-- Full control over your data
-- Custom domain
-- No dependency on our service
-- Can modify the code as needed
 
 ## 📜 License
 

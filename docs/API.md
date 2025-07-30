@@ -1,9 +1,42 @@
-# Nostalgic Counter 仕様書
+# Nostalgic Counter API仕様書
 
 ## 概要
 
 Nostalgic Counterは、昔のインターネットで使われていたアクセスカウンターを現代の技術で再現したサービスです。
 任意のWebサイトに設置可能で、訪問者数を記録・表示します。
+
+## 重要な注意事項
+
+### URLパラメータについて
+`url`パラメータは**カウンターの識別子**として使用されるだけで、他人のWebサイトを追跡するものではありません。URL+トークンの組み合わせごとに別々のカウンターが作成され、あなたの秘密トークンでのみ管理できます。異なるページに別々のカウンターが欲しい場合は、異なるURLを使用してください（例：`https://yoursite.com/blog`、`https://yoursite.com/about`）。
+
+### サービス利用について
+- **提供サービス**: `https://nostalgic-counter.llll-ll.com` を使用（設定不要）
+- **セルフホスティング**: 自分でVercelにデプロイすることも可能
+
+### 練習モード
+READMEのサンプルURLをクリックして動作を確認できます！みんなでテスト用に使えるデモカウンターが作成されます。管理操作も試せます：
+```
+https://nostalgic-counter.llll-ll.com/api/owner?action=set&url=https://yoursite.com&token=your-secret-token&total=12345
+```
+
+## パラメータ一覧
+
+### カウンタータイプ（type）
+- `total` - 累計訪問者（デフォルト）
+- `today` - 今日の訪問者
+- `yesterday` - 昨日の訪問者
+- `week` - 直近7日間
+- `month` - 直近30日間
+
+### スタイル（style）
+- `classic` - 黒背景に緑文字（90年代ターミナル風）
+- `modern` - グレー背景に白文字（2000年代クリーン風）
+- `retro` - 紫背景に黄文字（80年代ネオン風）
+
+### その他のパラメータ
+- `digits` - 表示桁数（デフォルト: 6）
+- `format` - レスポンス形式（`text`または`image`、デフォルト: `image`）
 
 ## 基本設計
 
@@ -138,7 +171,7 @@ fetch('/api/count?url=https://myblog.com&token=my-secret-token')
 
 #### ステップ2: HTMLに埋め込み
 ```html
-<script src="https://nostalgic-counter.vercel.app/components/counter.js"></script>
+<script src="https://nostalgic-counter.llll-ll.com/components/counter.js"></script>
 <nostalgic-counter 
   id="blog-a7b9c3d4"
   type="total"

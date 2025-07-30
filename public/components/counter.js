@@ -2,7 +2,7 @@
  * Nostalgic Counter Web Component
  * 
  * 使用方法:
- * <script src="https://nostalgic-counter.vercel.app/components/counter.js"></script>
+ * <script src="' + window.location.origin + '/components/counter.js"></script>
  * <nostalgic-counter id="your-counter-id" type="total" style="classic"></nostalgic-counter>
  */
 
@@ -44,7 +44,7 @@ class NostalgicCounter extends HTMLElement {
     NostalgicCounter.counted.add(id);
     
     try {
-      const baseUrl = this.getAttribute('api-base') || 'https://nostalgic-counter.vercel.app';
+      const baseUrl = this.getAttribute('api-base') || window.location.origin;
       await fetch(`${baseUrl}/api/count?id=${encodeURIComponent(id)}`);
     } catch (error) {
       console.error('nostalgic-counter: Count failed:', error);
@@ -72,7 +72,7 @@ class NostalgicCounter extends HTMLElement {
       return;
     }
     
-    const baseUrl = this.getAttribute('api-base') || 'https://nostalgic-counter.vercel.app';
+    const baseUrl = this.getAttribute('api-base') || window.location.origin;
     const apiUrl = `${baseUrl}/api/counter?id=${encodeURIComponent(id)}&type=${type}&style=${style}&digits=${digits}&format=${format}`;
     
     if (format === 'text') {

@@ -2,6 +2,16 @@
 
 *[English version here](README.md)*
 
+<div align="center">
+  <img src="docs/images/classic-total.svg" alt="クラシックスタイル" />
+  <img src="docs/images/modern-today.svg" alt="モダンスタイル" />
+  <img src="docs/images/retro-week.svg" alt="レトロスタイル" />
+  <br>
+  <img src="docs/images/classic-large.svg" alt="大きなカウンター" />
+  <img src="docs/images/modern-small.svg" alt="小さなカウンター" />
+  <img src="docs/images/retro-medium.svg" alt="中くらいのカウンター" />
+</div>
+
 90年代のインターネット文化を最新技術で復活させた懐かしいWebカウンターサービスです。昔の個人ホームページによくあった訪問者カウンター、覚えていますか？今なら数行のコードで簡単にあなたのサイトに追加できます。
 
 ## ✨ 特徴
@@ -20,89 +30,60 @@
 ブラウザのアドレスバーに以下のURLを入力（あなたのサイトと秘密トークンに置き換え）：
 
 ```
-https://nostalgic-counter.vercel.app/api/count?url=https://yoursite.com&token=your-secret-token
+https://nostalgic-counter.llll-ll.com/api/count?url=https://yoursite.com&token=your-secret-token
 ```
 
 ブラウザにJSONが表示され、公開カウンターIDが確認できます: `"id": "yoursite-a7b9c3d4"`
 
-**重要**: `url`パラメータは**カウンターの識別子**として使用されるだけで、他人のWebサイトを追跡するものではありません。URL+トークンの組み合わせごとに別々のカウンターが作成され、あなたの秘密トークンでのみ管理できます。異なるページに別々のカウンターが欲しい場合は、異なるURLを使用してください（例：`https://yoursite.com/blog`、`https://yoursite.com/about`）。
-
-*注意: これは提供サービスを使用しています。セルフホスティングについては[サービス利用方法](#-サービス利用方法)の章をご覧ください。*
-
-**💡 練習モード**: 上記のサンプルURLをクリックして動作を確認できます！みんなでテスト用に使えるデモカウンターが作成されます。管理操作も試してみてください：
-
-```
-https://nostalgic-counter.vercel.app/api/owner?action=set&url=https://yoursite.com&token=your-secret-token&total=12345
-```
-
-### 2. 統合方法を選択
+### 2. 使用方法を選択
 
 ```mermaid
 flowchart TD
-    A[カウンターを追加したい] --> B{自動でカウントしたい？}
-    B -->|はい| C[Web Componentを使用]
-    B -->|いいえ、表示のみ| D[直接画像を使用]
+    A[カウンターを追加したい] --> B{提供サービスを使う？セルフホスト？}
+    B -->|提供サービス| C[nostalgic-counter.llll-ll.com を使用]
+    B -->|セルフホスト| D[自分でVercelにデプロイ]
     
-    C --> E[✅ 方法A: Web Component<br/>自動カウント + 表示]
+    C --> E[自分のサイトに追加]
+    D --> E
     
-    D --> F{カスタムロジックが必要？}
-    F -->|いいえ| G[✅ 方法B: 直接画像<br/>表示のみ、カウントなし]
-    F -->|はい| H[✅ 方法B + C: カスタムロジック<br/>手動カウント + 表示]
+    E --> F{統合方法は？}
+    F -->|シンプル| G[✅ Web Component<br/>自動カウント + 表示]
+    F -->|カスタム| H[✅ 手動制御<br/>JavaScript + imgタグ]
     
-    style E fill:#e1f5fe
-    style G fill:#fff3e0
-    style H fill:#f3e5f5
+    style G stroke:#2196F3,stroke-width:2px
+    style H stroke:#FF9800,stroke-width:2px
 ```
 
-**方法A: Web Component（推奨 - オールインワン）**
+**Web Component（シンプル）**
 ```html
-<script src="https://nostalgic-counter.vercel.app/components/counter.js"></script>
+<script src="https://nostalgic-counter.llll-ll.com/components/counter.js"></script>
 <nostalgic-counter id="yoursite-a7b9c3d4" type="total" style="classic"></nostalgic-counter>
 ```
 
-**方法B: 直接画像（表示のみ）**
-```html
-<img src="https://nostalgic-counter.vercel.app/api/counter?id=yoursite-a7b9c3d4&type=total&style=classic" alt="訪問者カウンター" />
-```
-
-**方法B + C: カスタムロジック（手動制御）**
+**手動制御（カスタム）**
 ```javascript
-// 1. 好きなタイミングで訪問をカウント
-fetch('https://nostalgic-counter.vercel.app/api/count?id=yoursite-a7b9c3d4')
+// 1. 訪問をカウント
+fetch('https://nostalgic-counter.llll-ll.com/api/count?id=yoursite-a7b9c3d4')
   .then(response => response.json())
   .then(data => console.log('現在のカウント:', data.total));
 
-// 2. カウンター画像を表示
-<img src="https://nostalgic-counter.vercel.app/api/counter?id=yoursite-a7b9c3d4&type=total&style=classic" alt="カウンター" />
+// 2. カウンターを表示
+<img src="https://nostalgic-counter.llll-ll.com/api/counter?id=yoursite-a7b9c3d4&type=total&style=classic" alt="カウンター" />
 ```
 
 これだけです！あなたのカウンターが自動的にユニーク訪問者をカウントし、懐かしいカウンター画像を表示します。
 
+### サービス利用オプション
+
+**提供サービス（推奨）**: 上記の例で `https://nostalgic-counter.llll-ll.com` をそのまま使用。設定不要！
+
+**セルフホスティング**: 自分専用が欲しい場合は、このリポジトリをフォークしてVercelにデプロイ。Web Componentが自動で自分のドメインを使用します。
+
 ## 📖 ドキュメント
 
 - **[API仕様書](docs/API.md)** - 完全なAPI仕様
-- **[ライブデモ](https://nostalgic-counter.vercel.app)** - 懐かしいホームページで実際に体験
+- **[ライブデモ](https://nostalgic-counter.llll-ll.com)** - 懐かしいホームページで実際に体験
 
-## 🎯 パラメータ
-
-### カウンタータイプ
-- `total` - 累計訪問者（デフォルト）
-- `today` - 今日の訪問者
-- `yesterday` - 昨日の訪問者
-- `week` - 直近7日間
-- `month` - 直近30日間
-
-### スタイル
-- `classic` - 黒背景に緑文字（90年代ターミナル風）
-- `modern` - グレー背景に白文字（2000年代クリーン風）
-- `retro` - 紫背景に黄文字（80年代ネオン風）
-
-## 🔧 管理
-
-カウンター値のリセットや設定：
-```
-https://nostalgic-counter.vercel.app/api/owner?action=set&url=https://yoursite.com&token=your-secret-token&total=0
-```
 
 ## 🛡️ セキュリティとプライバシー
 
@@ -134,32 +115,6 @@ https://nostalgic-counter.vercel.app/api/owner?action=set&url=https://yoursite.c
 - 重要でない用途にのみ、自己責任でご利用ください
 - 本格運用には[セルフホスティング](#-サービス利用方法)をご検討ください
 
-## 💝 なぜNostalgic Counter？
-
-Web初期の時代（90年代〜2000年代）、訪問者カウンターはどこにでもありました。GeoCitiesのページ、個人ブログ、ファンサイトなど。「おお、私のサイトに人が来てる！」を示すシンプルな方法でした。
-
-このプロジェクトは、その懐かしい気持ちを現代の信頼できる技術で蘇らせます。もう壊れたカウンターサービスや失われた訪問者数に悩む必要はありません。
-
-## 🌐 サービス利用方法
-
-### 方法1: 提供サービスを利用（推奨）
-
-上記の例で `https://nostalgic-counter.vercel.app` をそのまま使用してください。設定不要です！
-
-### 方法2: セルフホスティング（上級者向け）
-
-自分専用のカウンターサービスが欲しい場合：
-
-1. このリポジトリをフォーク
-2. Vercelにデプロイ
-3. プロジェクトにVercel KVストレージを追加
-4. 例の中の `nostalgic-counter.vercel.app` を自分のドメインに置き換え
-
-**セルフホスティングのメリット:**
-- データの完全管理
-- 独自ドメイン
-- 提供サービスへの依存なし
-- コードの自由な改変が可能
 
 ## 📜 ライセンス
 

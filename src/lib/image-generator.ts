@@ -32,8 +32,8 @@ export function generateCounterSVG(options: CounterImageOptions): string {
     retro: {
       backgroundColor: '#800080',
       textColor: '#ffff00',
-      fontFamily: 'monospace',
-      fontSize: '16',
+      fontFamily: 'Courier New, Liberation Mono, DejaVu Sans Mono, monospace',
+      fontSize: '18',
       border: '#ff00ff'
     }
   }
@@ -68,12 +68,13 @@ export function generateCounterSVG(options: CounterImageOptions): string {
             text-anchor="middle">${label}</text>
       
       <!-- カウンター値 -->
-      <text x="${totalWidth / 2}" y="35" 
+      <text x="${totalWidth / 2}" y="32" 
             fill="${currentStyle.textColor}" 
             font-family="${currentStyle.fontFamily}" 
             font-size="${currentStyle.fontSize}" 
             text-anchor="middle" 
-            font-weight="bold">${paddedValue}</text>
+            font-weight="bold"
+            dominant-baseline="middle">${paddedValue}</text>
     </svg>
   `.trim()
 }
