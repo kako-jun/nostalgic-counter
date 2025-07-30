@@ -13,7 +13,7 @@ export function getClientIP(request: NextRequest): string {
     return realIP
   }
   
-  return request.ip || 'unknown'
+  return 'unknown'
 }
 
 export function getUserAgent(request: NextRequest): string {
@@ -68,7 +68,7 @@ export function hashOwnerToken(token: string): string {
 
 // オーナートークンの検証（長さチェック付き）
 export function validateOwnerToken(token: string): boolean {
-  return token && token.length >= 8 && token.length <= 16
+  return Boolean(token && token.length >= 8 && token.length <= 16)
 }
 
 // オーナートークンの検証

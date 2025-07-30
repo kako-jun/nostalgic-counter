@@ -9,11 +9,13 @@ class CounterDB {
     const metadata = await kv.get<CounterMetadata>(`counter:${id}`)
     if (!metadata) return null
 
-    const [total, today, yesterday] = await Promise.all([
-      kv.get<number>(`counter:${id}:total`) || 0,
+    const [totalResult, today, yesterday] = await Promise.all([
+      kv.get<number>(`counter:${id}:total`),
       this.getTodayCount(id),
       this.getYesterdayCount(id)
     ])
+    
+    const total = totalResult || 0
 
     const week = await this.getPeriodCount(id, 7)
     const month = await this.getPeriodCount(id, 30)
