@@ -1,0 +1,199 @@
+/* ノスタルジックスタイル - 阿部寛風デザイン */
+
+/* 全体リセット */
+* {
+  box-sizing: border-box;
+}
+
+/* ボディスタイル - 阿部寛の背景画像 */
+body {
+  background-image: url("http://abehiroshi.la.coocan.jp/abe-back.jpg") !important;
+  background-repeat: repeat !important;
+  font-family: "ＭＳ ゴシック", "MS Gothic", "Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro", "Yu Gothic", "游ゴシック", monospace !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  color: black !important;
+}
+
+/* メインフレーム - 2カラムレイアウト */
+.nostalgic-main-frame {
+  display: flex !important;
+  width: 100% !important;
+  min-height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* 左サイドバー */
+.nostalgic-sidebar-left {
+  flex: 0 0 250px !important;
+  background-color: #f0f0f0 !important;
+  border: 2px inset #c0c0c0 !important;
+  padding: 10px !important;
+  font-size: 16px !important;
+}
+
+/* メインコンテンツエリア */
+.nostalgic-content-area {
+  flex: 1 !important;
+  background-color: #ffffff !important;
+  border: 2px inset #c0c0c0 !important;
+  padding: 15px !important;
+  font-size: 18px !important;
+}
+
+/* タイトルバー */
+.nostalgic-title-bar {
+  background: #000080 !important;
+  color: white !important;
+  padding: 5px !important;
+  margin: -10px -10px 10px -10px !important;
+  font-size: 24px !important;
+  font-weight: bold !important;
+  text-align: center !important;
+}
+
+/* セクション */
+.nostalgic-section {
+  border: 3px double #808080 !important;
+  margin: 15px 0 !important;
+  padding: 10px 15px 15px 15px !important;
+  background-color: #f0f0f0 !important;
+}
+
+/* カウンターセクション */
+.nostalgic-counter-section {
+  background-color: #ffffcc !important;
+  border: 2px groove #c0c0c0 !important;
+  padding: 15px !important;
+  margin: 15px 0 !important;
+  text-align: center !important;
+}
+
+/* カウンターアイテム */
+.nostalgic-counter-item {
+  display: inline-block !important;
+  margin: 10px !important;
+  padding: 10px !important;
+  border: 1px solid black !important;
+  background-color: white !important;
+  vertical-align: top !important;
+  font-size: 16px !important;
+}
+
+
+/* 古いリンクスタイル */
+.nostalgic-old-link {
+  color: #0000ee !important;
+  text-decoration: underline !important;
+  cursor: pointer !important;
+}
+
+.nostalgic-old-link:visited {
+  color: #551a8b !important;
+}
+
+/* 訪問済みリンクスタイル */
+.nostalgic-old-link-visited {
+  color: #551a8b !important;
+  text-decoration: underline !important;
+  cursor: pointer !important;
+}
+
+/* ナビゲーション項目の行間 */
+.nostalgic-sidebar-left p {
+  line-height: 1.4 !important;
+}
+
+/* 点滅エフェクト */
+.nostalgic-blink {
+  animation: nostalgic-blink 1s infinite !important;
+}
+
+@keyframes nostalgic-blink {
+  0%,
+  50% {
+    opacity: 1;
+  }
+  51%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* マーキーボックス */
+.nostalgic-marquee-box {
+  background-color: #ffff00 !important;
+  border: 1px solid black !important;
+  padding: 5px !important;
+  margin: 10px 0 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+  font-size: 18px !important;
+}
+
+/* マーキーテキスト */
+.nostalgic-marquee-text {
+  display: inline-block !important;
+  animation: nostalgic-marquee 15s linear infinite !important;
+}
+
+@keyframes nostalgic-marquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+/* HR */
+hr {
+  border: 1px inset #c0c0c0 !important;
+  margin: 15px 0 !important;
+}
+
+/* パラグラフ */
+p {
+  margin: 10px 0 !important;
+}
+
+/* 強制スタイル適用 */
+.nostalgic-main-frame * {
+  font-family: "ＭＳ ゴシック", "MS Gothic", "Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro", "Yu Gothic", "游ゴシック", monospace !important;
+}
+
+/* ナビゲーションリンクのアクティブ状態 */
+.nostalgic-nav-active {
+  background-color: #ffff00 !important;
+}
+
+/* セクションタイトル */
+.nostalgic-section-title {
+  display: inline-block !important;
+  border: 3px double #808080 !important;
+  padding: 3px 6px !important;
+  background-color: transparent !important;
+  margin: 0 0 10px 0 !important;
+}
+
+/* 更新履歴ボックス */
+.nostalgic-update-box {
+  border: 3px double #808080 !important;
+  background-color: #f0ffe0 !important;
+  padding: 5px 10px !important;
+  margin: 10px 0 !important;
+  font-size: 14px !important;
+}
+
+/* レトロバナー */
+.nostalgic-banner {
+  display: block !important;
+  margin: 20px auto !important;
+  border: 2px solid #000000 !important;
+}
+
+@keyframes nostalgic-rainbow {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}

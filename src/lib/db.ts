@@ -1,16 +1,68 @@
 import { CounterData, CounterMetadata, DailyCount } from '@/types/counter'
-import { kv } from '@vercel/kv'
 import { generatePublicId, hashOwnerToken, verifyOwnerToken, generateVisitKey } from './utils'
+
+// 開発環境用のメモリストレージ
+const memoryStorage = new Map<string, any>()
+
+// KV互換インターフェース
+const kvInterface = {
+  async get<T>(key: string): Promise<T | null> {
+    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+      const { kv } = await import('@vercel/kv')
+      return kv.get<T>(key)
+    }
+    // 開発環境：メモリストレージを使用
+    return memoryStorage.get(key) as T || null
+  },
+  
+  async set(key: string, value: any): Promise<void> {
+    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+      const { kv } = await import('@vercel/kv')
+      return kv.set(key, value)
+    }
+    // 開発環境：メモリストレージを使用
+    memoryStorage.set(key, value)
+  },
+  
+  async incr(key: string): Promise<number> {
+    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+      const { kv } = await import('@vercel/kv')
+      return kv.incr(key)
+    }
+    // 開発環境：メモリストレージを使用
+    const current = memoryStorage.get(key) || 0
+    const newValue = current + 1
+    memoryStorage.set(key, newValue)
+    return newValue
+  },
+  
+  async setex(key: string, seconds: number, value: any): Promise<void> {
+    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+      const { kv } = await import('@vercel/kv')
+      return kv.setex(key, seconds, value)
+    }
+    // 開発環境：TTLは無視してメモリストレージを使用
+    memoryStorage.set(key, value)
+  },
+  
+  async expire(key: string, seconds: number): Promise<void> {
+    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+      const { kv } = await import('@vercel/kv')
+      return kv.expire(key, seconds)
+    }
+    // 開発環境：TTLは無視
+  }
+}
 
 class CounterDB {
 
   // 公開IDでカウンターデータを取得
   async getCounterById(id: string): Promise<CounterData | null> {
-    const metadata = await kv.get<CounterMetadata>(`counter:${id}`)
+    const metadata = await kvInterface.get<CounterMetadata>(`counter:${id}`)
     if (!metadata) return null
 
     const [totalResult, today, yesterday] = await Promise.all([
-      kv.get<number>(`counter:${id}:total`),
+      kvInterface.get<number>(`counter:${id}:total`),
       this.getTodayCount(id),
       this.getYesterdayCount(id)
     ])
@@ -36,10 +88,10 @@ class CounterDB {
   // URL+トークンでカウンターを検索
   async getCounterByUrl(url: string): Promise<{ id: string; metadata: CounterMetadata } | null> {
     // URL→ID のマッピングを検索
-    const id = await kv.get<string>(`url:${encodeURIComponent(url)}`)
+    const id = await kvInterface.get<string>(`url:${encodeURIComponent(url)}`)
     if (!id) return null
 
-    const metadata = await kv.get<CounterMetadata>(`counter:${id}`)
+    const metadata = await kvInterface.get<CounterMetadata>(`counter:${id}`)
     if (!metadata) return null
 
     return { id, metadata }
@@ -48,13 +100,13 @@ class CounterDB {
   // 今日のカウント取得
   private async getTodayCount(id: string): Promise<number> {
     const today = new Date().toISOString().split('T')[0]
-    return await kv.get<number>(`counter:${id}:daily:${today}`) || 0
+    return await kvInterface.get<number>(`counter:${id}:daily:${today}`) || 0
   }
 
   // 昨日のカウント取得
   private async getYesterdayCount(id: string): Promise<number> {
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    return await kv.get<number>(`counter:${id}:daily:${yesterday}`) || 0
+    return await kvInterface.get<number>(`counter:${id}:daily:${yesterday}`) || 0
   }
 
   // 期間カウント計算（週間・月間）
@@ -65,7 +117,7 @@ class CounterDB {
     for (let i = 0; i < days; i++) {
       const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
       const dateStr = date.toISOString().split('T')[0]
-      promises.push(kv.get<number>(`counter:${id}:daily:${dateStr}`).then(count => count || 0))
+      promises.push(kvInterface.get<number>(`counter:${id}:daily:${dateStr}`).then(count => count || 0))
     }
     
     const counts = await Promise.all(promises)
@@ -87,9 +139,9 @@ class CounterDB {
     
     // KVに保存
     await Promise.all([
-      kv.set(`counter:${id}`, metadata),
-      kv.set(`counter:${id}:total`, 0),
-      kv.set(`url:${encodeURIComponent(url)}`, id) // URL→ID マッピング
+      kvInterface.set(`counter:${id}`, metadata),
+      kvInterface.set(`counter:${id}:total`, 0),
+      kvInterface.set(`url:${encodeURIComponent(url)}`, id) // URL→ID マッピング
     ])
     
     const counterData: CounterData = {
@@ -109,19 +161,19 @@ class CounterDB {
 
   // カウンターのインクリメント（公開ID）
   async incrementCounterById(id: string): Promise<CounterData | null> {
-    const metadata = await kv.get<CounterMetadata>(`counter:${id}`)
+    const metadata = await kvInterface.get<CounterMetadata>(`counter:${id}`)
     if (!metadata) return null
     
     const today = new Date().toISOString().split('T')[0]
     
     // アトミックにカウントアップ
     const [newTotal, newToday] = await Promise.all([
-      kv.incr(`counter:${id}:total`),
-      kv.incr(`counter:${id}:daily:${today}`)
+      kvInterface.incr(`counter:${id}:total`),
+      kvInterface.incr(`counter:${id}:daily:${today}`)
     ])
     
     // TTLを設定（日別データは90日で自動削除）
-    await kv.expire(`counter:${id}:daily:${today}`, 90 * 24 * 60 * 60)
+    await kvInterface.expire(`counter:${id}:daily:${today}`, 90 * 24 * 60 * 60)
     
     return await this.getCounterById(id)
   }
@@ -141,21 +193,21 @@ class CounterDB {
       return false
     }
     
-    await kv.set(`counter:${result.id}:total`, total)
+    await kvInterface.set(`counter:${result.id}:total`, total)
     return true
   }
   
   // 重複チェック（24時間以内の同一IP+UserAgent）
   async checkDuplicateVisit(id: string, ip: string, userAgent: string): Promise<boolean> {
     const visitKey = generateVisitKey(id, ip, userAgent)
-    const hasVisited = await kv.get(visitKey)
+    const hasVisited = await kvInterface.get(visitKey)
     
     if (hasVisited) {
       return true // 重複
     }
     
     // 24時間のTTLで記録
-    await kv.setex(visitKey, 24 * 60 * 60, '1')
+    await kvInterface.setex(visitKey, 24 * 60 * 60, '1')
     return false // 新規訪問
   }
 }

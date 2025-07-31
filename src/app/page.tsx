@@ -1,158 +1,673 @@
-export default function Home() {
-  return (
-    <main className="container mx-auto px-4 py-8">
-      <h1 className="text-4xl font-bold text-center mb-8">Nostalgic Counter</h1>
-      <p className="text-center text-gray-600 mb-8">昔懐かしいホームページカウンターを最新技術で復活</p>
+"use client";
 
-      <div className="max-w-4xl mx-auto">
-        {/* デモ表示 */}
-        <section className="mb-12 text-center">
-          <h2 className="text-2xl font-semibold mb-4">デモ</h2>
-          <div className="flex flex-wrap justify-center gap-4 mb-4">
-            <img src="/api/counter?id=example-a1b2c3d4&type=total&style=classic" alt="classic style counter" />
-            <img src="/api/counter?id=example-a1b2c3d4&type=today&style=modern" alt="modern style counter" />
-            <img src="/api/counter?id=example-a1b2c3d4&type=week&style=retro" alt="retro style counter" />
-          </div>
-          <p className="text-sm text-gray-500">クラシック・モダン・レトロの3つのスタイルが利用可能</p>
-        </section>
+import { useState } from "react";
+import "./nostalgic.css";
 
-        <div className="grid md:grid-cols-2 gap-8">
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">📊 カウンター設置方法</h2>
-            <div className="bg-gray-100 p-4 rounded-lg mb-4">
-              <p className="mb-2 font-medium">1. 訪問数をカウントするスクリプトを設置:</p>
-              <code className="block bg-gray-800 text-white p-3 rounded text-sm overflow-x-auto">
-                {`<script src="https://nostalgic-counter.vercel.app/components/counter.js"></script>
-<nostalgic-counter 
-  id="your-counter-id"
-  type="total"
-  style="classic">
-</nostalgic-counter>`}
-              </code>
+export default function HomePage() {
+  const [currentPage, setCurrentPage] = useState("home");
+  const [visitedPages, setVisitedPages] = useState<Set<string>>(new Set(["home"]));
+
+  const renderContent = () => {
+    switch (currentPage) {
+      case "home":
+        return (
+          <>
+            <div className="nostalgic-title-bar">★☆★ Nostalgic Counter - 無料アクセスカウンターサービス ★☆★</div>
+
+            <div className="nostalgic-marquee-box">
+              <div className="nostalgic-marquee-text">
+                ようこそ！Nostalgic Counterへ！昔懐かしいアクセスカウンターを無料で提供しています！
+              </div>
             </div>
 
-            <div className="bg-gray-100 p-4 rounded-lg">
-              <p className="mb-2 font-medium">2. ブラウザのアドレスバーに入力して公開IDを取得:</p>
-              <code className="block bg-gray-800 text-white p-3 rounded text-sm overflow-x-auto">
-                {`https://nostalgic-counter.vercel.app/api/count?url=https://yoursite.com&token=your-secret`}
-              </code>
-              <p className="text-xs text-gray-600 mt-1">→ ブラウザにJSONが表示され、"id": "yoursite-a7b9c3d4" が確認できます</p>
-            </div>
-          </section>
-
-          <section>
-            <h2 className="text-2xl font-semibold mb-4">⚙️ パラメータ</h2>
-
-            <div className="mb-6">
-              <h3 className="font-semibold mb-2">期間タイプ (type)</h3>
-              <ul className="list-disc list-inside space-y-1 text-sm">
-                <li>
-                  <code className="bg-gray-200 px-1 rounded">total</code> - 累計
-                </li>
-                <li>
-                  <code className="bg-gray-200 px-1 rounded">today</code> - 今日
-                </li>
-                <li>
-                  <code className="bg-gray-200 px-1 rounded">yesterday</code> - 昨日
-                </li>
-                <li>
-                  <code className="bg-gray-200 px-1 rounded">week</code> - 直近一週間
-                </li>
-                <li>
-                  <code className="bg-gray-200 px-1 rounded">month</code> - 直近一ヶ月
-                </li>
-              </ul>
-            </div>
-
-            <div className="mb-6">
-              <h3 className="font-semibold mb-2">スタイル (style)</h3>
-              <ul className="list-disc list-inside space-y-1 text-sm">
-                <li>
-                  <code className="bg-gray-200 px-1 rounded">classic</code> - クラシック（緑文字・黒背景）
-                </li>
-                <li>
-                  <code className="bg-gray-200 px-1 rounded">modern</code> - モダン（白文字・グレー背景）
-                </li>
-                <li>
-                  <code className="bg-gray-200 px-1 rounded">retro</code> - レトロ（黄文字・紫背景）
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h3 className="font-semibold mb-2">その他のオプション</h3>
-              <ul className="list-disc list-inside space-y-1 text-sm">
-                <li>
-                  <code className="bg-gray-200 px-1 rounded">digits</code> - 表示桁数（デフォルト: 6）
-                </li>
-              </ul>
-            </div>
-          </section>
-        </div>
-
-        <section className="mt-12">
-          <h2 className="text-2xl font-semibold mb-4">🎯 特徴</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-blue-50 p-4 rounded-lg">
-              <h3 className="font-semibold mb-2">🚫 登録不要</h3>
-              <p className="text-sm text-gray-600">
-                ユーザー登録やログインは一切不要。URLを指定するだけで即座に利用開始
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆Nostalgic Counterとは？◆</b>
+                </span>
+              </p>
+              <p>昔のホームページによくあった「アクセスカウンター」を最新技術で復活させたサービスです。</p>
+              <p>
+                <span>●</span> 完全無料で利用可能
+                <br />
+                <span>●</span> レトロな見た目を忠実に再現
+                <br />
+                <span>●</span> 最新技術で高速・安定動作
               </p>
             </div>
-            <div className="bg-green-50 p-4 rounded-lg">
-              <h3 className="font-semibold mb-2">🔒 重複防止</h3>
-              <p className="text-sm text-gray-600">同一IPアドレスからの24時間以内の重複アクセスは自動的に除外</p>
-            </div>
-            <div className="bg-purple-50 p-4 rounded-lg">
-              <h3 className="font-semibold mb-2">📈 多彩な統計</h3>
-              <p className="text-sm text-gray-600">累計・今日・昨日・週間・月間の5つの期間での集計に対応</p>
-            </div>
-          </div>
-        </section>
 
-        <section className="mb-8 bg-blue-50 p-6 rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">🧪 テストページ</h2>
-          <p className="mb-4 text-gray-700">
-            実際にカウンターが動作する様子を確認できるテストページを用意しました。
-            それぞれ異なるURLを持つため、独立したカウンターが動作します。
+            <div className="nostalgic-counter-section">
+              <p>
+                <span style={{ color: "#ff8c00" }}>
+                  <b>◆このサイトのアクセスカウンター◆</b>
+                </span>
+              </p>
+              <div style={{ textAlign: "center", marginBottom: "20px", marginTop: "30px" }}>
+                <p style={{ fontSize: "20px", fontWeight: "bold" }}>
+                  ようこそ！あなたは{" "}
+                  <img
+                    src="/api/counter?id=nostalgi-0c133326&type=total&style=classic"
+                    alt="累計"
+                    style={{ transform: "scale(1.5)", verticalAlign: "middle", margin: "0 20px" }}
+                  />{" "}
+                  人目の訪問者です！
+                </p>
+              </div>
+              <div>
+                <div className="nostalgic-counter-item">
+                  <b>今日</b>
+                  <br />
+                  <div style={{ marginTop: "10px" }}>
+                    <img src="/api/counter?id=nostalgi-0c133326&type=today&style=modern&digits=3" alt="今日" />
+                  </div>
+                </div>
+                <div className="nostalgic-counter-item">
+                  <b>昨日</b>
+                  <br />
+                  <div style={{ marginTop: "10px" }}>
+                    <img src="/api/counter?id=nostalgi-0c133326&type=yesterday&style=modern&digits=3" alt="昨日" />
+                  </div>
+                </div>
+                <div className="nostalgic-counter-item">
+                  <b>今週</b>
+                  <br />
+                  <div style={{ marginTop: "10px" }}>
+                    <img src="/api/counter?id=nostalgi-0c133326&type=week&style=modern&digits=3" alt="今週" />
+                  </div>
+                </div>
+                <div className="nostalgic-counter-item">
+                  <b>今月</b>
+                  <br />
+                  <div style={{ marginTop: "10px" }}>
+                    <img src="/api/counter?id=nostalgi-0c133326&type=month&style=modern&digits=3" alt="今月" />
+                  </div>
+                </div>
+              </div>
+              <p style={{ textAlign: "center", marginTop: "20px", fontSize: "16px", color: "#0000ff", fontFamily: "monospace", border: "2px dashed #ff0000", padding: "5px", backgroundColor: "#ffffcc" }}>
+                ★キリ番報告用の、Nostalgic BBSというサービスも開発中です★
+              </p>
+            </div>
+
+            <hr />
+
+            <p style={{ textAlign: "center", fontSize: "20px", fontWeight: "bold", margin: "20px 0" }}>
+              Sorry, This Homepage is Earthlings Only.
+            </p>
+          </>
+        );
+
+      case "usage":
+        return (
+          <>
+            <div className="nostalgic-title-bar">★☆★ 使い方 ★☆★</div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆STEP 1: カウンター作成◆</b>
+                </span>
+              </p>
+              <p>ブラウザのアドレスバーに以下のURLを入力してアクセス：</p>
+              <p
+                style={{
+                  backgroundColor: "#f0f0f0",
+                  padding: "10px",
+                  fontFamily: "monospace",
+                  fontSize: "14px",
+                  wordBreak: "break-all",
+                }}
+              >
+                https://nostalgic-counter.llll-ll.com/api/count?url=<span style={{ color: "#008000" }}>サイトURL</span>
+                &token=<span style={{ color: "#008000" }}>オーナートークン</span>
+              </p>
+              <p>
+                ※サイトURLには、カウンターを設置する予定のサイトを指定してください。「https://」から始まっている必要があります。
+                <br />
+                ※オーナートークンに、
+                <span style={{ color: "#ff0000" }}>ほかのサイトでのパスワードを使い回さないでください</span>
+                。（8〜16文字）
+              </p>
+              <p>上記URLにアクセスすると、JSONで公開IDが返されます。この公開IDをSTEP 2で使用してください。</p>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆STEP 2: カウンター表示◆</b>
+                </span>
+              </p>
+              <p>HTMLに以下のコードを追加：</p>
+              <pre style={{ backgroundColor: "#f0f0f0", padding: "10px", overflow: "auto", fontSize: "14px", margin: "10px 0" }}>
+                {`<script src="https://nostalgic-counter.llll-ll.com/components/counter.js"></script>
+<nostalgic-counter id="`}
+                <span style={{ color: "#008000" }}>あなたの公開ID</span>
+                {`" type="`}
+                <span style={{ color: "#008000" }}>total</span>
+                {`" style="`}
+                <span style={{ color: "#008000" }}>classic</span>
+                {`"></nostalgic-counter>`}
+              </pre>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆type 表示タイプ◆</b>
+                </span>
+              </p>
+              <p>
+                • <span style={{ color: "#008000" }}>total</span> - 累計訪問数
+                <br />• <span style={{ color: "#008000" }}>today</span> - 今日の訪問数
+                <br />• <span style={{ color: "#008000" }}>yesterday</span> - 昨日の訪問数
+                <br />• <span style={{ color: "#008000" }}>week</span> - 今週の訪問数
+                <br />• <span style={{ color: "#008000" }}>month</span> - 今月の訪問数
+              </p>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆style デザインスタイル◆</b>
+                </span>
+              </p>
+              <p>
+                • <span style={{ color: "#008000" }}>classic</span> - クラシック（緑の7セグ）
+                <br />• <span style={{ color: "#008000" }}>modern</span> - モダン（青のデジタル）
+                <br />• <span style={{ color: "#008000" }}>retro</span> - レトロ（赤のドット）
+              </p>
+            </div>
+          </>
+        );
+
+      case "features":
+        return (
+          <>
+            <div className="nostalgic-title-bar">★☆★ 機能一覧 ★☆★</div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆基本機能◆</b>
+                </span>
+              </p>
+              <p>
+                <span>●</span> 累計・日別・週別・月別カウント
+                <br />
+                <span>●</span> 24時間重複カウント防止
+                <br />
+                <span>●</span> 3種類のデザイン
+                <br />
+                <span>●</span> Web Componentsで簡単設置
+              </p>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆管理機能◆</b>
+                </span>
+              </p>
+              <p>
+                <span>●</span> バレてはいけない「オーナートークン」で安全管理
+                <br />
+                <span>●</span> バレてもかまわない「公開ID」で表示専用アクセス
+                <br />
+                <span>●</span> カウンター値の手動設定（
+                <span style={{ textDecoration: "line-through" }}>訪問者数を水増し可能</span> リセットされても再開可能）
+              </p>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆技術仕様◆</b>
+                </span>
+              </p>
+              <p>
+                • Next.js + Vercel でホスティング
+                <br />
+                • Vercel KV でデータ保存
+                <br />
+                • SVG画像で美しい表示
+                <br />• 必要なすべての要素が無料プランの範囲で動作するため、完全無料・広告なしを実現
+              </p>
+            </div>
+
+            <div className="nostalgic-counter-section">
+              <p>
+                <span style={{ color: "#ff8c00" }}>
+                  <b>◆デザインサンプル◆</b>
+                </span>
+              </p>
+              <div>
+                <div className="nostalgic-counter-item">
+                  <b>Classic</b>
+                  <br />
+                  <div style={{ marginTop: "10px" }}>
+                    <img src="/api/counter?id=example-3e3ffb43&type=total&style=classic" alt="Classic" />
+                  </div>
+                </div>
+                <div className="nostalgic-counter-item">
+                  <b>Modern</b>
+                  <br />
+                  <div style={{ marginTop: "10px" }}>
+                    <img src="/api/counter?id=example-3e3ffb43&type=total&style=modern" alt="Modern" />
+                  </div>
+                </div>
+                <div className="nostalgic-counter-item">
+                  <b>Retro</b>
+                  <br />
+                  <div style={{ marginTop: "10px" }}>
+                    <img src="/api/counter?id=example-3e3ffb43&type=total&style=retro" alt="Retro" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        );
+
+      case "api":
+        return (
+          <>
+            <div className="nostalgic-title-bar">★☆★ API仕様 ★☆★</div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆カウンター作成・カウントアップ◆</b>
+                </span>
+              </p>
+              <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
+                GET /api/count?url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                <span style={{ color: "#008000" }}>オーナートークン</span>
+              </p>
+              <p style={{ lineHeight: "1.2" }}>
+                初回アクセスでカウンター作成、2回目以降はカウントアップ。
+                <br />
+                レスポンス:{" "}
+                <span
+                  style={{ backgroundColor: "#000000", color: "#ffffff", padding: "2px 4px", fontFamily: "monospace" }}
+                >{`{ "id": "公開ID", "total": 数値 }`}</span>
+              </p>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆カウンター画像取得◆</b>
+                </span>
+              </p>
+              <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
+                GET /api/counter?id=<span style={{ color: "#008000" }}>公開ID</span>&type=
+                <span style={{ color: "#008000" }}>期間タイプ</span>&style=
+                <span style={{ color: "#008000" }}>デザインスタイル</span>
+              </p>
+              <p>
+                SVG画像を返します。img タグの src に直接指定可能。
+              </p>
+              <p>
+                ※typeとstyleは省略可能（type=total, style=classicがデフォルト）
+              </p>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆カウンターテキスト取得◆</b>
+                </span>
+              </p>
+              <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
+                GET /api/counter?id=<span style={{ color: "#008000" }}>公開ID</span>&format=
+                <span style={{ color: "#008000" }}>text</span>
+              </p>
+              <p>数値のみをテキスト形式で返します。JavaScriptでの処理に便利。</p>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆管理操作◆</b>
+                </span>
+              </p>
+              <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
+                GET /api/owner?action=set&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                <span style={{ color: "#008000" }}>オーナートークン</span>&total=
+                <span style={{ color: "#008000" }}>数値</span>
+              </p>
+              <p>カウンター値を手動で設定します。オーナートークンが必要。</p>
+            </div>
+
+            <hr />
+
+            <p style={{ textAlign: "center" }}>
+              これ以上の詳しい説明は{" "}
+              <a href="https://github.com/kako-jun/nostalgic-counter" className="nostalgic-old-link">
+                【GitHub】
+              </a>{" "}
+              へ
+            </p>
+          </>
+        );
+
+      case "about":
+        return (
+          <>
+            <div className="nostalgic-title-bar">★☆★ このサイトについて ★☆★</div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆開発者より◆</b>
+                </span>
+              </p>
+              <p>
+                1990年代後半〜2000年代前半のホームページには、必ずと言っていいほど設置されていたという「アクセスカウンター」。
+              </p>
+              <p>「キリ番」のワクワク感を味わってみたくて、このサービスを作りました。</p>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆技術について◆</b>
+                </span>
+              </p>
+              <p>見た目はレトロですが、中身は最新技術を使っています。</p>
+              <p>
+                • Next.js 15 (App Router)
+                <br />
+                • Vercel Edge Functions
+                <br />
+                • Vercel KV (Redis)
+                <br />
+                • Web Components
+                <br />• SVG Graphics
+              </p>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆お問い合わせ◆</b>
+                </span>
+              </p>
+              <p>
+                バグ報告・機能要望は{" "}
+                <a href="https://github.com/kako-jun/nostalgic-counter/issues" className="nostalgic-old-link">
+                  GitHub Issues
+                </a>{" "}
+                まで！
+              </p>
+            </div>
+
+            <hr />
+
+            <div style={{ textAlign: "center", marginTop: "20px" }}>
+              <img src="/footer.webp" alt="Footer" style={{ maxWidth: "100%", height: "auto" }} />
+              <p style={{ marginTop: "10px", fontSize: "14px", color: "#666666" }}>Made in Kanazawa</p>
+            </div>
+          </>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="nostalgic-main-frame">
+      <div className="nostalgic-sidebar-left">
+        <div className="nostalgic-title-bar" style={{ fontSize: "16px !important" }}>MENU</div>
+        <p>
+          {currentPage === "home" ? (
+            <>
+              <span className="nostalgic-blink">●</span>
+              <span className="nostalgic-nav-active">ホーム</span>
+            </>
+          ) : (
+            <>
+              <span>●</span>
+              <a
+                href="#"
+                className={visitedPages.has("home") ? "nostalgic-old-link-visited" : "nostalgic-old-link"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage("home");
+                  setVisitedPages((prev) => new Set([...prev, "home"]));
+                }}
+              >
+                ホーム
+              </a>
+            </>
+          )}
+          <br />
+          {currentPage === "usage" ? (
+            <>
+              <span className="nostalgic-blink">●</span>
+              <span className="nostalgic-nav-active">使い方</span>
+            </>
+          ) : (
+            <>
+              <span>●</span>
+              <a
+                href="#"
+                className={visitedPages.has("usage") ? "nostalgic-old-link-visited" : "nostalgic-old-link"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage("usage");
+                  setVisitedPages((prev) => new Set([...prev, "usage"]));
+                }}
+              >
+                使い方
+              </a>
+            </>
+          )}
+          <br />
+          {currentPage === "features" ? (
+            <>
+              <span className="nostalgic-blink">●</span>
+              <span className="nostalgic-nav-active">機能一覧</span>
+            </>
+          ) : (
+            <>
+              <span>●</span>
+              <a
+                href="#"
+                className={visitedPages.has("features") ? "nostalgic-old-link-visited" : "nostalgic-old-link"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage("features");
+                  setVisitedPages((prev) => new Set([...prev, "features"]));
+                }}
+              >
+                機能一覧
+              </a>
+            </>
+          )}
+          <br />
+          {currentPage === "api" ? (
+            <>
+              <span className="nostalgic-blink">●</span>
+              <span className="nostalgic-nav-active">API仕様</span>
+            </>
+          ) : (
+            <>
+              <span>●</span>
+              <a
+                href="#"
+                className={visitedPages.has("api") ? "nostalgic-old-link-visited" : "nostalgic-old-link"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage("api");
+                  setVisitedPages((prev) => new Set([...prev, "api"]));
+                }}
+              >
+                API仕様
+              </a>
+            </>
+          )}
+          <br />
+          {currentPage === "about" ? (
+            <>
+              <span className="nostalgic-blink">●</span>
+              <span className="nostalgic-nav-active">このサイトについて</span>
+            </>
+          ) : (
+            <>
+              <span>●</span>
+              <a
+                href="#"
+                className={visitedPages.has("about") ? "nostalgic-old-link-visited" : "nostalgic-old-link"}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setCurrentPage("about");
+                  setVisitedPages((prev) => new Set([...prev, "about"]));
+                }}
+              >
+                このサイトについて
+              </a>
+            </>
+          )}
+        </p>
+        <hr />
+        <p>
+          <b>◆リンク集◆</b>
+        </p>
+        <p>
+          <span>●</span>
+          <a
+            href="https://mixi.social/@kako_jun"
+            className="nostalgic-old-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            mixi2
+          </a>
+          <br />
+          <span>●</span>
+          <a
+            href="https://github.com/kako-jun/nostalgic-counter"
+            className="nostalgic-old-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub
+          </a>
+          <br />
+          <span>●</span>
+          <a href="https://llll-ll.com/" className="nostalgic-old-link" target="_blank" rel="noopener noreferrer">
+            llll-ll.com
+          </a>
+          <br />
+          <span style={{ marginLeft: "1em" }}>(作者のサイト)</span>
+          <br />
+          <span>●</span>
+          <a href="https://x.com/kako_jun_42" className="nostalgic-old-link" target="_blank" rel="noopener noreferrer">
+            Twitter
+          </a>
+          <br />
+          <span>●</span>
+          <a
+            href="https://www.instagram.com/kako_jun_42"
+            className="nostalgic-old-link"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Instagram
+          </a>
+          <br />
+          <span>●</span>
+          <a href="https://zenn.dev/kako_jun" className="nostalgic-old-link" target="_blank" rel="noopener noreferrer">
+            Zenn
+          </a>
+          <br />
+          <span>●</span>
+          <a href="https://note.com/kako_jun" className="nostalgic-old-link" target="_blank" rel="noopener noreferrer">
+            note
+          </a>
+        </p>
+        <p style={{ fontSize: "14px", color: "#ff0000" }}>
+          <b>相互リンク募集中です！</b>
+        </p>
+        <hr />
+        <div className="nostalgic-update-box">
+          <p style={{ margin: "5px 0", textAlign: "center" }}>
+            <b style={{ color: "#008000" }}>◆更新履歴◆</b>
           </p>
-          <div className="flex gap-4 justify-center flex-wrap">
-            <a href="/test1" className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors">
-              テストページ1
-            </a>
-            <a
-              href="/test2"
-              className="bg-orange-500 text-white px-4 py-2 rounded hover:bg-orange-600 transition-colors"
-            >
-              テストページ2
-            </a>
-            <a
-              href="/blog"
-              className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600 transition-colors"
-            >
-              ブログサンプル
-            </a>
-          </div>
-        </section>
-
-        <section className="mt-12 bg-yellow-50 p-6 rounded-lg">
-          <h2 className="text-2xl font-semibold mb-4">💡 使用例</h2>
-          <div className="space-y-4">
-            <div>
-              <h3 className="font-semibold">Web Components（推奨）:</h3>
-              <code className="block bg-white p-2 rounded text-sm mt-1">
-                {`<nostalgic-counter id="myblog-a7b9c3d4" type="total" style="classic"></nostalgic-counter>`}
-              </code>
+          <p style={{ margin: "5px 0" }}>
+            <span style={{ color: "red" }}>NEW!</span>
+            <br />
+            2025/08/07
+            <br />
+            サービス開始！
+            <br />
+            （のび太の誕生日）
+          </p>
+          <p style={{ margin: "5px 0" }}>
+            2025/06/10
+            <br />
+            アイデアが浮かぶ
+          </p>
+        </div>
+        <div style={{ position: "relative", display: "inline-block", border: "2px solid #000000", width: "240px", height: "80px" }}>
+          <img src="/footer.webp" alt="Background" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+          <div style={{ 
+            position: "absolute", 
+            top: "0", 
+            left: "0", 
+            width: "100%", 
+            height: "100%", 
+            display: "flex", 
+            flexDirection: "column", 
+            justifyContent: "center", 
+            alignItems: "flex-start",
+            textAlign: "left",
+            paddingLeft: "10px"
+          }}>
+            <div style={{ color: "#666666", fontFamily: "MS Gothic, monospace", fontSize: "16px", fontWeight: "bold", textShadow: "1px 1px 0px #ffffff, -1px -1px 0px #ffffff, 1px -1px 0px #ffffff, -1px 1px 0px #ffffff", marginBottom: "4px", marginTop: "11px" }}>
+              Nostalgic Counter
             </div>
-            <div>
-              <h3 className="font-semibold">直接画像表示:</h3>
-              <code className="block bg-white p-2 rounded text-sm mt-1">
-                {`<img src="/api/counter?id=myblog-a7b9c3d4&type=today" alt="今日の閲覧数" />`}
-              </code>
+            <div style={{ color: "#666666", fontFamily: "MS Gothic, monospace", fontSize: "13px", textShadow: "1px 1px 0px #ffffff, -1px -1px 0px #ffffff, 1px -1px 0px #ffffff, -1px 1px 0px #ffffff", marginTop: "4px" }}>
+              無料アクセスカウンター
             </div>
           </div>
-        </section>
+        </div>
+        <p style={{ textAlign: "center", fontSize: "14px" }}>
+          Netscape Navigator 9.0<span style={{ textDecoration: "line-through" }}>対応</span>
+        </p>
       </div>
-    </main>
+
+      <div className="nostalgic-content-area">{renderContent()}</div>
+
+      {/* カウント用スクリプト */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            fetch('/api/count?url=' + encodeURIComponent(window.location.href))
+              .then(r => r.json())
+              .then(d => console.log('カウント完了:', d))
+              .catch(e => console.error('カウントエラー:', e));
+          `,
+        }}
+      />
+
+      {/* フッター - 右下固定 */}
+      <div
+        style={{
+          position: "fixed",
+          bottom: "10px",
+          right: "10px",
+          fontSize: "12px",
+          color: "#666666",
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          padding: "5px 8px",
+          border: "1px solid #ccc",
+          borderRadius: "3px",
+          fontStyle: "italic",
+        }}
+      >
+        1997年風のデザインを再現しています
+      </div>
+    </div>
   );
 }

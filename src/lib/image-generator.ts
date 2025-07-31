@@ -42,33 +42,13 @@ export function generateCounterSVG(options: CounterImageOptions): string {
   const width = digits * 12 + 20
   const height = 30
   
-  // 表示ラベル
-  const labels = {
-    total: '総計',
-    today: '今日',
-    yesterday: '昨日',
-    week: '週間',
-    month: '月間'
-  }
-  
-  const label = labels[type]
-  const labelWidth = label.length * 8 + 10
-  const totalWidth = Math.max(width, labelWidth)
-  
   return `
-    <svg width="${totalWidth}" height="50" xmlns="http://www.w3.org/2000/svg">
+    <svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <!-- 背景 -->
-      <rect width="${totalWidth}" height="50" fill="${currentStyle.backgroundColor}" stroke="${currentStyle.border}" stroke-width="1"/>
-      
-      <!-- ラベル -->
-      <text x="${totalWidth / 2}" y="15" 
-            fill="${currentStyle.textColor}" 
-            font-family="${currentStyle.fontFamily}" 
-            font-size="10" 
-            text-anchor="middle">${label}</text>
+      <rect width="${width}" height="${height}" fill="${currentStyle.backgroundColor}" stroke="${currentStyle.border}" stroke-width="1"/>
       
       <!-- カウンター値 -->
-      <text x="${totalWidth / 2}" y="32" 
+      <text x="${width / 2}" y="${style === 'classic' ? (height / 2) + 1 : (height / 2)}" 
             fill="${currentStyle.textColor}" 
             font-family="${currentStyle.fontFamily}" 
             font-size="${currentStyle.fontSize}" 
