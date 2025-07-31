@@ -34,6 +34,7 @@ export default function HomePage() {
                 <br />
                 <span>●</span> 最新技術で高速・安定動作
               </p>
+              <p>オープンソースプロジェクトです。こういうのがほしかった！と思った方は、ネタで設置してみてください。</p>
             </div>
 
             <div className="nostalgic-counter-section">
@@ -72,14 +73,14 @@ export default function HomePage() {
                   <b>今週</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=nostalgi-0c133326&type=week&style=modern&digits=3" alt="今週" />
+                    <img src="/api/counter?id=nostalgi-0c133326&type=week&style=modern&digits=4" alt="今週" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>今月</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=nostalgi-0c133326&type=month&style=modern&digits=3" alt="今月" />
+                    <img src="/api/counter?id=nostalgi-0c133326&type=month&style=modern&digits=4" alt="今月" />
                   </div>
                 </div>
               </div>
@@ -597,19 +598,20 @@ export default function HomePage() {
           <p style={{ margin: "5px 0" }}>
             <span style={{ color: "red" }}>NEW!</span>
             <br />
-            2025/08/07
+            ・2025/08/07
             <br />
             サービス開始！
             <br />
             （のび太の誕生日）
           </p>
           <p style={{ margin: "5px 0" }}>
-            2025/06/10
+            ・2025/06/10
             <br />
             アイデアが浮かぶ
           </p>
         </div>
         <div style={{ position: "relative", display: "inline-block", border: "2px solid #000000", width: "240px", height: "80px" }}>
+          <div style={{ position: "absolute", top: "0px", left: "0px", right: "0px", bottom: "0px", border: "1px solid #ffffff", pointerEvents: "none" }}></div>
           <img src="/footer.webp" alt="Background" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           <div style={{ 
             position: "absolute", 
@@ -633,7 +635,7 @@ export default function HomePage() {
           </div>
         </div>
         <p style={{ textAlign: "center", fontSize: "14px" }}>
-          Netscape Navigator 9.0<span style={{ textDecoration: "line-through" }}>対応</span>
+          Netscape Navigator 4.2<span style={{ textDecoration: "line-through" }}>対応</span>
         </p>
       </div>
 
@@ -659,10 +661,8 @@ export default function HomePage() {
           right: "10px",
           fontSize: "12px",
           color: "#666666",
-          backgroundColor: "rgba(255, 255, 255, 0.8)",
+          backgroundColor: "transparent",
           padding: "5px 8px",
-          border: "1px solid #ccc",
-          borderRadius: "3px",
           fontStyle: "italic",
         }}
       >
