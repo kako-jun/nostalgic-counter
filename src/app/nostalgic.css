@@ -5,10 +5,9 @@
   box-sizing: border-box;
 }
 
-/* ボディスタイル - 阿部寛の背景画像 */
+/* ボディスタイル */
 body {
-  background-image: url("http://abehiroshi.la.coocan.jp/abe-back.jpg") !important;
-  background-repeat: repeat !important;
+  background-color: #ffffff !important;
   font-family: "ＭＳ ゴシック", "MS Gothic", "Hiragino Kaku Gothic Pro", "ヒラギノ角ゴ Pro", "Yu Gothic", "游ゴシック", monospace !important;
   margin: 0 !important;
   padding: 0 !important;
