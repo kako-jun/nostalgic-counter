@@ -3,10 +3,10 @@ import 'react'
 declare module 'react' {
   namespace JSX {
     interface IntrinsicElements {
-      'nostalgic-counter': {
+      'nostalgic-counter': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
         id?: string;
         type?: 'total' | 'today' | 'yesterday' | 'week' | 'month';
-        style?: 'classic' | 'modern' | 'retro';
+        theme?: 'classic' | 'modern' | 'retro';
         digits?: string;
         scale?: string;
       };

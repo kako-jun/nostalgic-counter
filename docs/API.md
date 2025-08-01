@@ -175,7 +175,7 @@ fetch('/api/count?url=https://myblog.com&token=my-secret-token')
 <nostalgic-counter 
   id="blog-a7b9c3d4"
   type="total"
-  style="classic">
+  theme="classic">
 </nostalgic-counter>
 ```
 
@@ -201,7 +201,7 @@ declare module 'react' {
       'nostalgic-counter': {
         id?: string;
         type?: 'total' | 'today' | 'yesterday' | 'week' | 'month';
-        style?: 'classic' | 'modern' | 'retro';
+        theme?: 'classic' | 'modern' | 'retro';
         digits?: string;
         scale?: string;
       };
@@ -219,7 +219,7 @@ declare global {
       'nostalgic-counter': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
         id?: string;
         type?: string;
-        style?: string;
+        theme?: string;
         digits?: string;
         scale?: string;
       }, HTMLElement>;
@@ -246,13 +246,13 @@ declare global {
 
 ```html
 <!-- 総訪問数 -->
-<nostalgic-counter id="blog-a7b9c3d4" type="total" style="classic"></nostalgic-counter>
+<nostalgic-counter id="blog-a7b9c3d4" type="total" theme="classic"></nostalgic-counter>
 
 <!-- 今日の訪問数（同じIDなのでカウントアップは発生しない） -->
-<nostalgic-counter id="blog-a7b9c3d4" type="today" style="modern"></nostalgic-counter>
+<nostalgic-counter id="blog-a7b9c3d4" type="today" theme="modern"></nostalgic-counter>
 
 <!-- 今週の訪問数（同じIDなのでカウントアップは発生しない） -->
-<nostalgic-counter id="blog-a7b9c3d4" type="week" style="retro"></nostalgic-counter>
+<nostalgic-counter id="blog-a7b9c3d4" type="week" theme="retro"></nostalgic-counter>
 ```
 
 注：同じページ内で同じIDの組み合わせは、最初の1回だけカウントアップされます。

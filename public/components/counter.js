@@ -3,7 +3,7 @@
  * 
  * 使用方法:
  * <script src="' + window.location.origin + '/components/counter.js"></script>
- * <nostalgic-counter id="your-counter-id" type="total" style="classic"></nostalgic-counter>
+ * <nostalgic-counter id="your-counter-id" type="total" theme="classic"></nostalgic-counter>
  */
 
 class NostalgicCounter extends HTMLElement {
@@ -16,7 +16,7 @@ class NostalgicCounter extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['id', 'type', 'style', 'digits'];
+    return ['id', 'type', 'theme', 'digits'];
   }
 
   connectedCallback() {
@@ -54,7 +54,7 @@ class NostalgicCounter extends HTMLElement {
   render() {
     const id = this.getAttribute('id');
     const type = this.getAttribute('type') || 'total';
-    const style = this.getAttribute('style') || 'classic';
+    const style = this.getAttribute('theme') || 'classic';
     const digits = this.getAttribute('digits') || '6';
     const format = this.getAttribute('format') || 'image';
     
