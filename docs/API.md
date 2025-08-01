@@ -188,8 +188,29 @@ fetch('/api/count?url=https://myblog.com&token=my-secret-token')
 
 #### TypeScriptプロジェクトでの追加設定
 
-TypeScriptを使用している場合は、カスタム要素の型定義を追加する必要があります：
+TypeScriptを使用している場合は、カスタム要素の型定義を追加する必要があります。
 
+**Next.js 15 + React 19の場合** (推奨)：
+```typescript
+// types.d.ts をプロジェクトルートに作成
+import 'react'
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'nostalgic-counter': {
+        id?: string;
+        type?: 'total' | 'today' | 'yesterday' | 'week' | 'month';
+        style?: 'classic' | 'modern' | 'retro';
+        digits?: string;
+        scale?: string;
+      };
+    }
+  }
+}
+```
+
+**従来のReactプロジェクトの場合**：
 ```typescript
 // globals.d.ts または適切な型定義ファイルに追加
 declare global {
@@ -204,6 +225,18 @@ declare global {
       }, HTMLElement>;
     }
   }
+}
+```
+
+型定義ファイルを作成後、`tsconfig.json`の`include`に追加してください：
+```json
+{
+  "include": [
+    "next-env.d.ts",
+    "types.d.ts",
+    "**/*.ts",
+    "**/*.tsx"
+  ]
 }
 ```
 

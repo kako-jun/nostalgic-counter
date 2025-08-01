@@ -650,18 +650,3 @@ export default function HomePage() {
     </>
   );
 }
-
-// TypeScriptの型定義を追加
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      'nostalgic-counter': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
-        id?: string;
-        type?: string;
-        style?: string;
-        digits?: string;
-        scale?: string;
-      }, HTMLElement>;
-    }
-  }
-}
