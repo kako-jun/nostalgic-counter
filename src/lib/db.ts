@@ -39,7 +39,8 @@ const kvInterface = {
   async setex(key: string, seconds: number, value: any): Promise<void> {
     if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
       const { kv } = await import('@vercel/kv')
-      return kv.setex(key, seconds, value)
+      await kv.setex(key, seconds, value)
+      return
     }
     // 開発環境：TTLは無視してメモリストレージを使用
     memoryStorage.set(key, value)
