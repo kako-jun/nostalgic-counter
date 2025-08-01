@@ -9,7 +9,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
     const id = searchParams.get('id')
     const type = (searchParams.get('type') || 'total') as CounterType
-    const style = searchParams.get('style') || 'classic'
+    const theme = searchParams.get('theme') || searchParams.get('style') || 'classic' // 後方互換性のためstyleも残す
     const digits = parseInt(searchParams.get('digits') || '6')
     const format = searchParams.get('format') || 'image'
     
@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid type parameter' }, { status: 400 })
     }
     
-    if (!['classic', 'modern', 'retro'].includes(style)) {
-      return NextResponse.json({ error: 'Invalid style parameter' }, { status: 400 })
+    if (!['classic', 'modern', 'retro'].includes(theme)) {
+      return NextResponse.json({ error: 'Invalid theme parameter' }, { status: 400 })
     }
     
     // カウンターデータを取得
@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
       const svg = generateCounterSVG({
         value: 0,
         type,
-        style: style as 'classic' | 'modern' | 'retro',
+        style: theme as 'classic' | 'modern' | 'retro',
         digits
       })
       
@@ -71,7 +71,7 @@ export async function GET(request: NextRequest) {
     const svg = generateCounterSVG({
       value,
       type,
-      style: style as 'classic' | 'modern' | 'retro',
+      style: theme as 'classic' | 'modern' | 'retro',
       digits
     })
     

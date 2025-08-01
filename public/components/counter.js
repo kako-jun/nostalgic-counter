@@ -54,7 +54,7 @@ class NostalgicCounter extends HTMLElement {
   render() {
     const id = this.getAttribute('id');
     const type = this.getAttribute('type') || 'total';
-    const style = this.getAttribute('theme') || 'classic';
+    const theme = this.getAttribute('theme') || 'classic';
     const digits = this.getAttribute('digits') || '6';
     const format = this.getAttribute('format') || 'image';
     
@@ -73,7 +73,7 @@ class NostalgicCounter extends HTMLElement {
     }
     
     const baseUrl = this.getAttribute('api-base') || window.location.origin;
-    const apiUrl = `${baseUrl}/api/counter?id=${encodeURIComponent(id)}&type=${type}&style=${style}&digits=${digits}&format=${format}`;
+    const apiUrl = `${baseUrl}/api/counter?id=${encodeURIComponent(id)}&type=${type}&theme=${theme}&digits=${digits}&format=${format}`;
     
     if (format === 'text') {
       // テキスト形式の場合
@@ -177,5 +177,5 @@ if (!customElements.get('nostalgic-counter')) {
 
 // コンソールに使用方法を表示
 console.log('🎯 Nostalgic Counter loaded!');
-console.log('Usage: <nostalgic-counter id="your-counter-id" type="total" style="classic"></nostalgic-counter>');
-console.log('Docs: https://github.com/your-username/nostalgic-counter');
+console.log('Usage: <nostalgic-counter id="your-counter-id" type="total" theme="classic"></nostalgic-counter>');
+console.log('Docs: https://github.com/kako-jun/nostalgic-counter');
