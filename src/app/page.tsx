@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./nostalgic.css";
 
 export default function HomePage() {
   const [currentPage, setCurrentPage] = useState("home");
   const [visitedPages, setVisitedPages] = useState<Set<string>>(new Set(["home"]));
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
 
   const renderContent = () => {
     switch (currentPage) {
@@ -46,11 +51,13 @@ export default function HomePage() {
               <div style={{ textAlign: "center", marginBottom: "20px", marginTop: "30px" }}>
                 <p style={{ fontSize: "20px", fontWeight: "bold" }}>
                   ようこそ！あなたは{" "}
-                  <img
-                    src="/api/counter?id=nostalgi-0c133326&type=total&style=classic"
-                    alt="累計"
-                    style={{ transform: "scale(1.5)", verticalAlign: "middle", margin: "0 20px" }}
-                  />{" "}
+                  {isClient && (
+                    <img
+                      src="/api/counter?id=nostalgi-0c133326&type=total&style=classic"
+                      alt="累計"
+                      style={{ transform: "scale(1.5)", verticalAlign: "middle", margin: "0 20px" }}
+                    />
+                  )}{" "}
                   人目の訪問者です！
                 </p>
               </div>
@@ -59,28 +66,28 @@ export default function HomePage() {
                   <b>今日</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=nostalgi-0c133326&type=today&style=modern&digits=3" alt="今日" />
+                    {isClient && <img src="/api/counter?id=nostalgi-0c133326&type=today&style=modern&digits=3" alt="今日" />}
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>昨日</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=nostalgi-0c133326&type=yesterday&style=modern&digits=3" alt="昨日" />
+                    {isClient && <img src="/api/counter?id=nostalgi-0c133326&type=yesterday&style=modern&digits=3" alt="昨日" />}
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>今週</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=nostalgi-0c133326&type=week&style=modern&digits=4" alt="今週" />
+                    {isClient && <img src="/api/counter?id=nostalgi-0c133326&type=week&style=modern&digits=4" alt="今週" />}
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>今月</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=nostalgi-0c133326&type=month&style=modern&digits=4" alt="今月" />
+                    {isClient && <img src="/api/counter?id=nostalgi-0c133326&type=month&style=modern&digits=4" alt="今月" />}
                   </div>
                 </div>
               </div>
@@ -245,21 +252,21 @@ export default function HomePage() {
                   <b>Classic</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=example-3e3ffb43&type=total&style=classic" alt="Classic" />
+                    {isClient && <img src="/api/counter?id=example-3e3ffb43&type=total&style=classic" alt="Classic" />}
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>Modern</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=example-3e3ffb43&type=total&style=modern" alt="Modern" />
+                    {isClient && <img src="/api/counter?id=example-3e3ffb43&type=total&style=modern" alt="Modern" />}
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>Retro</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=example-3e3ffb43&type=total&style=retro" alt="Retro" />
+                    {isClient && <img src="/api/counter?id=example-3e3ffb43&type=total&style=retro" alt="Retro" />}
                   </div>
                 </div>
               </div>
@@ -590,6 +597,9 @@ export default function HomePage() {
         <p style={{ fontSize: "14px", color: "#ff0000" }}>
           <b>相互リンク募集中です！</b>
         </p>
+        <div style={{ marginTop: "10px" }}>
+          <img src="/nostalgic-counter-banner.webp" alt="Nostalgic Counter - 無料アクセスカウンター" style={{ display: "block" }} />
+        </div>
         <hr />
         <div className="nostalgic-update-box">
           <p style={{ margin: "5px 0", textAlign: "center" }}>
@@ -609,30 +619,6 @@ export default function HomePage() {
             <br />
             アイデアが浮かぶ
           </p>
-        </div>
-        <div style={{ position: "relative", display: "inline-block", border: "2px solid #000000", width: "240px", height: "80px" }}>
-          <div style={{ position: "absolute", top: "0px", left: "0px", right: "0px", bottom: "0px", border: "1px solid #ffffff", pointerEvents: "none" }}></div>
-          <img src="/footer.webp" alt="Background" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
-          <div style={{ 
-            position: "absolute", 
-            top: "0", 
-            left: "0", 
-            width: "100%", 
-            height: "100%", 
-            display: "flex", 
-            flexDirection: "column", 
-            justifyContent: "center", 
-            alignItems: "flex-start",
-            textAlign: "left",
-            paddingLeft: "10px"
-          }}>
-            <div style={{ color: "#666666", fontFamily: "MS Gothic, monospace", fontSize: "16px", fontWeight: "bold", textShadow: "1px 1px 0px #ffffff, -1px -1px 0px #ffffff, 1px -1px 0px #ffffff, -1px 1px 0px #ffffff", marginBottom: "4px", marginTop: "11px" }}>
-              Nostalgic Counter
-            </div>
-            <div style={{ color: "#666666", fontFamily: "MS Gothic, monospace", fontSize: "13px", textShadow: "1px 1px 0px #ffffff, -1px -1px 0px #ffffff, 1px -1px 0px #ffffff, -1px 1px 0px #ffffff", marginTop: "4px" }}>
-              無料アクセスカウンター
-            </div>
-          </div>
         </div>
         <p style={{ textAlign: "center", fontSize: "14px" }}>
           Netscape Navigator 4.2<span style={{ textDecoration: "line-through" }}>対応</span>
