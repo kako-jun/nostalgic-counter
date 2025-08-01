@@ -186,6 +186,29 @@ fetch('/api/count?url=https://myblog.com&token=my-secret-token')
 
 すべてが自動的に処理されます。
 
+#### TypeScriptプロジェクトでの追加設定
+
+TypeScriptを使用している場合は、カスタム要素の型定義を追加する必要があります：
+
+```typescript
+// globals.d.ts または適切な型定義ファイルに追加
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'nostalgic-counter': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
+        id?: string;
+        type?: string;
+        style?: string;
+        digits?: string;
+        scale?: string;
+      }, HTMLElement>;
+    }
+  }
+}
+```
+
+この設定により、TypeScriptの型チェックエラーが解消されます。通常のJavaScript/HTMLプロジェクトでは不要です。
+
 ### 2. 複数カウンターの設置
 
 ```html

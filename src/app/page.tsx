@@ -1,16 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Script from "next/script";
 import "./nostalgic.css";
 
 export default function HomePage() {
   const [currentPage, setCurrentPage] = useState("home");
   const [visitedPages, setVisitedPages] = useState<Set<string>>(new Set(["home"]));
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
 
   const renderContent = () => {
     switch (currentPage) {
@@ -51,13 +47,7 @@ export default function HomePage() {
               <div style={{ textAlign: "center", marginBottom: "20px", marginTop: "30px" }}>
                 <p style={{ fontSize: "20px", fontWeight: "bold" }}>
                   ようこそ！あなたは{" "}
-                  {isClient && (
-                    <img
-                      src="/api/counter?id=nostalgi-0c133326&type=total&style=classic"
-                      alt="累計"
-                      style={{ transform: "scale(1.5)", verticalAlign: "middle", margin: "0 20px" }}
-                    />
-                  )}{" "}
+                  <nostalgic-counter id="nostalgi-0f2f2df6" type="total" style="classic" scale="1.5" />{" "}
                   人目の訪問者です！
                 </p>
               </div>
@@ -66,28 +56,28 @@ export default function HomePage() {
                   <b>今日</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    {isClient && <img src="/api/counter?id=nostalgi-0c133326&type=today&style=modern&digits=3" alt="今日" />}
+                    <nostalgic-counter id="nostalgi-0f2f2df6" type="today" style="modern" digits="3" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>昨日</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    {isClient && <img src="/api/counter?id=nostalgi-0c133326&type=yesterday&style=modern&digits=3" alt="昨日" />}
+                    <nostalgic-counter id="nostalgi-0f2f2df6" type="yesterday" style="modern" digits="3" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>今週</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    {isClient && <img src="/api/counter?id=nostalgi-0c133326&type=week&style=modern&digits=4" alt="今週" />}
+                    <nostalgic-counter id="nostalgi-0f2f2df6" type="week" style="modern" digits="4" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>今月</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    {isClient && <img src="/api/counter?id=nostalgi-0c133326&type=month&style=modern&digits=4" alt="今月" />}
+                    <nostalgic-counter id="nostalgi-0f2f2df6" type="month" style="modern" digits="4" />
                   </div>
                 </div>
               </div>
@@ -252,21 +242,21 @@ export default function HomePage() {
                   <b>Classic</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    {isClient && <img src="/api/counter?id=example-3e3ffb43&type=total&style=classic" alt="Classic" />}
+                    <img src="/api/counter?id=nostalgi-0f2f2df6&type=total&style=classic" alt="Classic" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>Modern</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    {isClient && <img src="/api/counter?id=example-3e3ffb43&type=total&style=modern" alt="Modern" />}
+                    <img src="/api/counter?id=nostalgi-0f2f2df6&type=total&style=modern" alt="Modern" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>Retro</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    {isClient && <img src="/api/counter?id=example-3e3ffb43&type=total&style=retro" alt="Retro" />}
+                    <img src="/api/counter?id=nostalgi-0f2f2df6&type=total&style=retro" alt="Retro" />
                   </div>
                 </div>
               </div>
@@ -423,7 +413,9 @@ export default function HomePage() {
   };
 
   return (
-    <div className="nostalgic-main-frame">
+    <>
+      <Script src="https://nostalgic-counter.llll-ll.com/components/counter.js" strategy="beforeInteractive" />
+      <div className="nostalgic-main-frame">
       <div className="nostalgic-sidebar-left">
         <div className="nostalgic-title-bar" style={{ fontSize: "16px !important" }}>MENU</div>
         <p>
@@ -655,5 +647,21 @@ export default function HomePage() {
         1997年風のデザインを再現しています
       </div>
     </div>
+    </>
   );
+}
+
+// TypeScriptの型定義を追加
+declare global {
+  namespace JSX {
+    interface IntrinsicElements {
+      'nostalgic-counter': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement> & {
+        id?: string;
+        type?: string;
+        style?: string;
+        digits?: string;
+        scale?: string;
+      }, HTMLElement>;
+    }
+  }
 }
