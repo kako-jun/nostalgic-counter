@@ -49,7 +49,8 @@ const kvInterface = {
   async expire(key: string, seconds: number): Promise<void> {
     if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
       const { kv } = await import('@vercel/kv')
-      return kv.expire(key, seconds)
+      await kv.expire(key, seconds)
+      return
     }
     // 開発環境：TTLは無視
   }
