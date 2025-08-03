@@ -61,14 +61,17 @@ flowchart TD
 ```
 
 **Manual Control (Custom)**
-```javascript
-// 1. Count the visit
-fetch('https://nostalgic-counter.llll-ll.com/api/count?id=yoursite-a7b9c3d4')
-  .then(response => response.json())
-  .then(data => console.log('Current count:', data.total));
-
-// 2. Display the counter
+```html
+<!-- Display counter as image only (no automatic counting) -->
 <img src="https://nostalgic-counter.llll-ll.com/api/display?id=yoursite-a7b9c3d4&type=total&style=classic" alt="Counter" />
+
+<!-- Or count manually with JavaScript -->
+<script>
+  // Count and display current value
+  fetch('https://nostalgic-counter.llll-ll.com/api/count?id=yoursite-a7b9c3d4')
+    .then(response => response.json())
+    .then(data => console.log('Current count:', data.total));
+</script>
 ```
 
 That's it! Your counter will automatically count unique visitors and display the nostalgic counter image.

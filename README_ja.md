@@ -61,14 +61,17 @@ flowchart TD
 ```
 
 **手動制御（カスタム）**
-```javascript
-// 1. 訪問をカウント
-fetch('https://nostalgic-counter.llll-ll.com/api/count?id=yoursite-a7b9c3d4')
-  .then(response => response.json())
-  .then(data => console.log('現在のカウント:', data.total));
-
-// 2. カウンターを表示
+```html
+<!-- 画像のみ表示（自動カウントなし） -->
 <img src="https://nostalgic-counter.llll-ll.com/api/display?id=yoursite-a7b9c3d4&type=total&style=classic" alt="カウンター" />
+
+<!-- またはJavaScriptで手動カウント -->
+<script>
+  // 訪問をカウントして現在値を表示
+  fetch('https://nostalgic-counter.llll-ll.com/api/count?id=yoursite-a7b9c3d4')
+    .then(response => response.json())
+    .then(data => console.log('現在のカウント:', data.total));
+</script>
 ```
 
 これだけです！あなたのカウンターが自動的にユニーク訪問者をカウントし、懐かしいカウンター画像を表示します。
