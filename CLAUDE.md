@@ -15,7 +15,7 @@
 ## アーキテクチャ
 ### API構成
 - `/api/count` - カウンター作成・カウントアップ
-- `/api/counter` - 画像・データ取得
+- `/api/display` - 画像・データ取得
 - `/api/owner` - 管理操作（値設定）
 
 ### データ構造（Redis）
@@ -33,7 +33,7 @@ visit:{id}:{hash}              → 重複防止（24h TTL）
 ## ファイル構成
 ### API Routes
 - `src/app/api/count/route.ts` - カウンター作成・カウントアップ
-- `src/app/api/counter/route.ts` - 画像・データ取得
+- `src/app/api/display/route.ts` - 画像・データ取得
 - `src/app/api/owner/route.ts` - 管理操作
 
 ### Core Logic

@@ -83,7 +83,7 @@ class NostalgicCounter extends HTMLElement {
     }
     
     const baseUrl = this.getAttribute('api-base') || window.location.origin;
-    const apiUrl = `${baseUrl}/api/counter?id=${encodeURIComponent(id)}&type=${type}&theme=${theme}&digits=${digits}&format=${format}`;
+    const apiUrl = `${baseUrl}/api/display?id=${encodeURIComponent(id)}&type=${type}&theme=${theme}&digits=${digits}&format=${format}`;
     
     if (format === 'text') {
       // テキスト形式の場合

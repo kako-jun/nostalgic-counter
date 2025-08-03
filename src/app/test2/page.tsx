@@ -10,15 +10,15 @@ export default function Test2Page() {
           <div className="flex flex-wrap justify-center gap-4 mb-4">
             <div>
               <h3 className="text-sm font-medium mb-2">総訪問数（クラシック）</h3>
-              <img src="/api/counter?url=http://localhost:3000/test2&type=total&style=classic" alt="総訪問数" />
+              <img src="/api/display?url=http://localhost:3000/test2&type=total&style=classic" alt="総訪問数" />
             </div>
             <div>
               <h3 className="text-sm font-medium mb-2">今日の訪問数（モダン）</h3>
-              <img src="/api/counter?url=http://localhost:3000/test2&type=today&style=modern" alt="今日の訪問数" />
+              <img src="/api/display?url=http://localhost:3000/test2&type=today&style=modern" alt="今日の訪問数" />
             </div>
             <div>
               <h3 className="text-sm font-medium mb-2">昨日の訪問数（レトロ）</h3>
-              <img src="/api/counter?url=http://localhost:3000/test2&type=yesterday&style=retro" alt="昨日の訪問数" />
+              <img src="/api/display?url=http://localhost:3000/test2&type=yesterday&style=retro" alt="昨日の訪問数" />
             </div>
           </div>
 

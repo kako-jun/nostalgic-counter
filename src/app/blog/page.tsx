@@ -22,7 +22,7 @@ export default function BlogPage() {
                   <div>
                     <p className="text-xs text-gray-500 mb-1">総閲覧数</p>
                     <img
-                      src="/api/counter?url=http://localhost:3000/blog&type=total&style=classic&digits=4"
+                      src="/api/display?url=http://localhost:3000/blog&type=total&style=classic&digits=4"
                       alt="総閲覧数"
                       className="mx-auto"
                     />
@@ -30,7 +30,7 @@ export default function BlogPage() {
                   <div>
                     <p className="text-xs text-gray-500 mb-1">今日</p>
                     <img
-                      src="/api/counter?url=http://localhost:3000/blog&type=today&style=modern&digits=3"
+                      src="/api/display?url=http://localhost:3000/blog&type=today&style=modern&digits=3"
                       alt="今日の閲覧数"
                       className="mx-auto"
                     />
@@ -38,7 +38,7 @@ export default function BlogPage() {
                   <div>
                     <p className="text-xs text-gray-500 mb-1">昨日</p>
                     <img
-                      src="/api/counter?url=http://localhost:3000/blog&type=yesterday&style=retro&digits=3"
+                      src="/api/display?url=http://localhost:3000/blog&type=yesterday&style=retro&digits=3"
                       alt="昨日の閲覧数"
                       className="mx-auto"
                     />
@@ -46,7 +46,7 @@ export default function BlogPage() {
                   <div>
                     <p className="text-xs text-gray-500 mb-1">今週</p>
                     <img
-                      src="/api/counter?url=http://localhost:3000/blog&type=week&style=classic&digits=4"
+                      src="/api/display?url=http://localhost:3000/blog&type=week&style=classic&digits=4"
                       alt="今週の閲覧数"
                       className="mx-auto"
                     />
@@ -54,7 +54,7 @@ export default function BlogPage() {
                   <div>
                     <p className="text-xs text-gray-500 mb-1">今月</p>
                     <img
-                      src="/api/counter?url=http://localhost:3000/blog&type=month&style=modern&digits=4"
+                      src="/api/display?url=http://localhost:3000/blog&type=month&style=modern&digits=4"
                       alt="今月の閲覧数"
                       className="mx-auto"
                     />
@@ -79,7 +79,7 @@ fetch('/api/count?url=' + encodeURIComponent(window.location.href))
 </script>
 
 <!-- カウンター表示 -->
-<img src="/api/counter?url=https://yourblog.com/article1&type=total&style=classic" 
+<img src="/api/display?url=https://yourblog.com/article1&type=total&style=classic" 
      alt="総閲覧数" />`}</pre>
               </div>
             </div>

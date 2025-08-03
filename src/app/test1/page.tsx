@@ -56,17 +56,17 @@ export default function Test1Page() {
             <div className="nostalgic-counter-item">
               <b>総訪問数</b>
               <br />
-              <img src="/api/counter?url=http://localhost:3000/test1&type=total&style=classic" alt="総訪問数" />
+              <img src="/api/display?url=http://localhost:3000/test1&type=total&style=classic" alt="総訪問数" />
             </div>
             <div className="nostalgic-counter-item">
               <b>今日の訪問数</b>
               <br />
-              <img src="/api/counter?url=http://localhost:3000/test1&type=today&style=modern" alt="今日の訪問数" />
+              <img src="/api/display?url=http://localhost:3000/test1&type=today&style=modern" alt="今日の訪問数" />
             </div>
             <div className="nostalgic-counter-item">
               <b>今週の訪問数</b>
               <br />
-              <img src="/api/counter?url=http://localhost:3000/test1&type=week&style=retro" alt="今週の訪問数" />
+              <img src="/api/display?url=http://localhost:3000/test1&type=week&style=retro" alt="今週の訪問数" />
             </div>
           </div>
         </div>

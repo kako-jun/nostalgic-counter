@@ -242,21 +242,21 @@ export default function HomePage() {
                   <b>Classic</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=nostalgi-5e343478&type=total&style=classic" alt="Classic" />
+                    <img src="/api/display?id=nostalgi-5e343478&type=total&style=classic" alt="Classic" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>Modern</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=nostalgi-5e343478&type=total&style=modern" alt="Modern" />
+                    <img src="/api/display?id=nostalgi-5e343478&type=total&style=modern" alt="Modern" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>Retro</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=nostalgi-5e343478&type=total&style=retro" alt="Retro" />
+                    <img src="/api/display?id=nostalgi-5e343478&type=total&style=retro" alt="Retro" />
                   </div>
                 </div>
               </div>
@@ -296,7 +296,7 @@ export default function HomePage() {
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/counter?id=<span style={{ color: "#008000" }}>公開ID</span>&type=
+                GET /api/display?id=<span style={{ color: "#008000" }}>公開ID</span>&type=
                 <span style={{ color: "#008000" }}>期間タイプ</span>&style=
                 <span style={{ color: "#008000" }}>デザインスタイル</span>
               </p>
@@ -315,7 +315,7 @@ export default function HomePage() {
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/counter?id=<span style={{ color: "#008000" }}>公開ID</span>&format=
+                GET /api/display?id=<span style={{ color: "#008000" }}>公開ID</span>&format=
                 <span style={{ color: "#008000" }}>text</span>
               </p>
               <p>数値のみをテキスト形式で返します。JavaScriptでの処理に便利。</p>
