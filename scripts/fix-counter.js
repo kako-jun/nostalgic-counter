@@ -1,8 +1,10 @@
 const Redis = require('ioredis');
+require('dotenv').config({ path: '.env.local' });
 
 async function fixCounter() {
   if (!process.env.REDIS_URL) {
     console.log('REDIS_URL not set');
+    console.log('Please create .env.local file with REDIS_URL');
     return;
   }
   

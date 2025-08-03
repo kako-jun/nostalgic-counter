@@ -1,8 +1,10 @@
 const Redis = require('ioredis');
+require('dotenv').config({ path: '.env.local' });
 
 async function showAllData() {
   if (!process.env.REDIS_URL) {
     console.log('REDIS_URL not set');
+    console.log('Please create .env.local file with REDIS_URL');
     return;
   }
   
@@ -27,16 +29,22 @@ async function showAllData() {
     if (key.startsWith('counter:') && !key.includes(':total') && !key.includes(':daily:')) {
       // メタデータ
       const id = key.split(':')[1];
-      counters.set(id, {
-        metadata: JSON.parse(value),
-        total: 0,
-        dailyData: new Map()
-      });
+      if (!counters.has(id)) {
+        counters.set(id, {
+          metadata: null,
+          total: 0,
+          dailyData: new Map()
+        });
+      }
+      counters.get(id).metadata = JSON.parse(value);
     } else if (key.includes(':total')) {
       // 累計値
       const id = key.split(':')[1];
-      if (!counters.has(id)) counters.set(id, { total: 0, dailyData: new Map() });
-      counters.get(id).total = parseInt(value);
+      if (!counters.has(id)) {
+        counters.set(id, { total: 0, dailyData: new Map() });
+      }
+      const counter = counters.get(id);
+      counter.total = parseInt(value || 0);
     } else if (key.includes(':daily:')) {
       // 日別データ
       const parts = key.split(':');
