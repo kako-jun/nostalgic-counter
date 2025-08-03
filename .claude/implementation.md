@@ -4,8 +4,8 @@
 
 ### **ホスティング・バックエンド**
 - **Vercel**: Next.js + API Routes
-- **Vercel KV**: Redis互換のKey-Valueストレージ
-- **理由**: KVストレージがカウンター用途に最適（高速・アトミック操作）
+- **Redis Cloud**: Redisストレージ
+- **理由**: Redisがカウンター用途に最適（高速・アトミック操作）
 
 ### **フロントエンド**
 - **Web Components**: カスタム要素でカウンター表示
@@ -13,12 +13,13 @@
 
 ## データ設計
 
-### **KVストレージ構造**
+### **Redisストレージ構造**
 ```
 counter:{id}                    → カウンターメタデータ
 counter:{id}:total             → 累計カウント
 counter:{id}:daily:{YYYY-MM-DD} → 日別カウント
 counter:{id}:owner             → オーナートークン（ハッシュ化）
+visit:{id}:{hash}              → 重複防止（24h TTL）
 ```
 
 ### **データ例**
@@ -45,7 +46,7 @@ counter:blog-a7b9c3d4:owner = sha256("my-secret-token")
 ```
 GET /api/count?url={URL}&token={TOKEN}
 ```
-- 新規作成時：公開IDを生成してKVに保存
+- 新規作成時：公開IDを生成してRedisに保存
 - 既存の場合：カウントアップ
 - レスポンス：公開IDを含むデータ
 
@@ -53,14 +54,15 @@ GET /api/count?url={URL}&token={TOKEN}
 ```
 GET /api/count?id={ID}
 ```
-- KV.incr() でアトミックにカウントアップ
+- Redis.incr() でアトミックにカウントアップ
 - 日別カウントも同時更新
+- 24時間重複防止機能（IP+UserAgent+日付ハッシュでチェック）
 
 ### **3. カウンター画像・データ取得**
 ```
-GET /api/counter?id={ID}&type={TYPE}&style={STYLE}&format={FORMAT}
+GET /api/display?id={ID}&type={TYPE}&style={STYLE}&format={FORMAT}
 ```
-- KVから現在値を取得
+- Redisから現在値を取得
 - SVG画像またはテキスト形式で返す
 
 ### **4. 管理操作**
@@ -94,9 +96,9 @@ function generatePublicId(url) {
 ### **アトミック操作**
 ```javascript
 // 同時アクセスでも安全
-const newTotal = await kv.incr(`counter:${id}:total`);
+const newTotal = await redis.incr(`counter:${id}:total`);
 const today = new Date().toISOString().split('T')[0];
-const todayCount = await kv.incr(`counter:${id}:daily:${today}`);
+const todayCount = await redis.incr(`counter:${id}:daily:${today}`);
 ```
 
 ### **日別統計の計算**

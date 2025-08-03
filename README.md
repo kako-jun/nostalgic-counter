@@ -21,7 +21,7 @@ A nostalgic web counter service that brings back the 90s internet culture with m
 - 🔒 **Duplicate prevention**: 24-hour cooldown per visitor
 - 🎨 **3 nostalgic styles**: Classic (green on black), Modern (white on gray), Retro (yellow on purple)
 - 🌐 **Easy embedding**: Web Components, direct images, or JavaScript fetch
-- ⚡ **Fast & reliable**: Built on Vercel with KV storage
+- ⚡ **Fast & reliable**: Built on Vercel with Redis storage
 
 ## 🚀 Quick Start
 

@@ -287,7 +287,7 @@ fetch('/api/owner?action=set&url=https://myblog.com&token=my-secret-token&total=
 
 ### 実装環境
 - **ホスティング**: Vercel（Next.js）
-- **データベース**: Vercel KV（Redis互換）
+- **データベース**: Redis Cloud
 - **利点**: 高速なKey-Value操作、アトミックなカウントアップ
 
 ### 今後の拡張予定

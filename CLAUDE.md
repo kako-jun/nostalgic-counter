@@ -46,8 +46,8 @@ visit:{id}:{hash}              → 重複防止（24h TTL）
 - `public/components/display.js` - Web Component
 
 ### Documentation
-- `docs/specification.md` - 公開API仕様
-- `docs/landing-page.md` - ランディングページ設計
+- `docs/API.md` - 公開API仕様
+- `.claude/landing-page.md` - ランディングページ設計
 - `.claude/implementation.md` - 内部実装詳細
 - `.claude/web-components.md` - コンポーネント仕様
 - `.claude/tasks.md` - タスク管理
@@ -63,7 +63,7 @@ https://nostalgic-counter.llll-ll.com/api/count?url=https://example.com&token=yo
 ### 2. 埋め込み
 ```html
 <script src="/components/display.js"></script>
-<nostalgic-counter id="your-id" type="total" style="classic"></nostalgic-counter>
+<nostalgic-counter id="your-id" type="total" theme="classic"></nostalgic-counter>
 ```
 
 ### 3. 管理操作

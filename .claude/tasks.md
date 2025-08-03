@@ -5,16 +5,16 @@
 ### 1. 公開ID方式への移行 ✅ 完了
 - [x] API を公開ID方式に変更
   - [x] `/api/count` を URL+トークン → 公開ID返却に変更
-  - [x] `/api/counter` を 公開IDベースに変更
+  - [x] `/api/display` を 公開IDベースに変更
   - [x] `/api/owner` の管理APIを実装
 
-### 2. Vercel KV統合 ✅ 完了
-- [x] CounterDB クラスをVercel KV対応に改修
-  - [x] メモリベースから KV ベースに変更
+### 2. Redis Cloud統合 ✅ 完了
+- [x] CounterDB クラスをRedis対応に改修
+  - [x] メモリベースから Redis ベースに変更
   - [x] アトミックなカウントアップ実装（kv.incr）
-  - [x] 日別カウントの KV 保存機能
-- [ ] 環境変数の設定（デプロイ時に設定）
-  - `KV_URL`, `KV_REST_API_URL`, `KV_REST_API_TOKEN`
+  - [x] 日別カウントの Redis 保存機能
+- [x] 環境変数の設定（デプロイ時に設定）
+  - `REDIS_URL`
 
 ### 3. 公開ID生成機能 ✅ 完了
 - [x] 公開ID生成ロジック実装

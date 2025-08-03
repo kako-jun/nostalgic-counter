@@ -11,16 +11,18 @@ Nostalgic CounterをWeb Componentsとして提供し、モダンな技術で懐�
 #### 属性
 - `id` (必須): カウンターの公開ID
 - `type` (任意): 表示する値の種類（total, today, yesterday, week, month）
-- `style` (任意): 表示スタイル（classic, modern, retro）
+- `theme` (任意): 表示スタイル（classic, modern, retro）
 - `digits` (任意): 表示桁数（デフォルト: 6）
 
 ### 実装例
 
 ```javascript
-// /components/counter.js
+// /components/display.js
 class NostalgicCounter extends HTMLElement {
-  // ページ内でカウント済みのIDを記録
+  // ページ内でカウント済みのIDを記録（同じIDは1回のみカウント）
   static counted = new Set();
+  // カウントアップ後の最新データを保存
+  static latestCounts = new Map();
   
   constructor() {
     super();
@@ -28,28 +30,42 @@ class NostalgicCounter extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['id', 'type', 'style', 'digits'];
+    return ['id', 'type', 'theme', 'digits'];
   }
 
   connectedCallback() {
+    // カウントアップを先に実行し、完了を待つ
+    this.countUpAndRender();
+  }
+
+  async countUpAndRender() {
+    const id = this.getAttribute('id');
+    if (!id) {
+      this.render();
+      return;
+    }
+
+    // 既にカウント済みの場合は即座にレンダリング
+    if (NostalgicCounter.counted.has(id)) {
+      this.render();
+      return;
+    }
+
+    // カウントアップして結果を待つ
+    await this.countUp();
     this.render();
-    this.countUp();
   }
 
   async countUp() {
     const id = this.getAttribute('id');
     
-    if (!id) return;
-    
-    // 同じIDは1回だけカウント
-    if (NostalgicCounter.counted.has(id)) {
-      return;
-    }
-    
-    NostalgicCounter.counted.add(id);
-    
     try {
-      await fetch(`/api/count?id=${id}`);
+      NostalgicCounter.counted.add(id);
+      const response = await fetch(`/api/count?id=${id}`);
+      const data = await response.json();
+      
+      // 最新データを保存
+      NostalgicCounter.latestCounts.set(id, data);
     } catch (error) {
       console.error('Count failed:', error);
     }
@@ -58,7 +74,7 @@ class NostalgicCounter extends HTMLElement {
   render() {
     const id = this.getAttribute('id');
     const type = this.getAttribute('type') || 'total';
-    const style = this.getAttribute('style') || 'classic';
+    const theme = this.getAttribute('theme') || 'classic';
     const digits = this.getAttribute('digits') || '6';
     
     if (!id) {
@@ -66,7 +82,7 @@ class NostalgicCounter extends HTMLElement {
       return;
     }
     
-    const imgUrl = `/api/counter?id=${id}&type=${type}&style=${style}&digits=${digits}`;
+    const imgUrl = `/api/display?id=${id}&type=${type}&style=${theme}&digits=${digits}`;
     
     this.shadowRoot.innerHTML = `
       <style>
@@ -96,7 +112,7 @@ customElements.define('nostalgic-counter', NostalgicCounter);
 
 ### 基本的な使い方
 ```html
-<script src="https://nostalgic-counter.vercel.app/components/counter.js"></script>
+<script src="https://nostalgic-counter.llll-ll.com/components/display.js"></script>
 <nostalgic-counter 
   id="blog-a7b9c3d4"
   type="total"
