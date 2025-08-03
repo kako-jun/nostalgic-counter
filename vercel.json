@@ -23,7 +23,7 @@
       ]
     },
     {
-      "source": "/api/counter",
+      "source": "/api/display",
       "headers": [
         {
           "key": "Access-Control-Allow-Origin",

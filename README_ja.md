@@ -68,7 +68,7 @@ fetch('https://nostalgic-counter.llll-ll.com/api/count?id=yoursite-a7b9c3d4')
   .then(data => console.log('現在のカウント:', data.total));
 
 // 2. カウンターを表示
-<img src="https://nostalgic-counter.llll-ll.com/api/counter?id=yoursite-a7b9c3d4&type=total&style=classic" alt="カウンター" />
+<img src="https://nostalgic-counter.llll-ll.com/api/display?id=yoursite-a7b9c3d4&type=total&style=classic" alt="カウンター" />
 ```
 
 これだけです！あなたのカウンターが自動的にユニーク訪問者をカウントし、懐かしいカウンター画像を表示します。
