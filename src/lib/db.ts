@@ -4,32 +4,43 @@ import { generatePublicId, hashOwnerToken, verifyOwnerToken, generateVisitKey } 
 // 開発環境用のメモリストレージ
 const memoryStorage = new Map<string, any>()
 
-// KV互換インターフェース
+// Redis接続の取得
+async function getRedis() {
+  if (process.env.REDIS_URL) {
+    const Redis = (await import('ioredis')).default
+    return new Redis(process.env.REDIS_URL)
+  }
+  return null
+}
+
+// KV互換インターフェース（Redis対応）
 const kvInterface = {
   async get<T>(key: string): Promise<T | null> {
-    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-      console.log('[KV] Using Vercel KV for get:', key)
-      const { kv } = await import('@vercel/kv')
-      return kv.get<T>(key)
+    const redis = await getRedis()
+    if (redis) {
+      console.log('[Redis] Using Redis for get:', key)
+      const result = await redis.get(key)
+      return result ? JSON.parse(result) : null
     }
     // 開発環境：メモリストレージを使用
-    console.log('[KV] Using memory storage for get:', key)
+    console.log('[Redis] Using memory storage for get:', key)
     return memoryStorage.get(key) as T || null
   },
   
   async set(key: string, value: any): Promise<void> {
-    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-      const { kv } = await import('@vercel/kv')
-      return kv.set(key, value)
+    const redis = await getRedis()
+    if (redis) {
+      await redis.set(key, JSON.stringify(value))
+      return
     }
     // 開発環境：メモリストレージを使用
     memoryStorage.set(key, value)
   },
   
   async incr(key: string): Promise<number> {
-    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-      const { kv } = await import('@vercel/kv')
-      return kv.incr(key)
+    const redis = await getRedis()
+    if (redis) {
+      return redis.incr(key)
     }
     // 開発環境：メモリストレージを使用
     const current = memoryStorage.get(key) || 0
@@ -39,9 +50,9 @@ const kvInterface = {
   },
   
   async setex(key: string, seconds: number, value: any): Promise<void> {
-    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-      const { kv } = await import('@vercel/kv')
-      await kv.setex(key, seconds, value)
+    const redis = await getRedis()
+    if (redis) {
+      await redis.setex(key, seconds, JSON.stringify(value))
       return
     }
     // 開発環境：TTLは無視してメモリストレージを使用
@@ -49,9 +60,9 @@ const kvInterface = {
   },
   
   async expire(key: string, seconds: number): Promise<void> {
-    if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
-      const { kv } = await import('@vercel/kv')
-      await kv.expire(key, seconds)
+    const redis = await getRedis()
+    if (redis) {
+      await redis.expire(key, seconds)
       return
     }
     // 開発環境：TTLは無視
@@ -171,7 +182,7 @@ class CounterDB {
     const today = new Date().toISOString().split('T')[0]
     
     // アトミックにカウントアップ
-    const [newTotal, newToday] = await Promise.all([
+    await Promise.all([
       kvInterface.incr(`counter:${id}:total`),
       kvInterface.incr(`counter:${id}:daily:${today}`)
     ])

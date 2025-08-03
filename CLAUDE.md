@@ -1,7 +1,7 @@
 # Nostalgic Counter - プロジェクト目次
 
 ## プロジェクト概要
-昔のWebカウンターを最新技術で復活させたサービス。Next.js + Vercel KV で実装。
+昔のWebカウンターを最新技術で復活させたサービス。Next.js + Redis で実装。
 
 ## 実装済み機能
 - ✅ カウンター作成・管理（公開ID方式）
@@ -18,7 +18,7 @@
 - `/api/counter` - 画像・データ取得
 - `/api/owner` - 管理操作（値設定）
 
-### データ構造（Vercel KV）
+### データ構造（Redis）
 ```
 counter:{id}                    → メタデータ
 counter:{id}:total             → 累計
@@ -37,7 +37,7 @@ visit:{id}:{hash}              → 重複防止（24h TTL）
 - `src/app/api/owner/route.ts` - 管理操作
 
 ### Core Logic
-- `src/lib/db.ts` - Vercel KV操作
+- `src/lib/db.ts` - Redis操作
 - `src/lib/utils.ts` - ID生成・認証・重複防止
 - `src/lib/image-generator.ts` - SVG画像生成
 
@@ -79,5 +79,7 @@ fetch('/api/owner?action=set&url=https://example.com&token=your-secret&total=0')
 
 ## デプロイメント
 - Vercel自動デプロイ
-- Vercel KV自動設定（環境変数設定不要）
+- Redis設定
+  - Vercel Integrations → Redisを追加
+  - REDIS_URL環境変数が自動設定される
 - 完全無料運用可能
