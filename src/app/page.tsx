@@ -45,9 +45,9 @@ export default function HomePage() {
                 </span>
               </p>
               <div style={{ textAlign: "center", marginBottom: "20px", marginTop: "30px" }}>
-                <p style={{ fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+                <p style={{ fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", gap: "20px" }}>
                   ようこそ！今まで
-                  <span style={{ transform: "scale(2)", display: "inline-block", transformOrigin: "center" }}>
+                  <span style={{ transform: "scale(2)", display: "inline-block", transformOrigin: "center", margin: "0 30px" }}>
                     <nostalgic-counter id="nostalgi-5e343478" type="total" theme="classic" />
                   </span>
                   回も閲覧されました！
