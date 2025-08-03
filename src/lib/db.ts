@@ -8,10 +8,12 @@ const memoryStorage = new Map<string, any>()
 const kvInterface = {
   async get<T>(key: string): Promise<T | null> {
     if (process.env.KV_REST_API_URL && process.env.KV_REST_API_TOKEN) {
+      console.log('[KV] Using Vercel KV for get:', key)
       const { kv } = await import('@vercel/kv')
       return kv.get<T>(key)
     }
     // 開発環境：メモリストレージを使用
+    console.log('[KV] Using memory storage for get:', key)
     return memoryStorage.get(key) as T || null
   },
   

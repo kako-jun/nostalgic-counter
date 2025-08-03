@@ -45,7 +45,17 @@ class NostalgicCounter extends HTMLElement {
     
     try {
       const baseUrl = this.getAttribute('api-base') || window.location.origin;
-      await fetch(`${baseUrl}/api/count?id=${encodeURIComponent(id)}`);
+      const countUrl = `${baseUrl}/api/count?id=${encodeURIComponent(id)}`;
+      console.log('nostalgic-counter: Counting up:', countUrl);
+      const response = await fetch(countUrl);
+      if (!response.ok) {
+        console.error('nostalgic-counter: Count failed with status:', response.status, response.statusText);
+        const errorData = await response.text();
+        console.error('nostalgic-counter: Error response:', errorData);
+      } else {
+        const result = await response.json();
+        console.log('nostalgic-counter: Count successful:', result);
+      }
     } catch (error) {
       console.error('nostalgic-counter: Count failed:', error);
     }
