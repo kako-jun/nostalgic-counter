@@ -115,7 +115,7 @@ GET /api/count?id={ID}
 ### 2. カウンター画像・データ取得
 
 ```
-GET /api/counter?id={ID}&type={TYPE}&style={STYLE}&digits={DIGITS}&format={FORMAT}
+GET /api/display?id={ID}&type={TYPE}&style={STYLE}&digits={DIGITS}&format={FORMAT}
 ```
 
 #### パラメータ
@@ -171,7 +171,7 @@ fetch('/api/count?url=https://myblog.com&token=my-secret-token')
 
 #### ステップ2: HTMLに埋め込み
 ```html
-<script src="https://nostalgic-counter.llll-ll.com/components/counter.js"></script>
+<script src="https://nostalgic-counter.llll-ll.com/components/display.js"></script>
 <nostalgic-counter 
   id="blog-a7b9c3d4"
   type="total"

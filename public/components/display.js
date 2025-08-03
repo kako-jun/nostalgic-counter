@@ -2,7 +2,7 @@
  * Nostalgic Counter Web Component
  * 
  * 使用方法:
- * <script src="' + window.location.origin + '/components/counter.js"></script>
+ * <script src="' + window.location.origin + '/components/display.js"></script>
  * <nostalgic-counter id="your-counter-id" type="total" theme="classic"></nostalgic-counter>
  */
 

@@ -136,7 +136,7 @@ export default function HomePage() {
               </p>
               <p>HTMLに以下のコードを追加：</p>
               <pre style={{ backgroundColor: "#f0f0f0", padding: "10px", overflow: "auto", fontSize: "14px", margin: "10px 0" }}>
-                {`<script src="https://nostalgic-counter.llll-ll.com/components/counter.js"></script>
+                {`<script src="https://nostalgic-counter.llll-ll.com/components/display.js"></script>
 <nostalgic-counter id="`}
                 <span style={{ color: "#008000" }}>あなたの公開ID</span>
                 {`" type="`}
@@ -414,7 +414,7 @@ export default function HomePage() {
 
   return (
     <>
-      <Script src="https://nostalgic-counter.llll-ll.com/components/counter.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic-counter.llll-ll.com/components/display.js" strategy="beforeInteractive" />
       <div className="nostalgic-main-frame">
       <div className="nostalgic-sidebar-left">
         <div className="nostalgic-title-bar" style={{ fontSize: "16px !important" }}>MENU</div>

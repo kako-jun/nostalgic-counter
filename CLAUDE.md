@@ -43,7 +43,7 @@ visit:{id}:{hash}              → 重複防止（24h TTL）
 
 ### Frontend
 - `src/app/page.tsx` - ランディングページ
-- `public/components/counter.js` - Web Component
+- `public/components/display.js` - Web Component
 
 ### Documentation
 - `docs/specification.md` - 公開API仕様
@@ -62,7 +62,7 @@ https://nostalgic-counter.llll-ll.com/api/count?url=https://example.com&token=yo
 
 ### 2. 埋め込み
 ```html
-<script src="/components/counter.js"></script>
+<script src="/components/display.js"></script>
 <nostalgic-counter id="your-id" type="total" style="classic"></nostalgic-counter>
 ```
 

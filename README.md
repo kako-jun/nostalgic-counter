@@ -56,7 +56,7 @@ flowchart TD
 
 **Web Component (Simple)**
 ```html
-<script src="https://nostalgic-counter.llll-ll.com/components/counter.js"></script>
+<script src="https://nostalgic-counter.llll-ll.com/components/display.js"></script>
 <nostalgic-counter id="yoursite-a7b9c3d4" type="total" style="classic"></nostalgic-counter>
 ```
 
@@ -68,7 +68,7 @@ fetch('https://nostalgic-counter.llll-ll.com/api/count?id=yoursite-a7b9c3d4')
   .then(data => console.log('Current count:', data.total));
 
 // 2. Display the counter
-<img src="https://nostalgic-counter.llll-ll.com/api/counter?id=yoursite-a7b9c3d4&type=total&style=classic" alt="Counter" />
+<img src="https://nostalgic-counter.llll-ll.com/api/display?id=yoursite-a7b9c3d4&type=total&style=classic" alt="Counter" />
 ```
 
 That's it! Your counter will automatically count unique visitors and display the nostalgic counter image.

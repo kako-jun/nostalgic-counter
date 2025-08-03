@@ -56,7 +56,7 @@ flowchart TD
 
 **Web Component（シンプル）**
 ```html
-<script src="https://nostalgic-counter.llll-ll.com/components/counter.js"></script>
+<script src="https://nostalgic-counter.llll-ll.com/components/display.js"></script>
 <nostalgic-counter id="yoursite-a7b9c3d4" type="total" style="classic"></nostalgic-counter>
 ```
 
