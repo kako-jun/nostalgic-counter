@@ -47,7 +47,7 @@ export default function HomePage() {
               <div style={{ textAlign: "center", marginBottom: "20px", marginTop: "30px" }}>
                 <p style={{ fontSize: "20px", fontWeight: "bold" }}>
                   ようこそ！あなたは{" "}
-                  <nostalgic-counter id="nostalgi-0f2f2df6" type="total" theme="classic" scale="1.5" />{" "}
+                  <nostalgic-counter id="nostalgi-5e343478" type="total" theme="classic" scale="1.5" />{" "}
                   人目の訪問者です！
                 </p>
               </div>
@@ -56,28 +56,28 @@ export default function HomePage() {
                   <b>今日</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgi-0f2f2df6" type="today" theme="modern" digits="3" />
+                    <nostalgic-counter id="nostalgi-5e343478" type="today" theme="modern" digits="3" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>昨日</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgi-0f2f2df6" type="yesterday" theme="modern" digits="3" />
+                    <nostalgic-counter id="nostalgi-5e343478" type="yesterday" theme="modern" digits="3" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>今週</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgi-0f2f2df6" type="week" theme="modern" digits="4" />
+                    <nostalgic-counter id="nostalgi-5e343478" type="week" theme="modern" digits="4" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>今月</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgi-0f2f2df6" type="month" theme="modern" digits="4" />
+                    <nostalgic-counter id="nostalgi-5e343478" type="month" theme="modern" digits="4" />
                   </div>
                 </div>
               </div>
@@ -242,21 +242,21 @@ export default function HomePage() {
                   <b>Classic</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=nostalgi-0f2f2df6&type=total&style=classic" alt="Classic" />
+                    <img src="/api/counter?id=nostalgi-5e343478&type=total&style=classic" alt="Classic" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>Modern</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=nostalgi-0f2f2df6&type=total&style=modern" alt="Modern" />
+                    <img src="/api/counter?id=nostalgi-5e343478&type=total&style=modern" alt="Modern" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>Retro</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?id=nostalgi-0f2f2df6&type=total&style=retro" alt="Retro" />
+                    <img src="/api/counter?id=nostalgi-5e343478&type=total&style=retro" alt="Retro" />
                   </div>
                 </div>
               </div>
