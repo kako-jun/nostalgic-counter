@@ -9,6 +9,8 @@
 class NostalgicCounter extends HTMLElement {
   // ページ内でカウント済みのIDを記録（同じIDは1回のみカウント）
   static counted = new Set();
+  // カウントアップ後の最新データを保存
+  static latestCounts = new Map();
   
   constructor() {
     super();
@@ -20,11 +22,29 @@ class NostalgicCounter extends HTMLElement {
   }
 
   connectedCallback() {
-    this.countUp();
-    this.render();
+    // カウントアップを先に実行し、完了を待つ
+    this.countUpAndRender();
   }
 
   attributeChangedCallback() {
+    this.render();
+  }
+
+  async countUpAndRender() {
+    const id = this.getAttribute('id');
+    if (!id) {
+      this.render();
+      return;
+    }
+
+    // 既にカウント済みの場合は即座にレンダリング
+    if (NostalgicCounter.counted.has(id)) {
+      this.render();
+      return;
+    }
+
+    // カウントアップして結果を待つ
+    await this.countUp();
     this.render();
   }
 
@@ -55,6 +75,8 @@ class NostalgicCounter extends HTMLElement {
       } else {
         const result = await response.json();
         console.log('nostalgic-counter: Count successful:', result);
+        // カウントアップ後の値で表示を更新
+        NostalgicCounter.latestCounts.set(id, result);
       }
     } catch (error) {
       console.error('nostalgic-counter: Count failed:', error);
@@ -84,6 +106,10 @@ class NostalgicCounter extends HTMLElement {
     
     const baseUrl = this.getAttribute('api-base') || window.location.origin;
     const apiUrl = `${baseUrl}/api/display?id=${encodeURIComponent(id)}&type=${type}&theme=${theme}&digits=${digits}&format=${format}`;
+    
+    // カウントアップ後の最新データがあれば使用
+    const latestData = NostalgicCounter.latestCounts.get(id);
+    const hasLatestData = latestData && latestData[type] !== undefined;
     
     if (format === 'text') {
       // テキスト形式の場合
@@ -116,8 +142,14 @@ class NostalgicCounter extends HTMLElement {
         <span class="loading ${style}">Loading...</span>
       `;
       
-      // テキストを非同期で取得
-      fetch(apiUrl)
+      // 最新データがあれば即座に表示
+      if (hasLatestData) {
+        const value = latestData[type];
+        this.shadowRoot.querySelector('span').textContent = value;
+        this.shadowRoot.querySelector('span').className = theme;
+      } else {
+        // テキストを非同期で取得
+        fetch(apiUrl)
         .then(response => response.text())
         .then(text => {
           this.shadowRoot.innerHTML = `
@@ -158,6 +190,7 @@ class NostalgicCounter extends HTMLElement {
             <span>Error loading counter</span>
           `;
         });
+      }
     } else {
       // 画像形式の場合（デフォルト）
       this.shadowRoot.innerHTML = `
