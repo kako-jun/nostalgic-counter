@@ -46,9 +46,9 @@ export default function HomePage() {
               </p>
               <div style={{ textAlign: "center", marginBottom: "20px", marginTop: "30px" }}>
                 <p style={{ fontSize: "20px", fontWeight: "bold" }}>
-                  ようこそ！あなたは{" "}
+                  ようこそ！今まで{" "}
                   <nostalgic-counter id="nostalgi-5e343478" type="total" theme="classic" scale="1.5" />{" "}
-                  人目の訪問者です！
+                  回も閲覧されました！
                 </p>
               </div>
               <div>
