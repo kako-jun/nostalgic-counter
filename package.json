@@ -8,7 +8,10 @@
     "dev:open": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "redis:show": "node scripts/show-all-data.js",
+    "redis:info": "node scripts/redis-info.js",
+    "redis:fix": "node scripts/fix-counter.js"
   },
   "keywords": [],
   "author": "",
