@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Script from "next/script";
 import "./nostalgic.css";
 
@@ -619,17 +619,6 @@ export default function HomePage() {
 
       <div className="nostalgic-content-area">{renderContent()}</div>
 
-      {/* カウント用スクリプト */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-            fetch('/api/count?url=' + encodeURIComponent(window.location.href))
-              .then(r => r.json())
-              .then(d => console.log('カウント完了:', d))
-              .catch(e => console.error('カウントエラー:', e));
-          `,
-        }}
-      />
 
       {/* フッター - 右下固定 */}
       <div
