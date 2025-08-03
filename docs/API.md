@@ -170,6 +170,8 @@ fetch('/api/count?url=https://myblog.com&token=my-secret-token')
 ```
 
 #### ステップ2: HTMLに埋め込み
+
+**Web Component（シンプル）**
 ```html
 <script src="https://nostalgic-counter.llll-ll.com/components/display.js"></script>
 <nostalgic-counter 
@@ -179,7 +181,21 @@ fetch('/api/count?url=https://myblog.com&token=my-secret-token')
 </nostalgic-counter>
 ```
 
-これだけで：
+**手動制御（カスタム）**
+```html
+<!-- 画像のみ表示（自動カウントなし） -->
+<img src="https://nostalgic-counter.llll-ll.com/api/display?id=blog-a7b9c3d4&type=total&style=classic" alt="カウンター" />
+
+<!-- またはJavaScriptで手動カウント -->
+<script>
+  // 訪問をカウントして現在値を表示
+  fetch('https://nostalgic-counter.llll-ll.com/api/count?id=blog-a7b9c3d4')
+    .then(response => response.json())
+    .then(data => console.log('現在のカウント:', data.total));
+</script>
+```
+
+Web Componentを使用した場合：
 - カウンターの表示
 - 訪問のカウントアップ
 - 24時間の重複防止
