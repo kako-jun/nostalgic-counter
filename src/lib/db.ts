@@ -215,14 +215,19 @@ class CounterDB {
   // 重複チェック（24時間以内の同一IP+UserAgent）
   async checkDuplicateVisit(id: string, ip: string, userAgent: string): Promise<boolean> {
     const visitKey = generateVisitKey(id, ip, userAgent)
+    console.log('🔍 Checking duplicate:', { id, ip, userAgent, visitKey })
+    
     const hasVisited = await kvInterface.get(visitKey)
+    console.log('📝 Previous visit found:', !!hasVisited)
     
     if (hasVisited) {
+      console.log('🚫 Duplicate visit detected')
       return true // 重複
     }
     
     // 24時間のTTLで記録
     await kvInterface.setex(visitKey, 24 * 60 * 60, '1')
+    console.log('✅ New visit recorded')
     return false // 新規訪問
   }
 }
