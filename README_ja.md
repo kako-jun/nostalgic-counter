@@ -84,7 +84,7 @@ flowchart TD
 
 ## 📖 ドキュメント
 
-- **[API仕様書](docs/API.md)** - 完全なAPI仕様
+- **[API仕様書](docs/API_ja.md)** - 完全なAPI仕様
 - **[ライブデモ](https://nostalgic-counter.llll-ll.com)** - 懐かしいホームページで実際に体験
 
 

@@ -1,80 +1,80 @@
-# Nostalgic Counter API仕様書
+# Nostalgic Counter API Reference
 
-## 概要
+## Overview
 
-Nostalgic Counterは、昔のインターネットで使われていたアクセスカウンターを現代の技術で再現したサービスです。
-任意のWebサイトに設置可能で、訪問者数を記録・表示します。
+Nostalgic Counter is a service that recreates the access counters used on old internet sites with modern technology.
+It can be installed on any website to record and display visitor counts.
 
-## 重要な注意事項
+## Important Notes
 
-### URLパラメータについて
-`url`パラメータは**カウンターの識別子**として使用されるだけで、他人のWebサイトを追跡するものではありません。URL+トークンの組み合わせごとに別々のカウンターが作成され、あなたの秘密トークンでのみ管理できます。異なるページに別々のカウンターが欲しい場合は、異なるURLを使用してください（例：`https://yoursite.com/blog`、`https://yoursite.com/about`）。
+### About URL Parameters
+The `url` parameter is used only as a **counter identifier** and is not used to track other people's websites. A separate counter is created for each URL+token combination, and can only be managed with your secret token. If you want separate counters for different pages, use different URLs (e.g., `https://yoursite.com/blog`, `https://yoursite.com/about`).
 
-### サービス利用について
-- **提供サービス**: `https://nostalgic-counter.llll-ll.com` を使用（設定不要）
-- **セルフホスティング**: 自分でVercelにデプロイすることも可能
+### Service Usage
+- **Hosted Service**: Use `https://nostalgic-counter.llll-ll.com` (no setup required)
+- **Self-hosting**: You can also deploy to Vercel yourself
 
-### 練習モード
-READMEのサンプルURLをクリックして動作を確認できます！みんなでテスト用に使えるデモカウンターが作成されます。管理操作も試せます：
+### Practice Mode
+You can test the functionality by clicking the sample URLs in the README! Demo counters that everyone can use for testing will be created. You can also try management operations:
 ```
 https://nostalgic-counter.llll-ll.com/api/owner?action=set&url=https://yoursite.com&token=your-secret-token&total=12345
 ```
 
-## パラメータ一覧
+## Parameter List
 
-### カウンタータイプ（type）
-- `total` - 累計訪問者（デフォルト）
-- `today` - 今日の訪問者
-- `yesterday` - 昨日の訪問者
-- `week` - 直近7日間
-- `month` - 直近30日間
+### Counter Types (type)
+- `total` - Total visitors (default)
+- `today` - Today's visitors
+- `yesterday` - Yesterday's visitors
+- `week` - Last 7 days
+- `month` - Last 30 days
 
-### スタイル（style）
-- `classic` - 黒背景に緑文字（90年代ターミナル風）
-- `modern` - グレー背景に白文字（2000年代クリーン風）
-- `retro` - 紫背景に黄文字（80年代ネオン風）
+### Styles (style)
+- `classic` - Green text on black background (90s terminal style)
+- `modern` - White text on gray background (2000s clean style)
+- `retro` - Yellow text on purple background (80s neon style)
 
-### その他のパラメータ
-- `digits` - 表示桁数（デフォルト: 6）
-- `format` - レスポンス形式（`text`または`image`、デフォルト: `image`）
+### Other Parameters
+- `digits` - Display digits (default: 6)
+- `format` - Response format (`text` or `image`, default: `image`)
 
-## 基本設計
+## Basic Design
 
-### データモデル
+### Data Model
 
-各カウンターは以下の要素で構成されます：
-- **URL**: カウント対象のURL
-- **公開ID**: 表示・カウント用の識別子（例: `blog-a7b9c3d4`）
-- **オーナートークン**: 管理操作用の秘密トークン
+Each counter consists of the following elements:
+- **URL**: Target URL for counting
+- **Public ID**: Identifier for display/counting (e.g., `blog-a7b9c3d4`)
+- **Owner Token**: Secret token for management operations
 
-### カウンターの識別方法
+### Counter Identification Methods
 
-1. **作成・管理時**: URL + オーナートークン
-2. **表示・カウント時**: 公開ID
+1. **Creation/Management**: URL + Owner Token
+2. **Display/Counting**: Public ID
 
-これにより：
-- オーナートークンはHTMLに埋め込む必要がない
-- 公開IDは何度でも確認可能
-- 他人のカウンターには干渉できない
+This allows:
+- Owner tokens don't need to be embedded in HTML
+- Public IDs can be checked anytime
+- Cannot interfere with other people's counters
 
-## API仕様
+## API Specifications
 
-### 1. カウンター作成・ID確認
+### 1. Counter Creation/ID Confirmation
 
 ```
 GET /api/count?url={URL}&token={TOKEN}
 ```
 
-#### 動作
-- カウンターが存在しない場合：新規作成
-- カウンターが既に存在する場合：カウントアップ
-- **公開IDを返す**（トークン付きの場合のみ）
+#### Operation
+- If counter doesn't exist: Create new
+- If counter already exists: Count up
+- **Returns public ID** (only when token is provided)
 
-#### パラメータ
-- `url` (必須): カウント対象のURL
-- `token` (必須): カウンターのオーナートークン
+#### Parameters
+- `url` (required): Target URL for counting
+- `token` (required): Counter owner token
 
-#### レスポンス
+#### Response
 ```json
 {
   "id": "blog-a7b9c3d4",
@@ -89,16 +89,16 @@ GET /api/count?url={URL}&token={TOKEN}
 }
 ```
 
-### 1-2. 通常のカウントアップ
+### 1-2. Regular Count Up
 
 ```
 GET /api/count?id={ID}
 ```
 
-#### パラメータ
-- `id` (必須): カウンターの公開ID
+#### Parameters
+- `id` (required): Counter's public ID
 
-#### レスポンス
+#### Response
 ```json
 {
   "url": "https://example.com",
@@ -112,66 +112,66 @@ GET /api/count?id={ID}
 }
 ```
 
-### 2. カウンター画像・データ取得
+### 2. Counter Image/Data Retrieval
 
 ```
 GET /api/display?id={ID}&type={TYPE}&style={STYLE}&digits={DIGITS}&format={FORMAT}
 ```
 
-#### パラメータ
-- `id` (必須): カウンターの公開ID
-- `type` (任意): 表示する値の種類
-  - `total` (デフォルト): 累計
-  - `today`: 今日
-  - `yesterday`: 昨日
-  - `week`: 直近7日間
-  - `month`: 直近30日間
-- `style` (任意): 表示スタイル（format=imageの場合のみ有効）
-  - `classic` (デフォルト): 黒背景・緑文字・monospace（90年代風）
-  - `modern`: ダークグレー背景・白文字・Arial（現代風）
-  - `retro`: 紫背景・黄文字・monospace（80年代風）
-- `digits` (任意): 表示桁数（デフォルト: 6、format=imageの場合のみ有効）
-- `format` (任意): レスポンス形式
-  - `text`: プレーンテキスト（数値のみ）
-  - `image` (デフォルト): SVG画像
+#### Parameters
+- `id` (required): Counter's public ID
+- `type` (optional): Type of value to display
+  - `total` (default): Total count
+  - `today`: Today
+  - `yesterday`: Yesterday
+  - `week`: Last 7 days
+  - `month`: Last 30 days
+- `style` (optional): Display style (only effective when format=image)
+  - `classic` (default): Black background, green text, monospace (90s style)
+  - `modern`: Dark gray background, white text, Arial (modern style)
+  - `retro`: Purple background, yellow text, monospace (80s style)
+- `digits` (optional): Display digits (default: 6, only effective when format=image)
+- `format` (optional): Response format
+  - `text`: Plain text (numbers only)
+  - `image` (default): SVG image
 
-#### レスポンス
-- `format=text`: 数値のみ（プレーンテキスト）
-- `format=image`: SVG形式の画像
+#### Response
+- `format=text`: Numbers only (plain text)
+- `format=image`: SVG format image
 
-### 3. カウンター管理
+### 3. Counter Management
 
 ```
 GET /api/owner?action={ACTION}&url={URL}&token={TOKEN}&...
 ```
 
-#### アクション
+#### Actions
 
-##### 値の設定
+##### Value Setting
 ```
 GET /api/owner?action=set&url={URL}&token={TOKEN}&total={TOTAL}
 ```
-- `url` (必須): カウンターのURL
-- `token` (必須): カウンターのオーナートークン
-- `total`: 累計値を設定（任意、デフォルトは変更なし）
-- 今日・昨日・週間・月間の値は日別データから自動計算されるため設定不可
+- `url` (required): Counter URL
+- `token` (required): Counter owner token
+- `total`: Set total value (optional, default is no change)
+- Today/yesterday/weekly/monthly values are automatically calculated from daily data and cannot be set
 
-## 使用例
+## Usage Examples
 
-### 1. カウンターの設置手順
+### 1. Counter Installation Steps
 
-#### ステップ1: カウンターを作成してIDを取得
+#### Step 1: Create counter and get ID
 ```javascript
-// ブラウザのコンソールまたは別途実行
+// Execute in browser console or separately
 fetch('/api/count?url=https://myblog.com&token=my-secret-token')
   .then(r => r.json())
-  .then(data => console.log('公開ID:', data.id));
-// 結果: 公開ID: blog-a7b9c3d4
+  .then(data => console.log('Public ID:', data.id));
+// Result: Public ID: blog-a7b9c3d4
 ```
 
-#### ステップ2: HTMLに埋め込み
+#### Step 2: Embed in HTML
 
-**Web Component（シンプル）**
+**Web Component (Simple)**
 ```html
 <script src="https://nostalgic-counter.llll-ll.com/components/display.js"></script>
 <nostalgic-counter 
@@ -181,34 +181,34 @@ fetch('/api/count?url=https://myblog.com&token=my-secret-token')
 </nostalgic-counter>
 ```
 
-**手動制御（カスタム）**
+**Manual Control (Custom)**
 ```html
-<!-- 画像のみ表示（自動カウントなし） -->
-<img src="https://nostalgic-counter.llll-ll.com/api/display?id=blog-a7b9c3d4&type=total&style=classic" alt="カウンター" />
+<!-- Display counter as image only (no automatic counting) -->
+<img src="https://nostalgic-counter.llll-ll.com/api/display?id=blog-a7b9c3d4&type=total&style=classic" alt="Counter" />
 
-<!-- またはJavaScriptで手動カウント -->
+<!-- Or count manually with JavaScript -->
 <script>
-  // 訪問をカウントして現在値を表示
+  // Count and display current value
   fetch('https://nostalgic-counter.llll-ll.com/api/count?id=blog-a7b9c3d4')
     .then(response => response.json())
-    .then(data => console.log('現在のカウント:', data.total));
+    .then(data => console.log('Current count:', data.total));
 </script>
 ```
 
-Web Componentを使用した場合：
-- カウンターの表示
-- 訪問のカウントアップ
-- 24時間の重複防止
+When using Web Components:
+- Counter display
+- Visit counting
+- 24-hour duplicate prevention
 
-すべてが自動的に処理されます。
+Everything is processed automatically.
 
-#### TypeScriptプロジェクトでの追加設定
+#### Additional Setup for TypeScript Projects
 
-TypeScriptを使用している場合は、カスタム要素の型定義を追加する必要があります。
+If you're using TypeScript, you need to add type definitions for custom elements.
 
-**Next.js 15 + React 19の場合** (推奨)：
+**For Next.js 15 + React 19** (recommended):
 ```typescript
-// types.d.ts をプロジェクトルートに作成
+// Create types.d.ts in project root
 import 'react'
 
 declare module 'react' {
@@ -226,9 +226,9 @@ declare module 'react' {
 }
 ```
 
-**従来のReactプロジェクトの場合**：
+**For traditional React projects**:
 ```typescript
-// globals.d.ts または適切な型定義ファイルに追加
+// Add to globals.d.ts or appropriate type definition file
 declare global {
   namespace JSX {
     interface IntrinsicElements {
@@ -244,7 +244,7 @@ declare global {
 }
 ```
 
-型定義ファイルを作成後、`tsconfig.json`の`include`に追加してください：
+After creating the type definition file, add it to `include` in `tsconfig.json`:
 ```json
 {
   "include": [
@@ -256,58 +256,58 @@ declare global {
 }
 ```
 
-この設定により、TypeScriptの型チェックエラーが解消されます。通常のJavaScript/HTMLプロジェクトでは不要です。
+This setup resolves TypeScript type checking errors. Not required for regular JavaScript/HTML projects.
 
-### 2. 複数カウンターの設置
+### 2. Multiple Counter Installation
 
 ```html
-<!-- 総訪問数 -->
+<!-- Total visits -->
 <nostalgic-counter id="blog-a7b9c3d4" type="total" theme="classic"></nostalgic-counter>
 
-<!-- 今日の訪問数（同じIDなのでカウントアップは発生しない） -->
+<!-- Today's visits (same ID so no count up occurs) -->
 <nostalgic-counter id="blog-a7b9c3d4" type="today" theme="modern"></nostalgic-counter>
 
-<!-- 今週の訪問数（同じIDなのでカウントアップは発生しない） -->
+<!-- This week's visits (same ID so no count up occurs) -->
 <nostalgic-counter id="blog-a7b9c3d4" type="week" theme="retro"></nostalgic-counter>
 ```
 
-注：同じページ内で同じIDの組み合わせは、最初の1回だけカウントアップされます。
+Note: The same ID combination on the same page will only count up once on the first occurrence.
 
-### 3. カウンターの値を変更
+### 3. Changing Counter Values
 
 ```javascript
-// カウンターを0にリセット
+// Reset counter to 0
 fetch('/api/owner?action=set&url=https://myblog.com&token=my-secret-token&total=0')
   .then(response => response.json())
-  .then(data => console.log('リセット完了:', data));
+  .then(data => console.log('Reset complete:', data));
 
-// 累計を10000に設定
+// Set total to 10000
 fetch('/api/owner?action=set&url=https://myblog.com&token=my-secret-token&total=10000')
   .then(response => response.json())
-  .then(data => console.log('設定完了:', data));
+  .then(data => console.log('Setting complete:', data));
 ```
 
-## セキュリティ
+## Security
 
-### トークンの管理
-- オーナートークンは作成者のみが知る秘密情報
-- 管理操作時のみ使用、HTMLには埋め込まない
-- 公開IDは知られても問題なし（表示・カウントのみ可能）
-- HTTPSの使用を推奨
+### Token Management
+- Owner tokens are secret information known only to the creator
+- Used only for management operations, not embedded in HTML
+- Public IDs are safe to be known (only allow display/counting)
+- HTTPS usage recommended
 
-### 重複カウント防止
-- 同一IP・UserAgentからの24時間以内の重複アクセスは無視
-- これにより、リロードによる不正なカウントアップを防止
+### Duplicate Count Prevention
+- Duplicate access from the same IP/UserAgent within 24 hours is ignored
+- This prevents fraudulent count ups from reloading
 
-## 制限事項
+## Limitations
 
-### 実装環境
-- **ホスティング**: Vercel（Next.js）
-- **データベース**: Redis Cloud
-- **利点**: 高速なKey-Value操作、アトミックなカウントアップ
+### Implementation Environment
+- **Hosting**: Vercel (Next.js)
+- **Database**: Redis Cloud
+- **Benefits**: Fast Key-Value operations, atomic count ups
 
-### 今後の拡張予定
-- レート制限の実装
-- CORS設定の追加
-- 統計機能の拡充
-- 管理画面の追加
+### Future Extension Plans
+- Rate limiting implementation
+- CORS configuration additions
+- Statistics feature enhancement
+- Management interface addition
