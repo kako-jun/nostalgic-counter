@@ -45,9 +45,9 @@ export default function HomePage() {
                 </span>
               </p>
               <div style={{ textAlign: "center", marginBottom: "20px", marginTop: "30px" }}>
-                <p style={{ fontSize: "20px", fontWeight: "bold" }}>
-                  ようこそ！今まで{" "}
-                  <nostalgic-counter id="nostalgi-5e343478" type="total" theme="classic" scale="1.5" />{" "}
+                <p style={{ fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+                  ようこそ！今まで
+                  <nostalgic-counter id="nostalgi-5e343478" type="total" theme="classic" scale="2.0" />
                   回も閲覧されました！
                 </p>
               </div>
@@ -70,14 +70,14 @@ export default function HomePage() {
                   <b>今週</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgi-5e343478" type="week" theme="modern" digits="4" />
+                    <nostalgic-counter id="nostalgi-5e343478" type="week" theme="retro" digits="4" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>今月</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgi-5e343478" type="month" theme="modern" digits="4" />
+                    <nostalgic-counter id="nostalgi-5e343478" type="month" theme="retro" digits="4" />
                   </div>
                 </div>
               </div>
