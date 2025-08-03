@@ -11,6 +11,23 @@ class NostalgicCounter extends HTMLElement {
   static counted = new Set();
   // カウントアップ後の最新データを保存
   static latestCounts = new Map();
+  // スクリプトが読み込まれたドメインを自動検出
+  static apiBaseUrl = (() => {
+    const scripts = document.querySelectorAll('script[src*="display.js"]');
+    for (const script of scripts) {
+      const src = script.getAttribute('src');
+      if (src && src.includes('display.js')) {
+        try {
+          const url = new URL(src, window.location.href);
+          return url.origin;
+        } catch (e) {
+          console.warn('Failed to parse script URL:', src);
+        }
+      }
+    }
+    // フォールバック: 現在のドメインを使用
+    return window.location.origin;
+  })();
   
   constructor() {
     super();
@@ -64,7 +81,7 @@ class NostalgicCounter extends HTMLElement {
     NostalgicCounter.counted.add(id);
     
     try {
-      const baseUrl = this.getAttribute('api-base') || window.location.origin;
+      const baseUrl = this.getAttribute('api-base') || NostalgicCounter.apiBaseUrl;
       const countUrl = `${baseUrl}/api/count?id=${encodeURIComponent(id)}`;
       console.log('nostalgic-counter: Counting up:', countUrl);
       const response = await fetch(countUrl);
@@ -104,7 +121,7 @@ class NostalgicCounter extends HTMLElement {
       return;
     }
     
-    const baseUrl = this.getAttribute('api-base') || window.location.origin;
+    const baseUrl = this.getAttribute('api-base') || NostalgicCounter.apiBaseUrl;
     const apiUrl = `${baseUrl}/api/display?id=${encodeURIComponent(id)}&type=${type}&theme=${theme}&digits=${digits}&format=${format}`;
     
     // カウントアップ後の最新データがあれば使用
