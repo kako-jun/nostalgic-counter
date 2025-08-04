@@ -18,21 +18,21 @@ export function generateCounterSVG(options: CounterImageOptions): string {
     classic: {
       backgroundColor: '#000000',
       textColor: '#00ff00',
-      fontFamily: 'monospace',
+      fontFamily: 'Courier New, Consolas, Monaco, Liberation Mono, DejaVu Sans Mono, monospace',
       fontSize: '16',
       border: '#333333'
     },
     modern: {
       backgroundColor: '#1a1a1a',
       textColor: '#ffffff',
-      fontFamily: 'Arial, sans-serif',
+      fontFamily: 'Arial, Helvetica, "Helvetica Neue", Roboto, "Segoe UI", sans-serif',
       fontSize: '14',
       border: '#666666'
     },
     retro: {
       backgroundColor: '#800080',
       textColor: '#ffff00',
-      fontFamily: 'Courier New, Liberation Mono, DejaVu Sans Mono, monospace',
+      fontFamily: 'Courier New, Consolas, Monaco, Liberation Mono, DejaVu Sans Mono, monospace',
       fontSize: '18',
       border: '#ff00ff'
     }

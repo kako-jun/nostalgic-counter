@@ -287,6 +287,11 @@ fetch('/api/owner?action=set&url=https://myblog.com&token=my-secret-token&total=
   .then(data => console.log('Setting complete:', data));
 ```
 
+#### Recommendations for Total Reset
+When resetting the total value, it is **recommended to set it to a value equal to or greater than the monthly count**. This is because weekly and monthly counts are calculated from past daily data, so resetting the total to 0 or a small value can create a visual contradiction where "total < monthly".
+
+Example: If the monthly count is 100, setting the total to 100 or higher will result in a natural display.
+
 ## Security
 
 ### Token Management
