@@ -15,10 +15,44 @@ Nostalgic Counterは、昔のインターネットで使われていたアクセ
 - **セルフホスティング**: 自分でVercelにデプロイすることも可能
 
 ### 練習モード
-READMEのサンプルURLをクリックして動作を確認できます！みんなでテスト用に使えるデモカウンターが作成されます。管理操作も試せます：
+実際にカウンターを作って動作を確認してみましょう！以下の手順で試せます：
+
+#### 1. カウンターを作成
+まずはカウンターを作成して公開IDを取得します。ブラウザのアドレスバーに直接入力してください：
 ```
-https://nostalgic-counter.llll-ll.com/api/owner?action=set&url=https://yoursite.com&token=your-secret-token&total=12345
+https://nostalgic-counter.llll-ll.com/api/count?url=https://demo.example.com&token=demo-secret-123
 ```
+→ ブラウザにJSONが表示され、`"id": "demo-562a8fd7"`という公開IDが確認できます
+
+#### 2. カウントアップを確認
+取得した公開IDを使ってカウントアップします：
+```
+https://nostalgic-counter.llll-ll.com/api/count?id=demo-562a8fd7
+```
+→ アクセスするたびに`"total"`の値が増えます（24時間の重複防止あり）
+
+#### 3. 画像として表示
+カウンターを画像として確認：
+```
+https://nostalgic-counter.llll-ll.com/api/display?id=demo-562a8fd7&type=total&style=classic
+```
+→ 昔懐かしい黒背景に緑文字のカウンター画像が表示されます
+
+#### 4. テキストとして表示
+数値だけを取得：
+```
+https://nostalgic-counter.llll-ll.com/api/display?id=demo-562a8fd7&type=total&format=text
+```
+→ 現在のカウント数がテキストで表示されます
+
+#### 5. 管理操作（値の設定）
+最後に管理者権限で値を変更してみます：
+```
+https://nostalgic-counter.llll-ll.com/api/owner?action=set&url=https://demo.example.com&token=demo-secret-123&total=12345
+```
+→ カウンターの値が12345に設定されます
+
+これらのURLはすべてブラウザで直接アクセスできるので、気軽に試してみてください！
 
 ## パラメータ一覧
 

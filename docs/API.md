@@ -15,10 +15,44 @@ The `url` parameter is used only as a **counter identifier** and is not used to 
 - **Self-hosting**: You can also deploy to Vercel yourself
 
 ### Practice Mode
-You can test the functionality by clicking the sample URLs in the README! Demo counters that everyone can use for testing will be created. You can also try management operations:
+Let's create a counter and see how it works! Follow these steps to try it out:
+
+#### 1. Create a Counter
+First, create a counter and get the public ID. Enter this directly in your browser's address bar:
 ```
-https://nostalgic-counter.llll-ll.com/api/owner?action=set&url=https://yoursite.com&token=your-secret-token&total=12345
+https://nostalgic-counter.llll-ll.com/api/count?url=https://demo.example.com&token=demo-secret-123
 ```
+→ The browser will display JSON with a public ID like `"id": "demo-562a8fd7"`
+
+#### 2. Verify Count-up
+Use the public ID to increment the counter:
+```
+https://nostalgic-counter.llll-ll.com/api/count?id=demo-562a8fd7
+```
+→ The `"total"` value increases with each access (with 24-hour duplicate prevention)
+
+#### 3. Display as Image
+View the counter as an image:
+```
+https://nostalgic-counter.llll-ll.com/api/display?id=demo-562a8fd7&type=total&style=classic
+```
+→ Shows a nostalgic counter image with green text on black background
+
+#### 4. Display as Text
+Get just the number:
+```
+https://nostalgic-counter.llll-ll.com/api/display?id=demo-562a8fd7&type=total&format=text
+```
+→ Shows the current count as plain text
+
+#### 5. Management Operation (Set Value)
+Finally, change the value with admin privileges:
+```
+https://nostalgic-counter.llll-ll.com/api/owner?action=set&url=https://demo.example.com&token=demo-secret-123&total=12345
+```
+→ Sets the counter value to 12345
+
+All these URLs can be accessed directly in your browser, so feel free to try them out!
 
 ## Parameter List
 
