@@ -25,7 +25,7 @@ export function generateCounterSVG(options: CounterImageOptions): string {
     modern: {
       backgroundColor: '#1a1a1a',
       textColor: '#ffffff',
-      fontFamily: 'Arial, Helvetica, "Helvetica Neue", Roboto, "Segoe UI", sans-serif',
+      fontFamily: 'Arial, Helvetica, Helvetica Neue, Roboto, Segoe UI, sans-serif',
       fontSize: '14',
       border: '#666666'
     },
