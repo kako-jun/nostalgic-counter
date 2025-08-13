@@ -1,85 +1,148 @@
-# Nostalgic Counter - プロジェクト目次
+# Nostalgic - プロジェクト目次
 
 ## プロジェクト概要
-昔のWebカウンターを最新技術で復活させたサービス。Next.js + Redis で実装。
+昔のWebツールを最新技術で復活させた総合プラットフォーム。Next.js + Redis で実装。
 
-## 実装済み機能
-- ✅ カウンター作成・管理（公開ID方式）
+## 実装済み機能（4サービス）
+
+### 📊 Counter Service
 - ✅ 複数期間統計（累計・今日・昨日・週間・月間）
-- ✅ オーナートークン認証（8-16文字制限）
 - ✅ 24時間重複防止
-- ✅ Web Components による埋め込み
 - ✅ SVG画像生成（3スタイル：classic/modern/retro）
-- ✅ テキスト・画像両対応
+- ✅ Web Components による埋め込み
 
-## アーキテクチャ
-### API構成
-- `/api/count` - カウンター作成・カウントアップ
-- `/api/display` - 画像・データ取得
-- `/api/owner` - 管理操作（値設定）
+### 💖 Like Service  
+- ✅ トグル型いいね/取り消し機能
+- ✅ ユーザー状態管理（IP+UserAgent）
+- ✅ 即座のフィードバック
 
-### データ構造（Redis）
+### 🏆 Ranking Service
+- ✅ Redis Sorted Setによる自動ソート
+- ✅ スコア管理（submit/update/remove/clear）
+- ✅ 最大エントリー数制限
+
+### 💬 BBS Service
+- ✅ メッセージ投稿・取得
+- ✅ カスタマイズ可能なドロップダウン（3つ）
+- ✅ アイコン選択機能
+- ✅ ページネーション
+- ✅ 投稿者による自分の投稿編集・削除
+
+## API構成（統一アクション型）
 ```
-counter:{id}                    → メタデータ
+/api/{service}?action={action}&url={URL}&token={TOKEN}&...params
+```
+
+### サービス別エンドポイント
+- `/api/counter` - カウンター（create/increment/display/set）
+- `/api/like` - いいね（create/toggle/get）
+- `/api/ranking` - ランキング（create/submit/update/remove/clear/get）
+- `/api/bbs` - BBS（create/post/update/remove/clear/get）
+
+## データ構造（Redis）
+### Counter
+```
 counter:{id}:total             → 累計
-counter:{id}:daily:{date}      → 日別カウント
+counter:{id}:daily:{date}      → 日別カウント  
 counter:{id}:owner             → オーナートークン（ハッシュ化）
-visit:{id}:{hash}              → 重複防止（24h TTL）
+visit:counter:{id}:{hash}      → 重複防止（24h TTL）
 ```
 
-### 公開ID形式
+### Like
+```
+like:{id}:total                → いいね総数
+like:{id}:users:{hash}         → ユーザー状態（24h TTL）
+like:{id}:owner                → オーナートークン
+```
+
+### Ranking  
+```
+ranking:{id}:scores            → Sorted Set（スコア）
+ranking:{id}:owner             → オーナートークン
+ranking:{id}:meta              → メタデータ
+```
+
+### BBS
+```
+bbs:{id}:messages              → List（メッセージ）
+bbs:{id}:owner                 → オーナートークン
+bbs:{id}                       → メタデータ
+```
+
+## 公開ID形式
 `{domain}-{hash8桁}` (例: blog-a7b9c3d4)
 
 ## ファイル構成
 ### API Routes
-- `src/app/api/count/route.ts` - カウンター作成・カウントアップ
-- `src/app/api/display/route.ts` - 画像・データ取得
-- `src/app/api/owner/route.ts` - 管理操作
+- `src/app/api/counter/route.ts` - カウンターAPI
+- `src/app/api/like/route.ts` - いいねAPI  
+- `src/app/api/ranking/route.ts` - ランキングAPI
+- `src/app/api/bbs/route.ts` - BBS API
 
 ### Core Logic
-- `src/lib/db.ts` - Redis操作
-- `src/lib/utils.ts` - ID生成・認証・重複防止
-- `src/lib/image-generator.ts` - SVG画像生成
+- `src/lib/core/db.ts` - Redis操作
+- `src/lib/core/auth.ts` - 認証機能
+- `src/lib/core/id.ts` - ID生成
+- `src/lib/services/` - 各サービスロジック
+- `src/lib/utils/` - ユーティリティ
 
 ### Frontend
-- `src/app/page.tsx` - ランディングページ
+- `src/app/page.tsx` - 総合ランディングページ
+- `src/app/counter/page.tsx` - カウンターデモ
+- `src/app/like/page.tsx` - いいねデモ  
+- `src/app/ranking/page.tsx` - ランキングデモ
+- `src/app/bbs/page.tsx` - BBSデモ
+- `src/components/Layout.tsx` - 共通レイアウト
 - `public/components/display.js` - Web Component
 
 ### Documentation
-- `docs/API.md` - 公開API仕様
-- `.claude/landing-page.md` - ランディングページ設計
-- `.claude/implementation.md` - 内部実装詳細
-- `.claude/web-components.md` - コンポーネント仕様
-- `.claude/tasks.md` - タスク管理
+- `docs/API.md` - 総合API仕様
+- `docs/services/` - サービス別詳細文書（英語・日本語）
 
 ## 使用方法
-### 1. カウンター作成
+### 1. サービス作成
 ブラウザのアドレスバーに直接入力：
 ```
-https://nostalgic-counter.llll-ll.com/api/count?url=https://example.com&token=your-secret
+https://nostalgic.llll-ll.com/api/{service}?action=create&url=https://example.com&token=your-secret
 ```
-→ ブラウザにJSONが表示され、公開IDが確認できる
 
-### 2. 埋め込み
+### 2. 操作
+```
+# カウントアップ
+https://nostalgic.llll-ll.com/api/counter?action=increment&id=your-id
+
+# いいねトグル  
+https://nostalgic.llll-ll.com/api/like?action=toggle&url=https://example.com&token=your-secret
+
+# スコア送信
+https://nostalgic.llll-ll.com/api/ranking?action=submit&url=https://example.com&token=your-secret&name=Player&score=1000
+
+# メッセージ投稿
+https://nostalgic.llll-ll.com/api/bbs?action=post&url=https://example.com&token=your-secret&author=User&message=Hello
+```
+
+### 3. 埋め込み（Counter例）
 ```html
 <script src="/components/display.js"></script>
 <nostalgic-counter id="your-id" type="total" theme="classic"></nostalgic-counter>
-```
-
-### 3. 管理操作
-```javascript
-fetch('/api/owner?action=set&url=https://example.com&token=your-secret&total=0')
 ```
 
 ## セキュリティ
 - オーナートークンはSHA256でハッシュ化保存
 - 公開IDは表示専用（管理操作不可）
 - IP+UserAgent+日付での重複防止
+- 投稿者確認による編集権限管理
 - トークン長8-16文字制限
 
 ## デプロイメント
 - Vercel自動デプロイ
 - Redis設定
-  - Vercel Integrations → Redisを追加
-  - REDIS_URL環境変数が自動設定される
+  - REDIS_URL環境変数が必要
 - 完全無料運用可能
+
+## 技術スタック
+- Next.js 15 (App Router)
+- TypeScript
+- Redis (ioredis)
+- Tailwind CSS
+- Web Components

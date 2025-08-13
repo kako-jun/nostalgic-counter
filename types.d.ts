@@ -10,6 +10,20 @@ declare module 'react' {
         digits?: string;
         scale?: string;
       };
+      'nostalgic-like': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        id?: string;
+        theme?: 'classic' | 'modern' | 'retro';
+      };
+      'nostalgic-ranking': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        id?: string;
+        max?: string;
+        theme?: 'classic' | 'modern' | 'retro';
+      };
+      'nostalgic-bbs': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        id?: string;
+        max?: string;
+        theme?: 'classic' | 'modern' | 'retro';
+      };
     }
   }
 }

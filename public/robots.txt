@@ -2,7 +2,7 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://nostalgic-counter.llll-ll.com/sitemap.xml
+Sitemap: https://nostalgic.llll-ll.com/sitemap.xml
 
 # Crawl delay
 Crawl-delay: 1

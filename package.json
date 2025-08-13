@@ -1,5 +1,5 @@
 {
-  "name": "nostalgic_counter",
+  "name": "nostalgic",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
@@ -13,10 +13,10 @@
     "redis:info": "node scripts/redis-info.js",
     "redis:fix": "node scripts/fix-counter.js"
   },
-  "keywords": [],
+  "keywords": ["nostalgic", "counter", "like", "ranking", "bbs", "web-components"],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Nostalgic web tools suite - Counter, Like, Ranking, and BBS services",
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.8",
     "@types/ioredis": "^4.28.10",

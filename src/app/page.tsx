@@ -13,29 +13,47 @@ export default function HomePage() {
       case "home":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ Nostalgic Counter - 無料アクセスカウンターサービス ★☆★</div>
+            <div className="nostalgic-title-bar">★☆★ Nostalgic - 懐かしいWebツール集 ★☆★</div>
 
             <div className="nostalgic-marquee-box">
               <div className="nostalgic-marquee-text">
-                ようこそ！Nostalgic Counterへ！昔懐かしいアクセスカウンターを無料で提供しています！
+                ようこそ！Nostalgicへ！昔懐かしいWebツール（カウンター・いいね・ランキング・BBS）を無料で提供しています！
               </div>
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆Nostalgic Counterとは？◆</b>
+                  <b>◆Nostalgicとは？◆</b>
                 </span>
               </p>
-              <p>昔のホームページによくあった「アクセスカウンター」を最新技術で復活させたサービスです。</p>
+              <p>昔のホームページによくあった懐かしいWebツール群を最新技術で復活させたサービスです。</p>
               <p>
                 <span>●</span> 完全無料で利用可能
                 <br />
-                <span>●</span> レトロな見た目を忠実に再現
+                <span>●</span> 4つのサービス（Counter・Like・Ranking・BBS）
                 <br />
                 <span>●</span> 最新技術で高速・安定動作
               </p>
               <p>オープンソースプロジェクトです。こういうのがほしかった！と思った方は、ネタで設置してみてください。</p>
+              
+              <div style={{ textAlign: "center", margin: "20px 0" }}>
+                <p style={{ marginBottom: "10px", fontWeight: "bold" }}>【サービス一覧】</p>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "center" }}>
+                  <a href="/counter" className="nostalgic-old-link" style={{ padding: "5px 10px", border: "1px solid #666", backgroundColor: "#f0f0f0" }}>
+                    📊 Counter
+                  </a>
+                  <a href="/like" className="nostalgic-old-link" style={{ padding: "5px 10px", border: "1px solid #666", backgroundColor: "#f0f0f0" }}>
+                    💖 Like
+                  </a>
+                  <a href="/ranking" className="nostalgic-old-link" style={{ padding: "5px 10px", border: "1px solid #666", backgroundColor: "#f0f0f0" }}>
+                    🏆 Ranking
+                  </a>
+                  <a href="/bbs" className="nostalgic-old-link" style={{ padding: "5px 10px", border: "1px solid #666", backgroundColor: "#f0f0f0" }}>
+                    💬 BBS
+                  </a>
+                </div>
+              </div>
             </div>
 
             <div className="nostalgic-counter-section">
@@ -117,7 +135,7 @@ export default function HomePage() {
                   wordBreak: "break-all",
                 }}
               >
-                https://nostalgic-counter.llll-ll.com/api/count?url=<span style={{ color: "#008000" }}>サイトURL</span>
+                https://nostalgic.llll-ll.com/api/counter?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
                 &token=<span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <p>
@@ -138,7 +156,7 @@ export default function HomePage() {
               </p>
               <p>HTMLに以下のコードを追加：</p>
               <pre style={{ backgroundColor: "#f0f0f0", padding: "10px", overflow: "auto", fontSize: "14px", margin: "10px 0" }}>
-                {`<script src="https://nostalgic-counter.llll-ll.com/components/display.js"></script>
+                {`<script src="https://nostalgic.llll-ll.com/components/display.js"></script>
 <nostalgic-counter id="`}
                 <span style={{ color: "#008000" }}>あなたの公開ID</span>
                 {`" type="`}
@@ -244,21 +262,21 @@ export default function HomePage() {
                   <b>Classic</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/display?id=nostalgi-5e343478&type=total&style=classic" alt="Classic" />
+                    <img src="/api/counter?action=display&id=nostalgi-5e343478&type=total&style=classic" alt="Classic" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>Modern</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/display?id=nostalgi-5e343478&type=total&style=modern" alt="Modern" />
+                    <img src="/api/counter?action=display&id=nostalgi-5e343478&type=total&style=modern" alt="Modern" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>Retro</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/display?id=nostalgi-5e343478&type=total&style=retro" alt="Retro" />
+                    <img src="/api/counter?action=display&id=nostalgi-5e343478&type=total&style=retro" alt="Retro" />
                   </div>
                 </div>
               </div>
@@ -278,7 +296,7 @@ export default function HomePage() {
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/count?url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                GET /api/counter?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
                 <span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <p style={{ lineHeight: "1.2" }}>
@@ -298,7 +316,7 @@ export default function HomePage() {
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/display?id=<span style={{ color: "#008000" }}>公開ID</span>&type=
+                GET /api/counter?action=display&id=<span style={{ color: "#008000" }}>公開ID</span>&type=
                 <span style={{ color: "#008000" }}>期間タイプ</span>&style=
                 <span style={{ color: "#008000" }}>デザインスタイル</span>
               </p>
@@ -317,7 +335,7 @@ export default function HomePage() {
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/display?id=<span style={{ color: "#008000" }}>公開ID</span>&format=
+                GET /api/counter?action=display&id=<span style={{ color: "#008000" }}>公開ID</span>&format=
                 <span style={{ color: "#008000" }}>text</span>
               </p>
               <p>数値のみをテキスト形式で返します。JavaScriptでの処理に便利。</p>
@@ -330,7 +348,7 @@ export default function HomePage() {
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/owner?action=set&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                GET /api/counter?action=set&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
                 <span style={{ color: "#008000" }}>オーナートークン</span>&total=
                 <span style={{ color: "#008000" }}>数値</span>
               </p>
@@ -416,7 +434,7 @@ export default function HomePage() {
 
   return (
     <>
-      <Script src="https://nostalgic-counter.llll-ll.com/components/display.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic.llll-ll.com/components/display.js" strategy="beforeInteractive" />
       <div className="nostalgic-main-frame">
       <div className="nostalgic-sidebar-left">
         <div className="nostalgic-title-bar" style={{ fontSize: "16px !important" }}>MENU</div>

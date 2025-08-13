@@ -1,6 +1,6 @@
 # Nostalgic - 実装タスク
 
-## 🚨 優先度：高（設計変更対応）
+## ✅ 完了済み（リファクタリング完了）
 
 ### 1. 公開ID方式への移行 ✅ 完了
 - [x] API を公開ID方式に変更
@@ -40,44 +40,60 @@
 - [x] 古い `/api/admin` エンドポイントを削除
 - [x] 不要な関数（`generateCounterKey`, `isValidAdminToken`）を削除
 
-### 7. API設計・ディレクトリ構造の再構築
-- [ ] `src/app/api/` 以下に各サービス（`counter`, `like`, `ranking`, `bbs`）のルートディレクトリを作成
-- [ ] 各サービスルートの `route.ts` にて `action` パラメータによる処理を実装
-- [ ] 既存カウンターAPI (`/api/count`, `/api/display`, `/api/owner`) のロジックを新しい `/api/counter` へ移行
-- [ ] 移行完了後、古いAPIディレクトリ (`src/app/api/count`, `display`, `owner`) を削除
+### 7. API設計・ディレクトリ構造の再構築 ✅ 完了
+- [x] `src/app/api/` 以下に各サービス（`counter`, `like`, `ranking`, `bbs`）のルートディレクトリを作成
+- [x] 各サービスルートの `route.ts` にて `action` パラメータによる処理を実装
+- [x] 既存カウンターAPI (`/api/count`, `/api/display`, `/api/owner`) のロジックを新しい `/api/counter` へ移行
+- [x] 移行完了後、古いAPIディレクトリ (`src/app/api/count`, `display`, `owner`) を削除
 
-### 8. コアロジックの共通化と拡張
-- [ ] `src/lib/db.ts` に各サービス（いいね、ランキング、BBS）のRedis操作関数を追加（Sorted Set, Listなど）
-- [ ] `src/types/` 以下に各サービス（`like.ts`, `ranking.ts`, `bbs.ts`）の型定義ファイルを分離
+### 8. コアロジックの共通化と拡張 ✅ 完了
+- [x] `src/lib/core/db.ts` でRedis操作のインターフェース統一、メモリストア代替実装
+- [x] `src/lib/services/` 以下に各サービス（`counter.ts`, `like.ts`, `ranking.ts`, `bbs.ts`）のロジック実装
+- [x] `src/types/` 以下に各サービス（`counter.ts`, `like.ts`, `ranking.ts`, `bbs.ts`）の型定義ファイル作成
 
-## 📋 優先度：中
+### 9. 4つのサービス実装 ✅ 完了
+- [x] **Counter Service**: 既存カウンター機能の移行
+  - [x] 累計・日別・週別・月別統計
+  - [x] 重複防止機能
+  - [x] SVG画像生成（3スタイル）
+- [x] **Like Service**: いいねボタン機能
+  - [x] ユーザー別状態管理（IP+UserAgent）
+  - [x] トグル機能（いいね/取り消し）
+- [x] **Ranking Service**: スコアランキング
+  - [x] Redis Sorted Setによる自動ソート
+  - [x] スコア管理（submit/update/remove/clear）
+  - [x] 最大エントリー数制限
+- [x] **BBS Service**: 掲示板機能
+  - [x] メッセージ投稿・取得
+  - [x] カスタマイズ可能なドロップダウン（3つ）
+  - [x] アイコン選択機能
+  - [x] ページネーション
+  - [x] 投稿者による自分の投稿編集・削除
+  - [x] オーナーによる全投稿管理
 
-### 9. 埋め込み用スクリプトの提供 ✅ 完了
-- [x] カウント用JavaScriptの配布（/components/display.js）
-- [x] 簡単な設置ガイドの作成（README、docs/API.md）
+### 10. フロントエンド・UX ✅ 完了
+- [x] プロジェクト名を「Nostalgic」ブランドに変更
+- [x] 総合ランディングページ (`/`) の更新
+- [x] 各サービスデモページ (`/counter`, `/like`, `/ranking`, `/bbs`) の作成
+- [x] 共通レイアウト（`Layout.tsx`）の実装
+- [x] ナビゲーション統合
 
-### 10. パフォーマンス改善 ✅ 部分完了
-- [x] 重複訪問チェックの最適化
-  - [x] メモリキャッシュから Redis へ移行完了
-  - [x] 24時間TTLによる自動クリーンアップ実装
+### 11. ドキュメント更新 ✅ 完了
+- [x] README.md の4サービス対応更新
+- [x] API仕様表の追加
+- [x] デモページリンクの追加
 
-### 11. 画像生成の拡張
+## 📋 今後の拡張タスク（優先度：中）
+
+### 12. 画像生成の拡張
 - [ ] WebP形式の実装（現在はSVGのみ）
 - [ ] カスタムスタイルの追加
 - [ ] アニメーション効果のオプション
 
-### 12. 新規サービスのバックエンド実装
-- [ ] Nostalgic Like のAPIロジック実装
-- [ ] Nostalgic Ranking のAPIロジック実装
-- [ ] Nostalgic BBS のAPIロジック実装
-
-### 13. フロントエンド・UXの再構築
-- [ ] プロジェクト名を「Nostalgic」ブランドに合わせた表示に変更
-- [ ] 総合ランディングページ (`/`) の作成
-- [ ] 各サービスデモページ (`/counter`, `/like`, `/ranking`, `/bbs`) の作成
-- [ ] サイト全体の共通レイアウト（ヘッダー、フッター）の実装
-- [ ] 共通サイドバーナビゲーションの実装（各サービスデモページへのリンク）
-- [ ] 既存Web Component (`public/components/display.js`) が新しいAPI (`/api/counter`) を叩くように修正
+### 13. Web Components の拡張
+- [ ] Like用Web Component (`/components/like.js`) の実装
+- [ ] Ranking用Web Component (`/components/ranking.js`) の実装
+- [ ] BBS用Web Component (`/components/bbs.js`) の実装
 
 ## 📚 優先度：低
 
@@ -86,39 +102,46 @@
 - [ ] リファラー統計
 - [ ] グラフ表示機能
 
-### 15. ドキュメント整備 ✅ 完了
-- [x] API仕様書の作成（docs/API.md）
-- [x] 設置ガイドの充実（README.md、TypeScript対応含む）
-- [x] サンプルコードの追加
-
-### 16. テストの追加
+### 15. テストの追加
 - [ ] ユニットテスト
 - [ ] E2Eテスト
 - [ ] 負荷テスト
 
 ## 🧑‍💻 人間系タスク（手動対応が必要）
 
-### 17. プロジェクト環境設定
-- [ ] **リポジトリ名変更**: GitHubリポジトリ名を `nostalgic-suite` または `nostalgic-tools` などに変更
-- [ ] **ドメイン名変更**: Vercelでカスタムドメインを `nostalgic.llll-ll.com` または `nostalgic-suite.llll-ll.com` などに変更
+### 16. プロジェクト環境設定
+- [ ] **リポジトリ名変更**: GitHubリポジトリ名を `nostalgic` などに変更
+- [ ] **ドメイン名変更**: Vercelでカスタムドメインを `nostalgic.llll-ll.com` に変更
 - [ ] **Vercel設定更新**: ドメイン変更に伴うVercelプロジェクト設定の更新
 
-## 📝 メモ
+## 📝 リファクタリング結果
+
+### 変更点
+- **プロジェクト名**: Nostalgic Counter → Nostalgic
+- **アーキテクチャ**: 単一サービス → 4サービス統合プラットフォーム
+- **API設計**: 個別エンドポイント → action パラメータ統一
+- **ディレクトリ構造**: モノリス → サービス分離
+
+### 実装済み機能
+- **Counter**: 累計・期間別統計、SVG画像生成
+- **Like**: トグル機能、ユーザー状態管理
+- **Ranking**: スコア管理、自動ソート、エントリー制限
+- **BBS**: メッセージ投稿、カスタムドロップダウン、投稿者編集
 
 ### 設計方針
 - ユーザー登録不要でシンプルに保つ
-- URLごとに自動的にカウンター作成
-- 管理者のみリセット・値設定が可能
+- URLごとに各サービスを自動作成
+- オーナートークンによる安全な管理
 - すべて無料枠で運用可能な設計
 
 ### 技術的な注意点
 - Vercel の無料枠制限を考慮
-- Redis Cloud の無料枠を活用
+- Redis/メモリストア代替実装
 - 24時間重複防止によるデータ効率化
+- IP+UserAgentによるユーザー識別
 
-### 現在の未実装機能
-- WebP画像形式の対応
-- カスタムスタイルの追加
-- アニメーション効果
-- 統計機能の拡充（時間帯別、リファラーなど）
-- テストコードの整備
+### 今後の拡張候補
+- 各サービス用Web Components
+- WebP画像形式対応
+- 統計機能拡充
+- テストコード整備
