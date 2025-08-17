@@ -41,16 +41,16 @@ export default function HomePage() {
                 <p style={{ marginBottom: "10px", fontWeight: "bold" }}>【サービス一覧】</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "center" }}>
                   <a href="/counter" className="nostalgic-old-link" style={{ padding: "5px 10px", border: "1px solid #666", backgroundColor: "#f0f0f0" }}>
-                    📊 Counter
+                    📊 Counter Service
                   </a>
                   <a href="/like" className="nostalgic-old-link" style={{ padding: "5px 10px", border: "1px solid #666", backgroundColor: "#f0f0f0" }}>
-                    💖 Like
+                    💖 Like Service
                   </a>
                   <a href="/ranking" className="nostalgic-old-link" style={{ padding: "5px 10px", border: "1px solid #666", backgroundColor: "#f0f0f0" }}>
-                    🏆 Ranking
+                    🏆 Ranking Service
                   </a>
                   <a href="/bbs" className="nostalgic-old-link" style={{ padding: "5px 10px", border: "1px solid #666", backgroundColor: "#f0f0f0" }}>
-                    💬 BBS
+                    💬 BBS Service
                   </a>
                 </div>
               </div>
@@ -461,70 +461,108 @@ export default function HomePage() {
             </>
           )}
           <br />
-          {currentPage === "usage" ? (
-            <>
-              <span className="nostalgic-blink">●</span>
-              <span className="nostalgic-nav-active">使い方</span>
-            </>
+          <span>●</span>
+          <a href="/counter" className="nostalgic-old-link">
+            📊 Counter
+          </a>
+          <br />
+          <span style={{ marginLeft: "1em" }}>●</span>
+          {currentPage === "counter-usage" ? (
+            <span className="nostalgic-nav-active">使い方</span>
           ) : (
-            <>
-              <span>●</span>
-              <a
-                href="#"
-                className={visitedPages.has("usage") ? "nostalgic-old-link-visited" : "nostalgic-old-link"}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage("usage");
-                  setVisitedPages((prev) => new Set([...prev, "usage"]));
-                }}
-              >
-                使い方
-              </a>
-            </>
+            <a href="/counter#usage" className="nostalgic-old-link">使い方</a>
           )}
           <br />
-          {currentPage === "features" ? (
-            <>
-              <span className="nostalgic-blink">●</span>
-              <span className="nostalgic-nav-active">機能一覧</span>
-            </>
+          <span style={{ marginLeft: "1em" }}>●</span>
+          {currentPage === "counter-features" ? (
+            <span className="nostalgic-nav-active">機能一覧</span>
           ) : (
-            <>
-              <span>●</span>
-              <a
-                href="#"
-                className={visitedPages.has("features") ? "nostalgic-old-link-visited" : "nostalgic-old-link"}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage("features");
-                  setVisitedPages((prev) => new Set([...prev, "features"]));
-                }}
-              >
-                機能一覧
-              </a>
-            </>
+            <a href="/counter#features" className="nostalgic-old-link">機能一覧</a>
           )}
           <br />
-          {currentPage === "api" ? (
-            <>
-              <span className="nostalgic-blink">●</span>
-              <span className="nostalgic-nav-active">API仕様</span>
-            </>
+          <span style={{ marginLeft: "1em" }}>●</span>
+          {currentPage === "counter-api" ? (
+            <span className="nostalgic-nav-active">API仕様</span>
           ) : (
-            <>
-              <span>●</span>
-              <a
-                href="#"
-                className={visitedPages.has("api") ? "nostalgic-old-link-visited" : "nostalgic-old-link"}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage("api");
-                  setVisitedPages((prev) => new Set([...prev, "api"]));
-                }}
-              >
-                API仕様
-              </a>
-            </>
+            <a href="/counter#api" className="nostalgic-old-link">API仕様</a>
+          )}
+          <br />
+          <span>●</span>
+          <a href="/like" className="nostalgic-old-link">
+            💖 Like
+          </a>
+          <br />
+          <span style={{ marginLeft: "1em" }}>●</span>
+          {currentPage === "like-usage" ? (
+            <span className="nostalgic-nav-active">使い方</span>
+          ) : (
+            <a href="/like#usage" className="nostalgic-old-link">使い方</a>
+          )}
+          <br />
+          <span style={{ marginLeft: "1em" }}>●</span>
+          {currentPage === "like-features" ? (
+            <span className="nostalgic-nav-active">機能一覧</span>
+          ) : (
+            <a href="/like#features" className="nostalgic-old-link">機能一覧</a>
+          )}
+          <br />
+          <span style={{ marginLeft: "1em" }}>●</span>
+          {currentPage === "like-api" ? (
+            <span className="nostalgic-nav-active">API仕様</span>
+          ) : (
+            <a href="/like#api" className="nostalgic-old-link">API仕様</a>
+          )}
+          <br />
+          <span>●</span>
+          <a href="/ranking" className="nostalgic-old-link">
+            🏆 Ranking
+          </a>
+          <br />
+          <span style={{ marginLeft: "1em" }}>●</span>
+          {currentPage === "ranking-usage" ? (
+            <span className="nostalgic-nav-active">使い方</span>
+          ) : (
+            <a href="/ranking#usage" className="nostalgic-old-link">使い方</a>
+          )}
+          <br />
+          <span style={{ marginLeft: "1em" }}>●</span>
+          {currentPage === "ranking-features" ? (
+            <span className="nostalgic-nav-active">機能一覧</span>
+          ) : (
+            <a href="/ranking#features" className="nostalgic-old-link">機能一覧</a>
+          )}
+          <br />
+          <span style={{ marginLeft: "1em" }}>●</span>
+          {currentPage === "ranking-api" ? (
+            <span className="nostalgic-nav-active">API仕様</span>
+          ) : (
+            <a href="/ranking#api" className="nostalgic-old-link">API仕様</a>
+          )}
+          <br />
+          <span>●</span>
+          <a href="/bbs" className="nostalgic-old-link">
+            💬 BBS
+          </a>
+          <br />
+          <span style={{ marginLeft: "1em" }}>●</span>
+          {currentPage === "bbs-usage" ? (
+            <span className="nostalgic-nav-active">使い方</span>
+          ) : (
+            <a href="/bbs#usage" className="nostalgic-old-link">使い方</a>
+          )}
+          <br />
+          <span style={{ marginLeft: "1em" }}>●</span>
+          {currentPage === "bbs-features" ? (
+            <span className="nostalgic-nav-active">機能一覧</span>
+          ) : (
+            <a href="/bbs#features" className="nostalgic-old-link">機能一覧</a>
+          )}
+          <br />
+          <span style={{ marginLeft: "1em" }}>●</span>
+          {currentPage === "bbs-api" ? (
+            <span className="nostalgic-nav-active">API仕様</span>
+          ) : (
+            <a href="/bbs#api" className="nostalgic-old-link">API仕様</a>
           )}
           <br />
           {currentPage === "about" ? (
