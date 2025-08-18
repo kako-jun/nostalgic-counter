@@ -1,235 +1,239 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { counterService } from '@/lib/services/counter'
-import { generateCounterSVG } from '@/lib/image-generator'
-import { 
-  validateAction,
-  createApiSuccessResponse,
-  createApiErrorResponse,
-  handleApiError,
-  createOptionsResponse,
-  getClientIP,
-  getUserAgent
-} from '@/lib/utils/api'
-import { 
-  createValidatedApiResponse,
-  createValidatedSpecialResponse,
-  DisplayDataSchema
-} from '@/lib/validation/response-validation'
+/**
+ * Counter API v2 - 新アーキテクチャ版
+ */
+
+import { NextRequest } from 'next/server'
 import { z } from 'zod'
-import { COUNTER_LIMITS, CACHE_SETTINGS } from '@/lib/utils/service-constants'
+import { ApiHandler, ApiHandlerFactory } from '@/lib/core/api-handler'
+import { Ok, map, ValidationError } from '@/lib/core/result'
+import { counterService } from '@/domain/counter/counter.service'
+import { generateCounterSVG } from '@/lib/image-generator'
+import { getCacheSettings } from '@/lib/core/config'
+import { getClientIP, getUserAgent } from '@/lib/utils/api'
 import {
-  CreateParamsSchema,
+  CounterCreateParamsSchema,
   CounterIncrementParamsSchema,
-  CounterDisplayParamsSchema,
   CounterSetParamsSchema,
+  CounterDisplayParamsSchema,
   CounterDataSchema
-} from '@/lib/validation/schemas'
-import { CounterType } from '@/types/counter'
-import { validateApiParams } from '@/lib/utils/api-validation'
+} from '@/domain/counter/counter.entity'
 
-export async function GET(request: NextRequest) {
-  try {
-    const { searchParams } = new URL(request.url)
-    const action = searchParams.get('action')
+/**
+ * 統合API パラメータスキーマ
+ */
+const ApiParamsSchema = z.object({
+  action: z.enum(['create', 'increment', 'display', 'set']),
+  url: z.string().url().optional(),
+  token: z.string().min(8).max(16).optional(),
+  id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/).optional(),
+  type: z.enum(['total', 'today', 'yesterday', 'week', 'month']).default('total'),
+  theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
+  digits: z.coerce.number().int().min(1).max(10).default(6),
+  format: z.enum(['json', 'text', 'image']).default('image'),
+  total: z.coerce.number().int().min(0).optional()
+})
+
+/**
+ * CREATE アクション
+ */
+const createHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    action: z.literal('create'),
+    url: z.string().url(),
+    token: z.string().min(8).max(16)
+  }),
+  resultSchema: z.object({
+    id: z.string(),
+    url: z.string()
+  }),
+  handler: async ({ url, token }, request) => {
+    const createResult = await counterService.create(url, token, { enableDailyStats: true })
     
-    const validActions = ['create', 'increment', 'display', 'set']
-    const actionValidation = validateAction(action, validActions)
-    if (!actionValidation.isValid) {
-      return createApiErrorResponse(actionValidation.error!, 400)
+    if (!createResult.success) {
+      return createResult
+    }
+
+    return map(createResult, result => ({
+      id: result.id,
+      url: result.data.url
+    }))
+  }
+})
+
+/**
+ * INCREMENT アクション
+ */
+const incrementHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    action: z.literal('increment'),
+    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/)
+  }),
+  resultSchema: CounterDataSchema,
+  handler: async ({ id }, request) => {
+    const clientIP = getClientIP(request)
+    const userAgent = getUserAgent(request)
+    const userHash = counterService.generateUserHash(clientIP, userAgent)
+
+    return await counterService.incrementCounter(id, userHash)
+  }
+})
+
+/**
+ * SET アクション
+ */
+const setHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    action: z.literal('set'),
+    url: z.string().url(),
+    token: z.string().min(8).max(16),
+    total: z.coerce.number().int().min(0)
+  }),
+  resultSchema: z.object({
+    success: z.literal(true)
+  }),
+  handler: async ({ url, token, total }) => {
+    const setResult = await counterService.setCounterValue(url, token, total)
+    
+    if (!setResult.success) {
+      return setResult
+    }
+
+    return map(setResult, () => ({ success: true as const }))
+  }
+})
+
+/**
+ * DISPLAY アクション（特殊レスポンス）
+ */
+const displayHandler = ApiHandler.createSpecialResponse(
+  z.object({
+    action: z.literal('display'),
+    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
+    type: z.enum(['total', 'today', 'yesterday', 'week', 'month']).default('total'),
+    theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
+    digits: z.coerce.number().int().min(1).max(10).default(6),
+    format: z.enum(['json', 'text', 'image']).default('image')
+  }),
+  async ({ id, type, format }) => {
+    if (format === 'json') {
+      return await counterService.getCounterData(id)
+    }
+
+    return await counterService.getDisplayData(id, type)
+  },
+  {
+    schema: z.union([
+      CounterDataSchema, // JSON format
+      z.number().int().min(0) // text/image format
+    ]),
+    formatter: (data) => {
+      if (typeof data === 'object') {
+        return JSON.stringify(data, null, 2)
+      }
+      return data.toString()
+    },
+    contentType: 'text/plain',
+    cacheControl: `public, max-age=${getCacheSettings().displayMaxAge}`
+  }
+)
+
+/**
+ * SVG表示専用ハンドラー
+ */
+const svgHandler = ApiHandler.createSpecialResponse(
+  z.object({
+    action: z.literal('display'),
+    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
+    type: z.enum(['total', 'today', 'yesterday', 'week', 'month']).default('total'),
+    theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
+    digits: z.coerce.number().int().min(1).max(10).default(6),
+    format: z.literal('image')
+  }),
+  async ({ id, type }) => {
+    const displayResult = await counterService.getDisplayData(id, type)
+    if (!displayResult.success) {
+      return displayResult
     }
     
-    switch (action) {
-      case 'create':
-        return await handleCreate(request, searchParams)
-      
-      case 'increment':
-        return await handleIncrement(request, searchParams)
-      
-      case 'display':
-        return await handleDisplay(searchParams)
-      
-      case 'set':
-        return await handleSet(searchParams)
-      
-      default:
-        return createApiErrorResponse('Invalid action', 400)
-    }
-    
-  } catch (error) {
-    return handleApiError(error, 'counter')
-  }
-}
-
-export async function OPTIONS() {
-  return createOptionsResponse()
-}
-
-async function handleCreate(request: NextRequest, searchParams: URLSearchParams) {
-  const validation = validateApiParams(CreateParamsSchema, searchParams)
-  if (!validation.success) {
-    return validation.response
-  }
-  
-  const { url, token } = validation.data
-  
-  // 既存カウンターを検索
-  const existing = await counterService.getCounterByUrl(url)
-  
-  if (existing) {
-    // 既存カウンター：オーナー確認
-    if (!await counterService.verifyOwnership(url, token)) {
-      return createApiErrorResponse('Invalid token for this URL', 403)
-    }
-    
-    return createValidatedApiResponse(
-      z.object({ id: z.string(), url: z.string() }),
-      { id: existing.id, url: existing.url },
-      'Counter already exists'
-    )
-  }
-  
-  // 新規作成
-  const { id: newId, counterData } = await counterService.createCounter(url, token)
-  
-  // 最初の訪問として記録
-  const clientIP = getClientIP(request)
-  const userAgent = getUserAgent(request)
-  await counterService.checkDuplicateVisit(newId, clientIP, userAgent)
-  
-  return createValidatedApiResponse(
-    CounterDataSchema,
-    counterData,
-    'Counter created successfully'
-  )
-}
-
-async function handleIncrement(request: NextRequest, searchParams: URLSearchParams) {
-  const validation = validateApiParams(CounterIncrementParamsSchema, searchParams)
-  if (!validation.success) {
-    return validation.response
-  }
-  
-  const { id } = validation.data
-  
-  const clientIP = getClientIP(request)
-  const userAgent = getUserAgent(request)
-  
-  // 重複チェック
-  const isDuplicate = await counterService.checkDuplicateVisit(id, clientIP, userAgent)
-  if (isDuplicate) {
-    // 重複の場合は現在値を返す
-    const counterData = await counterService.getCounterById(id)
-    if (!counterData) {
-      return createApiErrorResponse('Counter not found', 404)
-    }
-    return createValidatedApiResponse(
-      CounterDataSchema,
-      counterData
-    )
-  }
-  
-  // カウントアップ
-  const counterData = await counterService.incrementCounterById(id)
-  if (!counterData) {
-    return createApiErrorResponse('Counter not found', 404)
-  }
-  
-  return createValidatedApiResponse(
-    CounterDataSchema,
-    counterData
-  )
-}
-
-async function handleDisplay(searchParams: URLSearchParams) {
-  const validation = validateApiParams(CounterDisplayParamsSchema, searchParams)
-  if (!validation.success) {
-    return validation.response
-  }
-  
-  const { id, type, theme, digits, format } = validation.data
-  const counterType = type
-  
-  // カウンターデータを取得
-  const counterData = await counterService.getCounterById(id)
-  
-  if (!counterData) {
-    // カウンターが存在しない場合
-    if (format === 'text') {
-      return createValidatedSpecialResponse(
-        z.number().int().min(0),
-        0,
-        (val) => val.toString(),
-        CACHE_SETTINGS.CONTENT_TYPES.TEXT,
-        `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`
-      )
-    }
-    
-    const displayData = { value: 0, type: counterType, theme, digits }
-    return createValidatedSpecialResponse(
-      DisplayDataSchema,
-      displayData,
-      (data) => generateCounterSVG({
-        value: data.value,
-        type: data.type,
-        style: data.theme,
-        digits: data.digits
-      }),
-      CACHE_SETTINGS.CONTENT_TYPES.SVG,
-      `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`
-    )
-  }
-  
-  // 指定されたタイプの値を取得
-  const value = counterData[counterType]
-  
-  // フォーマットに応じてレスポンス
-  if (format === 'text') {
-    return createValidatedSpecialResponse(
-      z.number().int().min(0),
-      value,
-      (val) => val.toString(),
-      'text/plain',
-      'public, max-age=60'
-    )
-  }
-  
-  // SVG画像を生成用のデータ検証
-  const displayData = { value, type: counterType, theme, digits }
-  return createValidatedSpecialResponse(
-    DisplayDataSchema,
-    displayData,
-    (data) => generateCounterSVG({
+    return Ok({
+      value: displayResult.data,
+      type: type,
+      theme: 'classic' as const,
+      digits: 6
+    })
+  },
+  {
+    schema: z.object({
+      value: z.number().int().min(0),
+      type: z.enum(['total', 'today', 'yesterday', 'week', 'month']),
+      theme: z.enum(['classic', 'modern', 'retro']),
+      digits: z.number().int().min(1).max(10)
+    }),
+    formatter: (data) => generateCounterSVG({
       value: data.value,
       type: data.type,
       style: data.theme,
       digits: data.digits
     }),
-    CACHE_SETTINGS.CONTENT_TYPES.SVG,
-    `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`
-  )
+    contentType: getCacheSettings().contentTypes.svg,
+    cacheControl: `public, max-age=${getCacheSettings().displayMaxAge}`
+  }
+)
+
+/**
+ * ルーティング関数
+ */
+async function routeRequest(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const action = searchParams.get('action')
+    const format = searchParams.get('format') || 'image'
+
+    switch (action) {
+      case 'create':
+        return await createHandler(request)
+      
+      case 'increment':
+        return await incrementHandler(request)
+      
+      case 'set':
+        return await setHandler(request)
+      
+      case 'display':
+        if (format === 'image') {
+          return await svgHandler(request)
+        } else {
+          return await displayHandler(request)
+        }
+      
+      default:
+        return ApiHandler.create({
+          paramsSchema: z.object({ action: z.string() }),
+          resultSchema: z.object({ error: z.string() }),
+          handler: async ({ action }) => {
+            throw new ValidationError(`Invalid action: ${action}`)
+          }
+        })(request)
+    }
+  } catch (error) {
+    console.error('Counter API routing error:', error)
+    return ApiHandler.create({
+      paramsSchema: z.object({}),
+      resultSchema: z.object({ error: z.string() }),
+      handler: async () => {
+        throw new Error('Internal server error')
+      }
+    })(request)
+  }
 }
 
-async function handleSet(searchParams: URLSearchParams) {
-  const validation = validateApiParams(CounterSetParamsSchema, searchParams)
-  if (!validation.success) {
-    return validation.response
-  }
-  
-  const { url, token, total } = validation.data
-  
-  const success = await counterService.setCounterValue(url, token, total)
-  
-  if (!success) {
-    return createApiErrorResponse('Invalid token or counter not found', 403)
-  }
-  
-  return createValidatedApiResponse(
-    z.object({ success: z.literal(true) }),
-    { success: true },
-    `Counter for ${url} has been set to ${total}`
-  )
+// HTTP メソッドハンドラー
+export async function GET(request: NextRequest) {
+  return await routeRequest(request)
 }
 
 export async function POST(request: NextRequest) {
-  return GET(request)
+  return await routeRequest(request)
 }
+
+export const OPTIONS = ApiHandler.createOptionsHandler()

@@ -160,10 +160,20 @@ async function showAllData() {
     console.log('| Counter ID          | Date       | Count |');
     console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(12) + '|' + '-'.repeat(7) + '|');
     
+    // 全ての日別データを収集して日付順にソート
+    const allDailyData = [];
     for (const [id, data] of counters) {
       for (const [date, count] of data.dailyData) {
-        console.log(`| ${id.padEnd(19)} | ${date} | ${String(count).padStart(5)} |`);
+        allDailyData.push({ id, date, count });
       }
+    }
+    
+    // 日付でソート（降順 - 新しい日付から）
+    allDailyData.sort((a, b) => b.date.localeCompare(a.date));
+    
+    // ソートされたデータを表示
+    for (const { id, date, count } of allDailyData) {
+      console.log(`| ${id.padEnd(19)} | ${date} | ${String(count).padStart(5)} |`);
     }
     console.log('═'.repeat(80));
     console.log();
