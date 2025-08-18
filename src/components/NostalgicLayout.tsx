@@ -85,33 +85,33 @@ export default function NostalgicLayout({ children, serviceName, serviceIcon }: 
             <br />
             <span>●</span>
             <a href="/counter" className={currentService === 'counter' ? "nostalgic-old-link-visited" : "nostalgic-old-link"} onClick={() => setIsMobileSidebarOpen(false)}>
-              📊 Counter
+              📊 Nostalgic Counter
             </a>
             <br />
             {currentService === 'counter' && (
               <>
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>├ </span>
                 {currentPage === "main" ? (
                   <span className="nostalgic-nav-active">トップ</span>
                 ) : (
                   <a href="/counter" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>トップ</a>
                 )}
                 <br />
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>├ </span>
                 {currentPage === "usage" ? (
                   <span className="nostalgic-nav-active">使い方</span>
                 ) : (
                   <a href="/counter#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
                 )}
                 <br />
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>├ </span>
                 {currentPage === "features" ? (
                   <span className="nostalgic-nav-active">機能一覧</span>
                 ) : (
                   <a href="/counter#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
                 )}
                 <br />
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>└ </span>
                 {currentPage === "api" ? (
                   <span className="nostalgic-nav-active">API仕様</span>
                 ) : (
@@ -122,33 +122,33 @@ export default function NostalgicLayout({ children, serviceName, serviceIcon }: 
             )}
             <span>●</span>
             <a href="/like" className={currentService === 'like' ? "nostalgic-old-link-visited" : "nostalgic-old-link"} onClick={() => setIsMobileSidebarOpen(false)}>
-              💖 Like
+              💖 Nostalgic Like
             </a>
             <br />
             {currentService === 'like' && (
               <>
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>├ </span>
                 {currentPage === "main" ? (
                   <span className="nostalgic-nav-active">トップ</span>
                 ) : (
                   <a href="/like" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>トップ</a>
                 )}
                 <br />
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>├ </span>
                 {currentPage === "usage" ? (
                   <span className="nostalgic-nav-active">使い方</span>
                 ) : (
                   <a href="/like#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
                 )}
                 <br />
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>├ </span>
                 {currentPage === "features" ? (
                   <span className="nostalgic-nav-active">機能一覧</span>
                 ) : (
                   <a href="/like#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
                 )}
                 <br />
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>└ </span>
                 {currentPage === "api" ? (
                   <span className="nostalgic-nav-active">API仕様</span>
                 ) : (
@@ -159,33 +159,33 @@ export default function NostalgicLayout({ children, serviceName, serviceIcon }: 
             )}
             <span>●</span>
             <a href="/ranking" className={currentService === 'ranking' ? "nostalgic-old-link-visited" : "nostalgic-old-link"} onClick={() => setIsMobileSidebarOpen(false)}>
-              🏆 Ranking
+              🏆 Nostalgic Ranking
             </a>
             <br />
             {currentService === 'ranking' && (
               <>
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>├ </span>
                 {currentPage === "main" ? (
                   <span className="nostalgic-nav-active">トップ</span>
                 ) : (
                   <a href="/ranking" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>トップ</a>
                 )}
                 <br />
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>├ </span>
                 {currentPage === "usage" ? (
                   <span className="nostalgic-nav-active">使い方</span>
                 ) : (
                   <a href="/ranking#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
                 )}
                 <br />
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>├ </span>
                 {currentPage === "features" ? (
                   <span className="nostalgic-nav-active">機能一覧</span>
                 ) : (
                   <a href="/ranking#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
                 )}
                 <br />
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>└ </span>
                 {currentPage === "api" ? (
                   <span className="nostalgic-nav-active">API仕様</span>
                 ) : (
@@ -196,33 +196,33 @@ export default function NostalgicLayout({ children, serviceName, serviceIcon }: 
             )}
             <span>●</span>
             <a href="/bbs" className={currentService === 'bbs' ? "nostalgic-old-link-visited" : "nostalgic-old-link"} onClick={() => setIsMobileSidebarOpen(false)}>
-              💬 BBS
+              💬 Nostalgic BBS
             </a>
             <br />
             {currentService === 'bbs' && (
               <>
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>├ </span>
                 {currentPage === "main" ? (
                   <span className="nostalgic-nav-active">トップ</span>
                 ) : (
                   <a href="/bbs" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>トップ</a>
                 )}
                 <br />
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>├ </span>
                 {currentPage === "usage" ? (
                   <span className="nostalgic-nav-active">使い方</span>
                 ) : (
                   <a href="/bbs#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
                 )}
                 <br />
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>├ </span>
                 {currentPage === "features" ? (
                   <span className="nostalgic-nav-active">機能一覧</span>
                 ) : (
                   <a href="/bbs#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
                 )}
                 <br />
-                <span style={{ marginLeft: "1em" }}>└</span>
+                <span style={{ marginLeft: "1em" }}>└ </span>
                 {currentPage === "api" ? (
                   <span className="nostalgic-nav-active">API仕様</span>
                 ) : (

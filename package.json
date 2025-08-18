@@ -10,8 +10,9 @@
     "start": "next start",
     "lint": "next lint",
     "redis:show": "node scripts/show-all-data.js",
-    "redis:info": "node scripts/redis-info.js",
-    "redis:fix": "node scripts/fix-counter.js"
+    "redis:info": "node scripts/redis-info.js", 
+    "redis:service": "node scripts/show-service-data.js",
+    "redis:fix": "node scripts/fix-service.js"
   },
   "keywords": ["nostalgic", "counter", "like", "ranking", "bbs", "web-components"],
   "author": "",

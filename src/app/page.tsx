@@ -57,16 +57,16 @@ export default function HomePage() {
                 <p style={{ marginBottom: "10px", fontWeight: "bold" }}>【サービス一覧】</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", justifyContent: "center" }}>
                   <a href="/counter" className="nostalgic-old-link" style={{ padding: "5px 10px", border: "1px solid #666", backgroundColor: "#f0f0f0" }}>
-                    📊 Counter Service
+                    📊 Nostalgic Counter
                   </a>
                   <a href="/like" className="nostalgic-old-link" style={{ padding: "5px 10px", border: "1px solid #666", backgroundColor: "#f0f0f0" }}>
-                    💖 Like Service
+                    💖 Nostalgic Like
                   </a>
                   <a href="/ranking" className="nostalgic-old-link" style={{ padding: "5px 10px", border: "1px solid #666", backgroundColor: "#f0f0f0" }}>
-                    🏆 Ranking Service
+                    🏆 Nostalgic Ranking
                   </a>
                   <a href="/bbs" className="nostalgic-old-link" style={{ padding: "5px 10px", border: "1px solid #666", backgroundColor: "#f0f0f0" }}>
-                    💬 BBS Service
+                    💬 Nostalgic BBS
                   </a>
                 </div>
               </div>
@@ -490,24 +490,24 @@ export default function HomePage() {
           <br />
           <span>●</span>
           <a href="/counter" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>
-            📊 Counter
+            📊 Nostalgic Counter
           </a>
           <br />
-          <span style={{ marginLeft: "1em" }}>└</span>
+          <span style={{ marginLeft: "1em" }}>├ </span>
           {currentPage === "counter-usage" ? (
             <span className="nostalgic-nav-active">使い方</span>
           ) : (
             <a href="/counter#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
           )}
           <br />
-          <span style={{ marginLeft: "1em" }}>└</span>
+          <span style={{ marginLeft: "1em" }}>├ </span>
           {currentPage === "counter-features" ? (
             <span className="nostalgic-nav-active">機能一覧</span>
           ) : (
             <a href="/counter#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
           )}
           <br />
-          <span style={{ marginLeft: "1em" }}>└</span>
+          <span style={{ marginLeft: "1em" }}>├ </span>
           {currentPage === "counter-api" ? (
             <span className="nostalgic-nav-active">API仕様</span>
           ) : (
@@ -516,24 +516,24 @@ export default function HomePage() {
           <br />
           <span>●</span>
           <a href="/like" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>
-            💖 Like
+            💖 Nostalgic Like
           </a>
           <br />
-          <span style={{ marginLeft: "1em" }}>└</span>
+          <span style={{ marginLeft: "1em" }}>├ </span>
           {currentPage === "like-usage" ? (
             <span className="nostalgic-nav-active">使い方</span>
           ) : (
             <a href="/like#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
           )}
           <br />
-          <span style={{ marginLeft: "1em" }}>└</span>
+          <span style={{ marginLeft: "1em" }}>├ </span>
           {currentPage === "like-features" ? (
             <span className="nostalgic-nav-active">機能一覧</span>
           ) : (
             <a href="/like#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
           )}
           <br />
-          <span style={{ marginLeft: "1em" }}>└</span>
+          <span style={{ marginLeft: "1em" }}>├ </span>
           {currentPage === "like-api" ? (
             <span className="nostalgic-nav-active">API仕様</span>
           ) : (
@@ -542,24 +542,24 @@ export default function HomePage() {
           <br />
           <span>●</span>
           <a href="/ranking" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>
-            🏆 Ranking
+            🏆 Nostalgic Ranking
           </a>
           <br />
-          <span style={{ marginLeft: "1em" }}>└</span>
+          <span style={{ marginLeft: "1em" }}>├ </span>
           {currentPage === "ranking-usage" ? (
             <span className="nostalgic-nav-active">使い方</span>
           ) : (
             <a href="/ranking#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
           )}
           <br />
-          <span style={{ marginLeft: "1em" }}>└</span>
+          <span style={{ marginLeft: "1em" }}>├ </span>
           {currentPage === "ranking-features" ? (
             <span className="nostalgic-nav-active">機能一覧</span>
           ) : (
             <a href="/ranking#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
           )}
           <br />
-          <span style={{ marginLeft: "1em" }}>└</span>
+          <span style={{ marginLeft: "1em" }}>├ </span>
           {currentPage === "ranking-api" ? (
             <span className="nostalgic-nav-active">API仕様</span>
           ) : (
@@ -568,24 +568,24 @@ export default function HomePage() {
           <br />
           <span>●</span>
           <a href="/bbs" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>
-            💬 BBS
+            💬 Nostalgic BBS
           </a>
           <br />
-          <span style={{ marginLeft: "1em" }}>└</span>
+          <span style={{ marginLeft: "1em" }}>├ </span>
           {currentPage === "bbs-usage" ? (
             <span className="nostalgic-nav-active">使い方</span>
           ) : (
             <a href="/bbs#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
           )}
           <br />
-          <span style={{ marginLeft: "1em" }}>└</span>
+          <span style={{ marginLeft: "1em" }}>├ </span>
           {currentPage === "bbs-features" ? (
             <span className="nostalgic-nav-active">機能一覧</span>
           ) : (
             <a href="/bbs#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
           )}
           <br />
-          <span style={{ marginLeft: "1em" }}>└</span>
+          <span style={{ marginLeft: "1em" }}>├ </span>
           {currentPage === "bbs-api" ? (
             <span className="nostalgic-nav-active">API仕様</span>
           ) : (
