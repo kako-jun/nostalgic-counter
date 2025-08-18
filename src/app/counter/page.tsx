@@ -222,21 +222,21 @@ export default function CounterPage() {
                   <b>累計</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgi-5e343478" type="total" theme="classic" />
+                    <nostalgic-counter id="nostalgic-b89803bb" type="total" theme="classic" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>今日</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgi-5e343478" type="today" theme="modern" />
+                    <nostalgic-counter id="nostalgic-b89803bb" type="today" theme="modern" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>昨日</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgi-5e343478" type="yesterday" theme="retro" />
+                    <nostalgic-counter id="nostalgic-b89803bb" type="yesterday" theme="retro" />
                   </div>
                 </div>
               </div>
@@ -392,21 +392,21 @@ export default function CounterPage() {
                   <b>Classic</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?action=display&id=nostalgi-5e343478&type=total&style=classic" alt="Classic" />
+                    <img src="/api/counter?action=display&id=nostalgic-b89803bb&type=total&style=classic" alt="Classic" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>Modern</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?action=display&id=nostalgi-5e343478&type=total&style=modern" alt="Modern" />
+                    <img src="/api/counter?action=display&id=nostalgic-b89803bb&type=total&style=modern" alt="Modern" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>Retro</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?action=display&id=nostalgi-5e343478&type=total&style=retro" alt="Retro" />
+                    <img src="/api/counter?action=display&id=nostalgic-b89803bb&type=total&style=retro" alt="Retro" />
                   </div>
                 </div>
               </div>

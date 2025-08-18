@@ -4,6 +4,7 @@ import { getClientIP, getUserAgent } from '@/lib/utils/request'
 import { validateURL } from '@/lib/utils/validation'
 import { validateOwnerToken } from '@/lib/core/auth'
 import { BBSOptions } from '@/types/bbs'
+import { addCorsHeaders, createCorsOptionsResponse } from '@/lib/utils/cors'
 
 export async function GET(request: NextRequest) {
   try {
@@ -11,40 +12,55 @@ export async function GET(request: NextRequest) {
     const action = searchParams.get('action')
     
     if (!action) {
-      return NextResponse.json({ 
+      return addCorsHeaders(NextResponse.json({ 
         error: 'action parameter is required' 
-      }, { status: 400 })
+      }, { status: 400 }))
     }
+    
+    let response: NextResponse
     
     switch (action) {
       case 'create':
-        return handleCreate(searchParams)
+        response = await handleCreate(searchParams)
+        break
       
       case 'post':
-        return handlePost(request, searchParams)
+        response = await handlePost(request, searchParams)
+        break
       
       case 'get':
-        return handleGet(searchParams)
+        response = await handleGet(searchParams)
+        break
       
       case 'remove':
-        return handleRemove(request, searchParams)
+        response = await handleRemove(request, searchParams)
+        break
       
       case 'clear':
-        return handleClear(searchParams)
+        response = await handleClear(searchParams)
+        break
       
       case 'update':
-        return handleUpdate(request, searchParams)
+        response = await handleUpdate(request, searchParams)
+        break
       
       default:
-        return NextResponse.json({ 
+        response = NextResponse.json({ 
           error: 'Invalid action. Valid actions are: create, post, get, remove, clear, update' 
         }, { status: 400 })
+        break
     }
+    
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error('Error in BBS API:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return addCorsHeaders(NextResponse.json({ error: 'Internal server error' }, { status: 500 }))
   }
+}
+
+export async function OPTIONS() {
+  return createCorsOptionsResponse()
 }
 
 async function handleCreate(searchParams: URLSearchParams) {

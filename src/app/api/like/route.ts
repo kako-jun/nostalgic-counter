@@ -6,40 +6,55 @@ import { validateOwnerToken } from '@/lib/core/auth'
 import { generateCounterSVG } from '@/lib/image-generator'
 import { LikeType } from '@/types/like'
 
+import { addCorsHeaders, createCorsOptionsResponse } from '@/lib/utils/cors'
+
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const action = searchParams.get('action')
     
     if (!action) {
-      return NextResponse.json({ 
+      return addCorsHeaders(NextResponse.json({ 
         error: 'action parameter is required' 
-      }, { status: 400 })
+      }, { status: 400 }))
     }
+    
+    let response: NextResponse
     
     switch (action) {
       case 'create':
-        return handleCreate(request, searchParams)
+        response = await handleCreate(request, searchParams)
+        break
       
       case 'toggle':
-        return handleToggle(request, searchParams)
+        response = await handleToggle(request, searchParams)
+        break
       
       case 'display':
-        return handleDisplay(request, searchParams)
+        response = await handleDisplay(request, searchParams)
+        break
       
       case 'set':
-        return handleSet(searchParams)
+        response = await handleSet(searchParams)
+        break
       
       default:
-        return NextResponse.json({ 
+        response = NextResponse.json({ 
           error: 'Invalid action. Valid actions are: create, toggle, display, set' 
         }, { status: 400 })
+        break
     }
+    
+    return addCorsHeaders(response)
     
   } catch (error) {
     console.error('Error in like API:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    return addCorsHeaders(NextResponse.json({ error: 'Internal server error' }, { status: 500 }))
   }
+}
+
+export async function OPTIONS() {
+  return createCorsOptionsResponse()
 }
 
 async function handleCreate(request: NextRequest, searchParams: URLSearchParams) {

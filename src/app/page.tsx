@@ -82,7 +82,7 @@ export default function HomePage() {
                 <p style={{ fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", gap: "20px" }}>
                   ようこそ！今まで
                   <span style={{ transform: "scale(2)", display: "inline-block", transformOrigin: "center", margin: "0 30px" }}>
-                    <nostalgic-counter id="nostalgi-5e343478" type="total" theme="classic" />
+                    <nostalgic-counter id="nostalgic-b89803bb" type="total" theme="classic" />
                   </span>
                   回も閲覧されました！
                 </p>
@@ -92,28 +92,28 @@ export default function HomePage() {
                   <b>今日</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgi-5e343478" type="today" theme="modern" digits="3" />
+                    <nostalgic-counter id="nostalgic-b89803bb" type="today" theme="modern" digits="3" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>昨日</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgi-5e343478" type="yesterday" theme="modern" digits="3" />
+                    <nostalgic-counter id="nostalgic-b89803bb" type="yesterday" theme="modern" digits="3" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>今週</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgi-5e343478" type="week" theme="retro" digits="4" />
+                    <nostalgic-counter id="nostalgic-b89803bb" type="week" theme="retro" digits="4" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>今月</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgi-5e343478" type="month" theme="retro" digits="4" />
+                    <nostalgic-counter id="nostalgic-b89803bb" type="month" theme="retro" digits="4" />
                   </div>
                 </div>
               </div>
