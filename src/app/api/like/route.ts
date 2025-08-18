@@ -1,0 +1,119 @@
+/**
+ * Like API - 新アーキテクチャ版
+ */
+
+import { NextRequest } from 'next/server'
+import { z } from 'zod'
+import { ApiHandler } from '@/lib/core/api-handler'
+import { Ok, map } from '@/lib/core/result'
+import { likeService } from '@/domain/like/like.service'
+import { getCacheSettings } from '@/lib/core/config'
+import { getClientIP, getUserAgent } from '@/lib/utils/api'
+import { LikeDataSchema } from '@/domain/like/like.entity'
+
+/**
+ * CREATE アクション
+ */
+const createHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    action: z.literal('create'),
+    url: z.string().url(),
+    token: z.string().min(8).max(16)
+  }),
+  resultSchema: z.object({
+    id: z.string(),
+    url: z.string()
+  }),
+  handler: async ({ url, token }, request) => {
+    const createResult = await likeService.create(url, token, {})
+    
+    if (!createResult.success) {
+      return createResult
+    }
+
+    return map(createResult, result => ({
+      id: result.id,
+      url: result.data.url
+    }))
+  }
+})
+
+/**
+ * TOGGLE アクション
+ */
+const toggleHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    action: z.literal('toggle'),
+    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/)
+  }),
+  resultSchema: LikeDataSchema,
+  handler: async ({ id }, request) => {
+    const clientIP = getClientIP(request)
+    const userAgent = getUserAgent(request)
+    const userHash = likeService.generateUserHash(clientIP, userAgent)
+
+    return await likeService.toggleLike(id, userHash)
+  }
+})
+
+/**
+ * GET アクション
+ */
+const getHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    action: z.literal('get'),
+    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/)
+  }),
+  resultSchema: LikeDataSchema,
+  handler: async ({ id }, request) => {
+    const clientIP = getClientIP(request)
+    const userAgent = getUserAgent(request)
+    const userHash = likeService.generateUserHash(clientIP, userAgent)
+
+    return await likeService.getLikeData(id, userHash)
+  }
+})
+
+/**
+ * ルーティング関数
+ */
+async function routeRequest(request: NextRequest) {
+  try {
+    const { searchParams } = new URL(request.url)
+    const action = searchParams.get('action')
+
+    switch (action) {
+      case 'create':
+        return await createHandler(request)
+      
+      case 'toggle':
+        return await toggleHandler(request)
+      
+      case 'get':
+        return await getHandler(request)
+      
+      default:
+        return ApiHandler.create({
+          paramsSchema: z.object({ action: z.string() }),
+          resultSchema: z.object({ error: z.string() }),
+          handler: async ({ action }) => {
+            throw new Error(`Invalid action: ${action}`)
+          }
+        })(request)
+    }
+  } catch (error) {
+    console.error('Like API routing error:', error)
+    return ApiHandler.create({
+      paramsSchema: z.object({}),
+      resultSchema: z.object({ error: z.string() }),
+      handler: async () => {
+        throw new Error('Internal server error')
+      }
+    })(request)
+  }
+}
+
+// HTTP メソッドハンドラー
+export async function GET(request: NextRequest) {
+  return await routeRequest(request)
+}

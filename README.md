@@ -35,6 +35,7 @@ A comprehensive nostalgic web tools platform that brings back the 90s internet c
 - 🔒 **Secure ownership**: SHA256 hashed tokens, public ID system
 - 🌐 **Easy integration**: RESTful APIs with action parameters
 - ⚡ **Fast & reliable**: Built on Next.js + Redis
+- 🔗 **Pure GET APIs**: All operations via browser URL bar (1990s web culture revival)
 
 ## 🚀 Quick Start
 
@@ -82,7 +83,7 @@ https://nostalgic.llll-ll.com/api/ranking?action=submit&url=https://yoursite.com
 https://nostalgic.llll-ll.com/api/bbs?action=create&url=https://yoursite.com&token=your-secret-token&max=1000
 ```
 
-2. **Post messages**:
+2. **Post messages** (pure GET, 1990s style):
 ```
 https://nostalgic.llll-ll.com/api/bbs?action=post&url=https://yoursite.com&token=your-secret-token&author=User&message=Hello!
 ```
@@ -98,11 +99,21 @@ Visit our interactive demo pages:
 
 ## 🔧 API Architecture
 
-All services follow a unified action-based API pattern:
+All services follow a unified action-based API pattern using **GET requests only**:
 
 ```
 /api/{service}?action={action}&url={your-site}&token={your-token}&...params
 ```
+
+### 🌐 Why GET-only? 1990s Web Culture Revival
+
+Just like the original 1990s web tools, everything can be operated directly from the browser URL bar:
+
+1. **Click-to-create**: Share a link and instantly create a counter
+2. **URL-based operations**: All actions are simple GET links
+3. **Nostalgic simplicity**: No complex forms or POST requests needed
+4. **Easy sharing**: Every operation is a shareable URL
+5. **BBS culture**: Even message posting uses GET parameters, just like the old days
 
 ### Available Actions by Service:
 

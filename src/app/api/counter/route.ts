@@ -231,9 +231,3 @@ async function routeRequest(request: NextRequest) {
 export async function GET(request: NextRequest) {
   return await routeRequest(request)
 }
-
-export async function POST(request: NextRequest) {
-  return await routeRequest(request)
-}
-
-export const OPTIONS = ApiHandler.createOptionsHandler()

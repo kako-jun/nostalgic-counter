@@ -35,6 +35,7 @@
 - 🔒 **安全な所有権管理**: SHA256ハッシュ化トークン、公開IDシステム
 - 🌐 **簡単統合**: アクションパラメータ付きRESTful API
 - ⚡ **高速・信頼性**: Next.js + Redis で構築
+- 🔗 **純粋なGET API**: すべての操作がブラウザのURL欄で実行可能（1990年代Web文化の復活）
 
 ## 🚀 クイックスタート
 
@@ -82,7 +83,7 @@ https://nostalgic.llll-ll.com/api/ranking?action=submit&url=https://yoursite.com
 https://nostalgic.llll-ll.com/api/bbs?action=create&url=https://yoursite.com&token=your-secret-token&max=1000
 ```
 
-2. **メッセージ投稿**:
+2. **メッセージ投稿**（純粋なGET、1990年代スタイル）:
 ```
 https://nostalgic.llll-ll.com/api/bbs?action=post&url=https://yoursite.com&token=your-secret-token&author=User&message=こんにちは！
 ```
@@ -98,11 +99,21 @@ https://nostalgic.llll-ll.com/api/bbs?action=post&url=https://yoursite.com&token
 
 ## 🔧 API アーキテクチャ
 
-すべてのサービスは統一されたアクション型APIパターンに従います:
+すべてのサービスは**GET リクエストのみ**の統一されたアクション型APIパターンに従います:
 
 ```
 /api/{service}?action={action}&url={your-site}&token={your-token}&...params
 ```
+
+### 🌐 なぜGETのみ？ 1990年代Web文化への回帰
+
+オリジナルの1990年代Webツールと同じく、すべてブラウザのURL欄から直接操作できます:
+
+1. **クリックで作成**: リンクを共有するだけでカウンターが作成
+2. **URL ベース操作**: すべてのアクションが単純なGETリンク
+3. **懐かしい簡単さ**: 複雑なフォームやPOSTリクエスト不要
+4. **簡単共有**: すべての操作が共有可能なURL
+5. **BBS文化**: メッセージ投稿もGETパラメータ、昔のままのスタイル
 
 ### サービス別利用可能アクション:
 

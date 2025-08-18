@@ -28,10 +28,16 @@
 - ✅ ページネーション
 - ✅ 投稿者による自分の投稿編集・削除
 
-## API構成（統一アクション型）
+## API構成（統一アクション型・GET専用）
 ```
 /api/{service}?action={action}&url={URL}&token={TOKEN}&...params
 ```
+
+### GET専用の理由（1990年代Web文化復活）
+- ブラウザのURL欄で全操作が可能
+- リンククリックだけでサービス作成
+- 掲示板の書き込みもGETパラメータ（昔のまま）
+- 共有可能なURL、シンプルな操作性
 
 ### サービス別エンドポイント
 - `/api/counter` - カウンター（create/increment/display/set）
@@ -83,7 +89,7 @@ bbs:{id}                       → メタデータ
 - `src/lib/core/db.ts` - Redis操作
 - `src/lib/core/auth.ts` - 認証機能
 - `src/lib/core/id.ts` - ID生成
-- `src/lib/services/` - 各サービスロジック
+- `src/domain/` - DDD各ドメインサービス
 - `src/lib/utils/` - ユーティリティ
 
 ### Frontend
@@ -117,7 +123,7 @@ https://nostalgic.llll-ll.com/api/like?action=toggle&url=https://example.com&tok
 # スコア送信
 https://nostalgic.llll-ll.com/api/ranking?action=submit&url=https://example.com&token=your-secret&name=Player&score=1000
 
-# メッセージ投稿
+# メッセージ投稿（純粋なGET、1990年代スタイル）
 https://nostalgic.llll-ll.com/api/bbs?action=post&url=https://example.com&token=your-secret&author=User&message=Hello
 ```
 
