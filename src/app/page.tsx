@@ -1,12 +1,28 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Script from "next/script";
 import "./nostalgic.css";
 
 export default function HomePage() {
   const [currentPage, setCurrentPage] = useState("home");
   const [visitedPages, setVisitedPages] = useState<Set<string>>(new Set(["home"]));
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      const sidebar = document.querySelector('.nostalgic-sidebar-left');
+      const menuButton = document.querySelector('.nostalgic-mobile-menu-button');
+      
+      if (isMobileSidebarOpen && sidebar && !sidebar.contains(target) && !menuButton?.contains(target)) {
+        setIsMobileSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isMobileSidebarOpen]);
 
   const renderContent = () => {
     switch (currentPage) {
@@ -436,7 +452,17 @@ export default function HomePage() {
     <>
       <Script src="https://nostalgic.llll-ll.com/components/display.js" strategy="beforeInteractive" />
       <div className="nostalgic-main-frame">
-      <div className="nostalgic-sidebar-left">
+        <button 
+          className="nostalgic-mobile-menu-button"
+          onClick={() => setIsMobileSidebarOpen(!isMobileSidebarOpen)}
+          aria-label="メニューを開く"
+        >
+          ☰
+        </button>
+        
+        {isMobileSidebarOpen && <div className="nostalgic-mobile-overlay" onClick={() => setIsMobileSidebarOpen(false)} />}
+        
+        <div className={`nostalgic-sidebar-left ${isMobileSidebarOpen ? 'mobile-open' : ''}`}>
         <div className="nostalgic-title-bar" style={{ fontSize: "16px !important" }}>MENU</div>
         <p>
           {currentPage === "home" ? (
@@ -454,6 +480,7 @@ export default function HomePage() {
                   e.preventDefault();
                   setCurrentPage("home");
                   setVisitedPages((prev) => new Set([...prev, "home"]));
+                  setIsMobileSidebarOpen(false);
                 }}
               >
                 ホーム
@@ -462,7 +489,7 @@ export default function HomePage() {
           )}
           <br />
           <span>●</span>
-          <a href="/counter" className="nostalgic-old-link">
+          <a href="/counter" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>
             📊 Counter
           </a>
           <br />
@@ -470,25 +497,25 @@ export default function HomePage() {
           {currentPage === "counter-usage" ? (
             <span className="nostalgic-nav-active">使い方</span>
           ) : (
-            <a href="/counter#usage" className="nostalgic-old-link">使い方</a>
+            <a href="/counter#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
           )}
           <br />
           <span style={{ marginLeft: "1em" }}>●</span>
           {currentPage === "counter-features" ? (
             <span className="nostalgic-nav-active">機能一覧</span>
           ) : (
-            <a href="/counter#features" className="nostalgic-old-link">機能一覧</a>
+            <a href="/counter#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
           )}
           <br />
           <span style={{ marginLeft: "1em" }}>●</span>
           {currentPage === "counter-api" ? (
             <span className="nostalgic-nav-active">API仕様</span>
           ) : (
-            <a href="/counter#api" className="nostalgic-old-link">API仕様</a>
+            <a href="/counter#api" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>API仕様</a>
           )}
           <br />
           <span>●</span>
-          <a href="/like" className="nostalgic-old-link">
+          <a href="/like" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>
             💖 Like
           </a>
           <br />
@@ -496,25 +523,25 @@ export default function HomePage() {
           {currentPage === "like-usage" ? (
             <span className="nostalgic-nav-active">使い方</span>
           ) : (
-            <a href="/like#usage" className="nostalgic-old-link">使い方</a>
+            <a href="/like#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
           )}
           <br />
           <span style={{ marginLeft: "1em" }}>●</span>
           {currentPage === "like-features" ? (
             <span className="nostalgic-nav-active">機能一覧</span>
           ) : (
-            <a href="/like#features" className="nostalgic-old-link">機能一覧</a>
+            <a href="/like#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
           )}
           <br />
           <span style={{ marginLeft: "1em" }}>●</span>
           {currentPage === "like-api" ? (
             <span className="nostalgic-nav-active">API仕様</span>
           ) : (
-            <a href="/like#api" className="nostalgic-old-link">API仕様</a>
+            <a href="/like#api" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>API仕様</a>
           )}
           <br />
           <span>●</span>
-          <a href="/ranking" className="nostalgic-old-link">
+          <a href="/ranking" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>
             🏆 Ranking
           </a>
           <br />
@@ -522,25 +549,25 @@ export default function HomePage() {
           {currentPage === "ranking-usage" ? (
             <span className="nostalgic-nav-active">使い方</span>
           ) : (
-            <a href="/ranking#usage" className="nostalgic-old-link">使い方</a>
+            <a href="/ranking#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
           )}
           <br />
           <span style={{ marginLeft: "1em" }}>●</span>
           {currentPage === "ranking-features" ? (
             <span className="nostalgic-nav-active">機能一覧</span>
           ) : (
-            <a href="/ranking#features" className="nostalgic-old-link">機能一覧</a>
+            <a href="/ranking#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
           )}
           <br />
           <span style={{ marginLeft: "1em" }}>●</span>
           {currentPage === "ranking-api" ? (
             <span className="nostalgic-nav-active">API仕様</span>
           ) : (
-            <a href="/ranking#api" className="nostalgic-old-link">API仕様</a>
+            <a href="/ranking#api" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>API仕様</a>
           )}
           <br />
           <span>●</span>
-          <a href="/bbs" className="nostalgic-old-link">
+          <a href="/bbs" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>
             💬 BBS
           </a>
           <br />
@@ -548,21 +575,21 @@ export default function HomePage() {
           {currentPage === "bbs-usage" ? (
             <span className="nostalgic-nav-active">使い方</span>
           ) : (
-            <a href="/bbs#usage" className="nostalgic-old-link">使い方</a>
+            <a href="/bbs#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
           )}
           <br />
           <span style={{ marginLeft: "1em" }}>●</span>
           {currentPage === "bbs-features" ? (
             <span className="nostalgic-nav-active">機能一覧</span>
           ) : (
-            <a href="/bbs#features" className="nostalgic-old-link">機能一覧</a>
+            <a href="/bbs#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
           )}
           <br />
           <span style={{ marginLeft: "1em" }}>●</span>
           {currentPage === "bbs-api" ? (
             <span className="nostalgic-nav-active">API仕様</span>
           ) : (
-            <a href="/bbs#api" className="nostalgic-old-link">API仕様</a>
+            <a href="/bbs#api" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>API仕様</a>
           )}
           <br />
           {currentPage === "about" ? (
@@ -580,6 +607,7 @@ export default function HomePage() {
                   e.preventDefault();
                   setCurrentPage("about");
                   setVisitedPages((prev) => new Set([...prev, "about"]));
+                  setIsMobileSidebarOpen(false);
                 }}
               >
                 このサイトについて

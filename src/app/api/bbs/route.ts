@@ -242,7 +242,7 @@ async function handleRemove(request: NextRequest, searchParams: URLSearchParams)
   const userHash = `${getClientIP(request)}:${getUserAgent(request)}`
   
   // メッセージ削除（オーナーまたは投稿者）
-  const success = await bbsService.removeMessage(bbs.id, messageId, userHash, token, url)
+  const success = await bbsService.removeMessage(bbs.id, messageId, userHash, token || undefined, url)
   
   if (!success) {
     return NextResponse.json({ 
