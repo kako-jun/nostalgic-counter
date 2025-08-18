@@ -63,7 +63,10 @@ export default function NostalgicLayout({ children, serviceName, serviceIcon }: 
 
   return (
     <>
-      <Script src="https://nostalgic.llll-ll.com/components/display.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic.llll-ll.com/components/counter.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic.llll-ll.com/components/like.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic.llll-ll.com/components/ranking.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic.llll-ll.com/components/bbs.js" strategy="beforeInteractive" />
       <div className="nostalgic-main-frame">
         <button 
           className="nostalgic-mobile-menu-button"

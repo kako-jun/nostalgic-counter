@@ -181,24 +181,34 @@ export default function LikePage() {
                 <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px", wordBreak: "break-all" }}>
                   {`https://nostalgic.llll-ll.com/api/like?action=get&id=${publicId}`}
                 </p>
+                
+                <div className="nostalgic-counter-section">
+                  <p>
+                    <span style={{ color: "#ff8c00" }}>
+                      <b>◆実際のいいねボタン表示例◆</b>
+                    </span>
+                  </p>
+                  <div style={{ textAlign: "center", margin: "20px 0" }}>
+                    <p style={{ marginBottom: "10px" }}>作成されたいいねボタン：</p>
+                    <nostalgic-like id={publicId} theme="classic" />
+                  </div>
+                </div>
               </div>
             )}
 
             <div className="nostalgic-counter-section">
               <p>
                 <span style={{ color: "#ff8c00" }}>
-                  <b>◆実際のいいねボタン表示例◆</b>
+                  <b>◆デモ用いいねボタン◆</b>
                 </span>
               </p>
-              <div style={{ textAlign: "center", padding: "20px" }}>
-                <div style={{ display: "inline-block", padding: "10px 20px", backgroundColor: "#fff0f5", border: "2px solid #ff69b4", borderRadius: "5px", cursor: "pointer" }}>
-                  <span style={{ fontSize: "24px", marginRight: "10px" }}>💖</span>
-                  <span style={{ fontSize: "20px", fontWeight: "bold", color: "#ff1493" }}>いいね！ 123</span>
-                </div>
-                <p style={{ marginTop: "10px", fontSize: "14px", color: "#666" }}>
-                  （クリックでいいね/取り消しが切り替わります）
-                </p>
+              <div style={{ textAlign: "center", margin: "20px 0" }}>
+                <p style={{ marginBottom: "10px" }}>このデモページのいいねボタン（実際に動作します）：</p>
+                <nostalgic-like id="nostalgic-like-demo" theme="classic" />
               </div>
+              <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
+                ※クリックしてお試しください！状態が即座に切り替わります
+              </p>
             </div>
           </>
         );

@@ -122,6 +122,42 @@ export default function HomePage() {
               </p>
             </div>
 
+            <div className="nostalgic-section">
+              <p>
+                <span style={{ color: "#ff8c00" }}>
+                  <b>◆このサイトへの評価をお願いします◆</b>
+                </span>
+              </p>
+              <div style={{ textAlign: "center", margin: "20px 0" }}>
+                <p style={{ marginBottom: "10px" }}>このサイトが気に入ったら、いいねを押してください！</p>
+                <nostalgic-like id="nostalgic-site-like" theme="classic" />
+              </div>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span style={{ color: "#ff8c00" }}>
+                  <b>◆サービス人気ランキング◆</b>
+                </span>
+              </p>
+              <div style={{ textAlign: "center", margin: "20px 0" }}>
+                <p style={{ marginBottom: "10px" }}>どのサービスが人気か見てみよう！</p>
+                <nostalgic-ranking id="nostalgic-services-ranking" limit="4" theme="classic" />
+              </div>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span style={{ color: "#ff8c00" }}>
+                  <b>◆足跡帳・ゲストブック◆</b>
+                </span>
+              </p>
+              <div style={{ margin: "20px 0" }}>
+                <p style={{ marginBottom: "10px", textAlign: "center" }}>訪問の記念に、何かコメントを残していってください！</p>
+                <nostalgic-bbs id="nostalgic-guestbook" theme="classic" />
+              </div>
+            </div>
+
             <hr />
 
             <p style={{ textAlign: "center", fontSize: "20px", fontWeight: "bold", margin: "20px 0" }}>
@@ -450,7 +486,10 @@ export default function HomePage() {
 
   return (
     <>
-      <Script src="https://nostalgic.llll-ll.com/components/display.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic.llll-ll.com/components/counter.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic.llll-ll.com/components/like.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic.llll-ll.com/components/ranking.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic.llll-ll.com/components/bbs.js" strategy="beforeInteractive" />
       <div className="nostalgic-main-frame">
         <button 
           className="nostalgic-mobile-menu-button"

@@ -293,6 +293,21 @@ export default function RankingPage() {
                 </div>
               </div>
             </div>
+
+            <div className="nostalgic-counter-section">
+              <p>
+                <span style={{ color: "#ff8c00" }}>
+                  <b>◆デモ用ランキング◆</b>
+                </span>
+              </p>
+              <div style={{ textAlign: "center", margin: "20px 0" }}>
+                <p style={{ marginBottom: "10px" }}>このデモページのランキング（実際に動作します）：</p>
+                <nostalgic-ranking id="nostalgic-ranking-demo" theme="classic" limit="5" />
+              </div>
+              <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
+                ※実際にスコアを投稿するには上記のAPIテストフォームをお使いください
+              </p>
+            </div>
           </>
         );
 

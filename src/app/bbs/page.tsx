@@ -378,6 +378,21 @@ export default function BBSPage() {
                 </div>
               </div>
             </div>
+
+            <div className="nostalgic-counter-section">
+              <p>
+                <span style={{ color: "#ff8c00" }}>
+                  <b>◆デモ用BBS◆</b>
+                </span>
+              </p>
+              <div style={{ textAlign: "center", margin: "20px 0" }}>
+                <p style={{ marginBottom: "10px" }}>このデモページのBBS（実際に動作します）：</p>
+                <nostalgic-bbs id="nostalgic-bbs-demo" theme="classic" />
+              </div>
+              <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
+                ※実際にメッセージを投稿するには上記のAPIテストフォームをお使いください
+              </p>
+            </div>
           </>
         );
 
