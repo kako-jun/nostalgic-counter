@@ -37,6 +37,8 @@ export interface BBSData {
   currentPage: number
   messagesPerPage: number
   options?: BBSOptions // BBS設定で定義された選択肢
+  lastPost?: Date // 最後の投稿日時
+  firstPost: Date // 最初の投稿日時（BBS作成日時）
 }
 
 export interface BBSMetadata {

@@ -15,9 +15,10 @@ export class LikeService {
     if (!metadataStr) return null
     const metadata: LikeMetadata = JSON.parse(metadataStr)
 
-    const [totalStr, userLikedStr] = await Promise.all([
+    const [totalStr, userLikedStr, lastLikeStr] = await Promise.all([
       this.redis.get(`like:${id}:total`),
-      this.redis.get(`like:${id}:user:${userHash}`)
+      this.redis.get(`like:${id}:user:${userHash}`),
+      this.redis.get(`like:${id}:lastLike`)
     ])
     
     const total = totalStr ? parseInt(totalStr) : 0
@@ -28,7 +29,7 @@ export class LikeService {
       url: metadata.url,
       total,
       userLiked,
-      lastLike: metadata.created,
+      lastLike: lastLikeStr ? new Date(lastLikeStr) : metadata.created,
       firstLike: metadata.created
     }
   }
@@ -82,6 +83,7 @@ export class LikeService {
     const metadataStr = await this.redis.get(`like:${id}`)
     if (!metadataStr) return null
     
+    const now = new Date().toISOString()
     const userLikeKey = `like:${id}:user:${userHash}`
     const userLiked = await this.redis.get(userLikeKey)
     
@@ -92,14 +94,16 @@ export class LikeService {
       
       await Promise.all([
         this.redis.set(userLikeKey, '0'),
-        this.redis.set(`like:${id}:total`, newTotal.toString())
+        this.redis.set(`like:${id}:total`, newTotal.toString()),
+        this.redis.set(`like:${id}:lastLike`, now)
       ])
       
     } else {
       // いいねを追加
       await Promise.all([
         this.redis.set(userLikeKey, '1'),
-        this.redis.incr(`like:${id}:total`)
+        this.redis.incr(`like:${id}:total`),
+        this.redis.set(`like:${id}:lastLike`, now)
       ])
     }
     

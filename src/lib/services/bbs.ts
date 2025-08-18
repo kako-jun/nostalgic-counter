@@ -20,10 +20,13 @@ export class BBSService {
     const end = start + messagesPerPage - 1
 
     // Listから指定範囲のメッセージを取得（新しい順）
-    const rawMessages = await this.redis.lrange(`bbs:${id}:messages`, start, end)
+    const [rawMessages, totalMessages, lastPostStr] = await Promise.all([
+      this.redis.lrange(`bbs:${id}:messages`, start, end),
+      this.redis.llen(`bbs:${id}:messages`),
+      this.redis.get(`bbs:${id}:lastPost`)
+    ])
     
     const messages: BBSMessage[] = rawMessages.map(msg => JSON.parse(msg))
-    const totalMessages = await this.redis.llen(`bbs:${id}:messages`)
 
     return {
       id: metadata.id,
@@ -32,7 +35,9 @@ export class BBSService {
       totalMessages,
       currentPage: page,
       messagesPerPage,
-      options: metadata.options
+      options: metadata.options,
+      lastPost: lastPostStr ? new Date(lastPostStr) : undefined,
+      firstPost: metadata.created
     }
   }
 
@@ -83,7 +88,8 @@ export class BBSService {
       totalMessages: 0,
       currentPage: 1,
       messagesPerPage,
-      options
+      options,
+      firstPost: now
     }
     
     return { id, bbsData }
@@ -124,7 +130,10 @@ export class BBSService {
     }
     
     // メッセージをListに追加（先頭に追加で新しい順）
-    await this.redis.lpush(`bbs:${id}:messages`, JSON.stringify(newMessage))
+    await Promise.all([
+      this.redis.lpush(`bbs:${id}:messages`, JSON.stringify(newMessage)),
+      this.redis.set(`bbs:${id}:lastPost`, timestamp.toISOString())
+    ])
     
     // 最大メッセージ数を超えた場合、古いものを削除
     const totalMessages = await this.redis.llen(`bbs:${id}:messages`)
