@@ -1,20 +1,6 @@
-export interface RankingEntry {
-  name: string
-  score: number
-  rank: number
-  timestamp: Date
-}
-
-export interface RankingData {
-  id: string
-  url: string
-  entries: RankingEntry[]
-  totalEntries: number
-}
-
-export interface RankingMetadata {
-  id: string
-  url: string
-  created: Date
-  maxEntries: number // ランキングに保持する最大エントリー数
-}
+// Re-export types from Zod schemas for backward compatibility
+export type {
+  RankingEntry,
+  RankingData,
+  RankingMetadata
+} from '@/lib/validation/schemas'

@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { counterService } from '@/lib/services/counter'
 import { generateCounterSVG } from '@/lib/image-generator'
-import { CounterType } from '@/types/counter'
 import { 
   validateAction,
-  validateCreateParams,
   createApiSuccessResponse,
   createApiErrorResponse,
   handleApiError,
@@ -13,6 +11,14 @@ import {
   getUserAgent
 } from '@/lib/utils/api'
 import { COUNTER_LIMITS, CACHE_SETTINGS } from '@/lib/utils/service-constants'
+import {
+  CreateParamsSchema,
+  CounterIncrementParamsSchema,
+  CounterDisplayParamsSchema,
+  CounterSetParamsSchema,
+  CounterType
+} from '@/lib/validation/schemas'
+import { validateApiParams } from '@/lib/utils/api-validation'
 
 export async function GET(request: NextRequest) {
   try {
@@ -52,12 +58,12 @@ export async function OPTIONS() {
 }
 
 async function handleCreate(request: NextRequest, searchParams: URLSearchParams) {
-  const validation = validateCreateParams(searchParams)
-  if (!validation.isValid) {
-    return createApiErrorResponse(validation.error!, 400)
+  const validation = validateApiParams(CreateParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  const { url, token } = validation.params!
+  const { url, token } = validation.data
   
   // 既存カウンターを検索
   const existing = await counterService.getCounterByUrl(url)
@@ -86,11 +92,12 @@ async function handleCreate(request: NextRequest, searchParams: URLSearchParams)
 }
 
 async function handleIncrement(request: NextRequest, searchParams: URLSearchParams) {
-  const id = searchParams.get('id')
-  
-  if (!id) {
-    return createApiErrorResponse('id parameter is required for increment action', 400)
+  const validation = validateApiParams(CounterIncrementParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
+  
+  const { id } = validation.data
   
   const clientIP = getClientIP(request)
   const userAgent = getUserAgent(request)
@@ -116,23 +123,12 @@ async function handleIncrement(request: NextRequest, searchParams: URLSearchPara
 }
 
 async function handleDisplay(searchParams: URLSearchParams) {
-  const id = searchParams.get('id')
-  const type = (searchParams.get('type') || 'total') as CounterType
-  const theme = searchParams.get('theme') || searchParams.get('style') || COUNTER_LIMITS.DEFAULT_THEME
-  const digits = parseInt(searchParams.get('digits') || COUNTER_LIMITS.DEFAULT_DIGITS.toString())
-  const format = searchParams.get('format') || COUNTER_LIMITS.DEFAULT_FORMAT
-  
-  if (!id) {
-    return NextResponse.json({ error: 'id parameter is required' }, { status: 400 })
+  const validation = validateApiParams(CounterDisplayParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  if (!['total', 'today', 'yesterday', 'week', 'month'].includes(type)) {
-    return NextResponse.json({ error: 'Invalid type parameter' }, { status: 400 })
-  }
-  
-  if (!COUNTER_LIMITS.THEMES.includes(theme as any)) {
-    return NextResponse.json({ error: 'Invalid theme parameter' }, { status: 400 })
-  }
+  const { id, type, theme, digits, format } = validation.data
   
   // カウンターデータを取得
   const counterData = await counterService.getCounterById(id)
@@ -151,7 +147,7 @@ async function handleDisplay(searchParams: URLSearchParams) {
     const svg = generateCounterSVG({
       value: 0,
       type,
-      style: theme as 'classic' | 'modern' | 'retro',
+      style: theme,
       digits
     })
     
@@ -193,13 +189,12 @@ async function handleDisplay(searchParams: URLSearchParams) {
 }
 
 async function handleSet(searchParams: URLSearchParams) {
-  const validation = validateCreateParams(searchParams)
-  if (!validation.isValid) {
-    return createApiErrorResponse(validation.error!, 400)
+  const validation = validateApiParams(CounterSetParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  const { url, token } = validation.params!
-  const total = parseInt(searchParams.get('total') || '0')
+  const { url, token, total } = validation.data
   
   const success = await counterService.setCounterValue(url, token, total)
   

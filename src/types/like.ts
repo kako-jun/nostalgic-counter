@@ -1,18 +1,6 @@
-export interface LikeData {
-  id: string
-  url: string
-  total: number
-  userLiked: boolean // 現在のユーザーがいいねしているかどうか
-  lastLike: Date
-  firstLike: Date
-}
-
-export interface LikeMetadata {
-  id: string
-  url: string
-  created: Date
-  lastLike?: Date
-}
-
-// いいねは累計のみ
-export type LikeType = 'total'
+// Re-export types from Zod schemas for backward compatibility
+export type {
+  LikeData,
+  LikeMetadata,
+  LikeType
+} from '@/lib/validation/schemas'

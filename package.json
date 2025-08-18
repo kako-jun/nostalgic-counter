@@ -2,7 +2,7 @@
   "name": "nostalgic",
   "version": "1.0.0",
   "private": false,
-  "description": "昔のWebツールを最新技術で復活させた総合プラットフォーム - カウンター、いいね、ランキング、BBS機能を提供",
+  "description": "懐かしのWebツールを最新技術で復活させた総合プラットフォーム - カウンター、いいね、ランキング、BBS機能を提供",
   "author": "kako-jun",
   "license": "MIT",
   "homepage": "https://nostalgic.llll-ll.com",
@@ -37,7 +37,7 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "redis:show": "node scripts/show-all-data.js",
-    "redis:info": "node scripts/redis-info.js", 
+    "redis:info": "node scripts/redis-info.js",
     "redis:service": "node scripts/show-service-data.js",
     "redis:fix": "node scripts/fix-service.js"
   },
@@ -51,7 +51,8 @@
     "next": "^15.3.3",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.21",

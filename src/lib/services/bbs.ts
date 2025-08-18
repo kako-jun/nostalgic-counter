@@ -1,4 +1,3 @@
-import { BBSData, BBSMetadata, BBSMessage, BBSOptions } from '@/types/bbs'
 import { getRedis } from '@/lib/core/db'
 import { generatePublicId } from '@/lib/core/id'
 import { bbsKeys } from '@/lib/utils/redis-keys'
@@ -6,6 +5,18 @@ import { generateAuthorHash, generateUserHash } from '@/lib/utils/user-identific
 import { createOwnershipManager } from '@/lib/utils/ownership'
 import { TTL } from '@/lib/utils/ttl-constants'
 import { createHash } from 'crypto'
+import {
+  BBSData,
+  BBSMetadata,
+  BBSMessage,
+  BBSOptions,
+  BBSDataSchema,
+  BBSMetadataSchema,
+  BBSMessageSchema
+} from '@/lib/validation/schemas'
+import { safeParseRedisData, safeParseRedisArray } from '@/lib/validation/safe-parse'
+import { safeRedisSet } from '@/lib/validation/db-validation'
+import { safeRedisLRange } from '@/lib/validation/redis-validation'
 
 export class BBSService {
   private get redis() {
@@ -16,19 +27,28 @@ export class BBSService {
   async getBBSById(id: string, page: number = 1): Promise<BBSData | null> {
     const metadataStr = await this.redis.get(bbsKeys.metadata(id))
     if (!metadataStr) return null
-    const metadata: BBSMetadata = JSON.parse(metadataStr)
+    const metadataResult = safeParseRedisData(BBSMetadataSchema, metadataStr)
+    if (!metadataResult.success) {
+      console.error(`BBS metadata validation failed for ${id}:`, metadataResult.error)
+      return null
+    }
+    const metadata = metadataResult.data
 
     const messagesPerPage = metadata.messagesPerPage || 10
     const start = (page - 1) * messagesPerPage
     const end = start + messagesPerPage - 1
 
     // Listから指定範囲のメッセージを取得（新しい順）
-    const [rawMessages, totalMessages] = await Promise.all([
-      this.redis.lrange(bbsKeys.messages(id), start, end),
+    const [messagesResult, totalMessages] = await Promise.all([
+      safeRedisLRange(this.redis, bbsKeys.messages(id), start, end, BBSMessageSchema),
       this.redis.llen(bbsKeys.messages(id))
     ])
     
-    const messages: BBSMessage[] = rawMessages.map(msg => JSON.parse(msg))
+    if (!messagesResult.success) {
+      console.error(`BBS messages validation failed for ${id}:`, messagesResult.error)
+      return null
+    }
+    const messages = messagesResult.data
 
     return {
       id: metadata.id,
@@ -50,7 +70,12 @@ export class BBSService {
 
     const metadataStr = await this.redis.get(bbsKeys.metadata(id))
     if (!metadataStr) return null
-    const metadata: BBSMetadata = JSON.parse(metadataStr)
+    const metadataResult = safeParseRedisData(BBSMetadataSchema, metadataStr)
+    if (!metadataResult.success) {
+      console.error(`BBS metadata validation failed for ${id}:`, metadataResult.error)
+      return null
+    }
+    const metadata = metadataResult.data
 
     return { id, url: metadata.url }
   }
@@ -76,8 +101,14 @@ export class BBSService {
       options
     }
     
+    // 安全なRedis書き込み
+    const metadataResult = await safeRedisSet(this.redis, bbsKeys.metadata(id), BBSMetadataSchema, metadata)
+    
+    if (!metadataResult.success) {
+      throw new Error(`Failed to save BBS metadata: ${metadataResult.error}`)
+    }
+    
     await Promise.all([
-      this.redis.set(bbsKeys.metadata(id), JSON.stringify(metadata)),
       ownershipManager.set(id, token),
       this.redis.set(bbsKeys.urlMapping(url), id)
     ])
@@ -112,7 +143,12 @@ export class BBSService {
   ): Promise<BBSMessage | null> {
     const metadataStr = await this.redis.get(bbsKeys.metadata(id))
     if (!metadataStr) return null
-    const metadata: BBSMetadata = JSON.parse(metadataStr)
+    const metadataResult = safeParseRedisData(BBSMetadataSchema, metadataStr)
+    if (!metadataResult.success) {
+      console.error(`BBS metadata validation failed for ${id}:`, metadataResult.error)
+      return null
+    }
+    const metadata = metadataResult.data
     
     const timestamp = new Date()
     const messageId = this.generateMessageId(author, message, timestamp)
@@ -133,11 +169,21 @@ export class BBSService {
     // メタデータ更新（lastPostタイムスタンプ）
     metadata.lastPost = timestamp
     
+    // 安全なメタデータ更新
+    const metadataResult = await safeRedisSet(this.redis, bbsKeys.metadata(id), BBSMetadataSchema, metadata)
+    const messageResult = await safeRedisSet(this.redis, '', BBSMessageSchema, newMessage)
+    
+    if (!metadataResult.success) {
+      console.error('Failed to update BBS metadata:', metadataResult.error)
+      return null
+    }
+    if (!messageResult.success) {
+      console.error('Failed to validate new message:', messageResult.error)
+      return null
+    }
+    
     // メッセージをListに追加（先頭に追加で新しい順）
-    await Promise.all([
-      this.redis.lpush(bbsKeys.messages(id), JSON.stringify(newMessage)),
-      this.redis.set(bbsKeys.metadata(id), JSON.stringify(metadata))
-    ])
+    await this.redis.lpush(bbsKeys.messages(id), messageResult.serialized)
     
     // 最大メッセージ数を超えた場合、古いものを削除
     const totalMessages = await this.redis.llen(bbsKeys.messages(id))
@@ -160,7 +206,12 @@ export class BBSService {
     
     let messageFound = false
     const updatedMessages = rawMessages.map(msg => {
-      const parsedMsg: BBSMessage = JSON.parse(msg)
+      const msgResult = safeParseRedisData(BBSMessageSchema, msg)
+      if (!msgResult.success) {
+        console.error(`BBS message validation failed:`, msgResult.error)
+        return msg // Keep original if validation fails
+      }
+      const parsedMsg = msgResult.data
       
       if (parsedMsg.id === messageId) {
         // 投稿者の確認（IP+UserAgentハッシュ）
@@ -168,11 +219,19 @@ export class BBSService {
         
         if (messageUserHash === userHash) {
           messageFound = true
-          return JSON.stringify({
+          const updatedMessage = {
             ...parsedMsg,
             message: newMessage.substring(0, 1000),
             updated: new Date()
-          })
+          }
+          const messageResult = await import('@/lib/validation/db-validation').then(({safeStringifyForRedis}) => 
+            safeStringifyForRedis(BBSMessageSchema, updatedMessage)
+          )
+          if (!messageResult.success) {
+            console.error('Failed to validate updated message:', messageResult.error)
+            return msg
+          }
+          return messageResult.serialized
         }
       }
       
@@ -209,7 +268,12 @@ export class BBSService {
     
     let messageFound = false
     const filteredMessages = rawMessages.filter(msg => {
-      const parsedMsg: BBSMessage = JSON.parse(msg)
+      const msgResult = safeParseRedisData(BBSMessageSchema, msg)
+      if (!msgResult.success) {
+        console.error(`BBS message validation failed:`, msgResult.error)
+        return msg // Keep original if validation fails
+      }
+      const parsedMsg = msgResult.data
       
       if (parsedMsg.id === messageId) {
         messageFound = true

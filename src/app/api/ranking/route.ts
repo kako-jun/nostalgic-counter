@@ -2,14 +2,20 @@ import { NextRequest, NextResponse } from 'next/server'
 import { rankingService } from '@/lib/services/ranking'
 import { 
   validateAction,
-  validateCreateParams,
-  validateURL,
-  validateOwnerToken,
   createApiSuccessResponse,
   createApiErrorResponse,
   handleApiError,
   createOptionsResponse
 } from '@/lib/utils/api'
+import {
+  RankingCreateParamsSchema,
+  RankingSubmitParamsSchema,
+  RankingGetParamsSchema,
+  RankingClearParamsSchema,
+  RankingRemoveParamsSchema,
+  RankingUpdateParamsSchema
+} from '@/lib/validation/schemas'
+import { validateApiParams } from '@/lib/utils/api-validation'
 import { RANKING_LIMITS } from '@/lib/utils/service-constants'
 
 export async function GET(request: NextRequest) {
@@ -56,17 +62,13 @@ export async function OPTIONS() {
 }
 
 async function handleCreate(searchParams: URLSearchParams) {
-  const validation = validateCreateParams(searchParams)
-  if (!validation.isValid) {
-    return createApiErrorResponse(validation.error!, 400)
+  const validation = validateApiParams(RankingCreateParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  const { url, token } = validation.params!
-  const maxEntries = parseInt(searchParams.get('max') || RANKING_LIMITS.DEFAULT_MAX_ENTRIES.toString())
-  
-  if (maxEntries < RANKING_LIMITS.MIN_ENTRIES || maxEntries > RANKING_LIMITS.MAX_ENTRIES_LIMIT) {
-    return createApiErrorResponse(`max parameter must be between ${RANKING_LIMITS.MIN_ENTRIES} and ${RANKING_LIMITS.MAX_ENTRIES_LIMIT}`, 400)
-  }
+  const { url, token, max } = validation.data
+  const maxEntries = max
   
   // 既存ランキングを検索
   const existing = await rankingService.getRankingByUrl(url)
@@ -90,26 +92,12 @@ async function handleCreate(searchParams: URLSearchParams) {
 }
 
 async function handleSubmit(searchParams: URLSearchParams) {
-  const url = searchParams.get('url')
-  const token = searchParams.get('token')
-  const name = searchParams.get('name')
-  const score = parseInt(searchParams.get('score') || '0')
-  
-  if (!url || !token || !name) {
-    return createApiErrorResponse('url, token, and name parameters are required for submit action', 400)
+  const validation = validateApiParams(RankingSubmitParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  if (!validateURL(url)) {
-    return createApiErrorResponse('Invalid URL format', 400)
-  }
-  
-  if (!validateOwnerToken(token)) {
-    return createApiErrorResponse('Token must be 8-16 characters long', 400)
-  }
-  
-  if (name.length > RANKING_LIMITS.MAX_NAME_LENGTH) {
-    return createApiErrorResponse(`Name must be ${RANKING_LIMITS.MAX_NAME_LENGTH} characters or less`, 400)
-  }
+  const { url, token, name, score } = validation.data
   
   // オーナー確認
   if (!await rankingService.verifyOwnership(url, token)) {
@@ -132,16 +120,12 @@ async function handleSubmit(searchParams: URLSearchParams) {
 }
 
 async function handleGet(searchParams: URLSearchParams) {
-  const id = searchParams.get('id')
-  const limit = parseInt(searchParams.get('limit') || RANKING_LIMITS.DEFAULT_GET_LIMIT.toString())
-  
-  if (!id) {
-    return createApiErrorResponse('id parameter is required for get action', 400)
+  const validation = validateApiParams(RankingGetParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  if (limit < RANKING_LIMITS.MIN_GET_LIMIT || limit > RANKING_LIMITS.MAX_GET_LIMIT) {
-    return createApiErrorResponse(`limit parameter must be between ${RANKING_LIMITS.MIN_GET_LIMIT} and ${RANKING_LIMITS.MAX_GET_LIMIT}`, 400)
-  }
+  const { id, limit } = validation.data
   
   // ランキングデータを取得
   const rankingData = await rankingService.getRankingById(id, limit)
@@ -154,16 +138,12 @@ async function handleGet(searchParams: URLSearchParams) {
 }
 
 async function handleClear(searchParams: URLSearchParams) {
-  const url = searchParams.get('url')
-  const token = searchParams.get('token')
-  
-  if (!url || !token) {
-    return createApiErrorResponse('url and token parameters are required for clear action', 400)
+  const validation = validateApiParams(RankingClearParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  if (!validateURL(url)) {
-    return createApiErrorResponse('Invalid URL format', 400)
-  }
+  const { url, token } = validation.data
   
   const success = await rankingService.clearRanking(url, token)
   
@@ -175,17 +155,12 @@ async function handleClear(searchParams: URLSearchParams) {
 }
 
 async function handleRemove(searchParams: URLSearchParams) {
-  const url = searchParams.get('url')
-  const token = searchParams.get('token')
-  const name = searchParams.get('name')
-  
-  if (!url || !token || !name) {
-    return createApiErrorResponse('url, token, and name parameters are required for remove action', 400)
+  const validation = validateApiParams(RankingRemoveParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  if (!validateURL(url)) {
-    return createApiErrorResponse('Invalid URL format', 400)
-  }
+  const { url, token, name } = validation.data
   
   const success = await rankingService.removeScore(url, token, name)
   
@@ -197,26 +172,12 @@ async function handleRemove(searchParams: URLSearchParams) {
 }
 
 async function handleUpdate(searchParams: URLSearchParams) {
-  const url = searchParams.get('url')
-  const token = searchParams.get('token')
-  const name = searchParams.get('name')
-  const score = parseInt(searchParams.get('score') || '0')
-  
-  if (!url || !token || !name) {
-    return createApiErrorResponse('url, token, and name parameters are required for update action', 400)
+  const validation = validateApiParams(RankingUpdateParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  if (!validateURL(url)) {
-    return createApiErrorResponse('Invalid URL format', 400)
-  }
-  
-  if (!validateOwnerToken(token)) {
-    return createApiErrorResponse('Token must be 8-16 characters long', 400)
-  }
-  
-  if (name.length > RANKING_LIMITS.MAX_NAME_LENGTH) {
-    return createApiErrorResponse(`Name must be ${RANKING_LIMITS.MAX_NAME_LENGTH} characters or less`, 400)
-  }
+  const { url, token, name, score } = validation.data
   
   const success = await rankingService.updateScore(url, token, name, score)
   

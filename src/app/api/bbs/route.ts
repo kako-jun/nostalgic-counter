@@ -3,9 +3,6 @@ import { bbsService } from '@/lib/services/bbs'
 import { BBSOptions } from '@/types/bbs'
 import { 
   validateAction,
-  validateCreateParams,
-  validateURL,
-  validateOwnerToken,
   createApiSuccessResponse,
   createApiErrorResponse,
   handleApiError,
@@ -13,6 +10,15 @@ import {
   getClientIP,
   getUserAgent
 } from '@/lib/utils/api'
+import {
+  BBSCreateParamsSchema,
+  BBSPostParamsSchema,
+  BBSGetParamsSchema,
+  BBSRemoveParamsSchema,
+  BBSClearParamsSchema,
+  BBSUpdateParamsSchema
+} from '@/lib/validation/schemas'
+import { validateApiParams } from '@/lib/utils/api-validation'
 import { BBS_LIMITS } from '@/lib/utils/service-constants'
 
 export async function GET(request: NextRequest) {
@@ -59,44 +65,45 @@ export async function OPTIONS() {
 }
 
 async function handleCreate(searchParams: URLSearchParams) {
-  const validation = validateCreateParams(searchParams)
-  if (!validation.isValid) {
-    return createApiErrorResponse(validation.error!, 400)
+  const validation = validateApiParams(BBSCreateParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  const { url, token } = validation.params!
-  const maxMessages = parseInt(searchParams.get('max') || BBS_LIMITS.DEFAULT_MAX_MESSAGES.toString())
-  const messagesPerPage = parseInt(searchParams.get('perPage') || BBS_LIMITS.DEFAULT_MESSAGES_PER_PAGE.toString())
-  
-  if (maxMessages < BBS_LIMITS.MIN_MESSAGES || maxMessages > BBS_LIMITS.MAX_MESSAGES_LIMIT) {
-    return createApiErrorResponse(`max parameter must be between ${BBS_LIMITS.MIN_MESSAGES} and ${BBS_LIMITS.MAX_MESSAGES_LIMIT}`, 400)
-  }
+  const { url, token, max, perPage, icons, select1Label, select1Values, select1Required, select2Label, select2Values, select2Required, select3Label, select3Values, select3Required } = validation.data
+  const maxMessages = max
+  const messagesPerPage = perPage
   
   // オプション設定の解析
   const options: BBSOptions = {}
   
   // アイコン設定
-  const icons = searchParams.get('icons')
   if (icons) {
     options.availableIcons = icons.split(',').slice(0, BBS_LIMITS.MAX_ICONS) // 最大アイコン数
   }
   
   // ドロップダウン設定
-  for (let i = 1; i <= 3; i++) {
-    const label = searchParams.get(`select${i}Label`)
-    const values = searchParams.get(`select${i}Values`)
-    const required = searchParams.get(`select${i}Required`) === 'true'
-    
-    if (label && values) {
-      const selectOption = {
-        label: label.substring(0, BBS_LIMITS.MAX_SELECT_LABEL_LENGTH),
-        values: values.split(',').slice(0, BBS_LIMITS.MAX_SELECT_VALUES), // 最大選択肢数
-        required
-      }
-      
-      if (i === 1) options.select1 = selectOption
-      else if (i === 2) options.select2 = selectOption
-      else if (i === 3) options.select3 = selectOption
+  if (select1Label && select1Values) {
+    options.select1 = {
+      label: select1Label.substring(0, BBS_LIMITS.MAX_SELECT_LABEL_LENGTH),
+      values: select1Values.split(',').slice(0, BBS_LIMITS.MAX_SELECT_VALUES),
+      required: select1Required === 'true'
+    }
+  }
+  
+  if (select2Label && select2Values) {
+    options.select2 = {
+      label: select2Label.substring(0, BBS_LIMITS.MAX_SELECT_LABEL_LENGTH),
+      values: select2Values.split(',').slice(0, BBS_LIMITS.MAX_SELECT_VALUES),
+      required: select2Required === 'true'
+    }
+  }
+  
+  if (select3Label && select3Values) {
+    options.select3 = {
+      label: select3Label.substring(0, BBS_LIMITS.MAX_SELECT_LABEL_LENGTH),
+      values: select3Values.split(',').slice(0, BBS_LIMITS.MAX_SELECT_VALUES),
+      required: select3Required === 'true'
     }
   }
   
@@ -122,26 +129,12 @@ async function handleCreate(searchParams: URLSearchParams) {
 }
 
 async function handlePost(request: NextRequest, searchParams: URLSearchParams) {
-  const url = searchParams.get('url')
-  const token = searchParams.get('token')
-  const author = searchParams.get('author') || BBS_LIMITS.DEFAULT_AUTHOR
-  const message = searchParams.get('message')
-  
-  if (!url || !token || !message) {
-    return createApiErrorResponse('url, token, and message parameters are required for post action', 400)
+  const validation = validateApiParams(BBSPostParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  if (!validateURL(url)) {
-    return createApiErrorResponse('Invalid URL format', 400)
-  }
-  
-  if (!validateOwnerToken(token)) {
-    return createApiErrorResponse('Token must be 8-16 characters long', 400)
-  }
-  
-  if (message.length > BBS_LIMITS.MAX_MESSAGE_LENGTH) {
-    return createApiErrorResponse(`Message must be ${BBS_LIMITS.MAX_MESSAGE_LENGTH} characters or less`, 400)
-  }
+  const { url, token, author, message, icon, select1, select2, select3 } = validation.data
   
   // オーナー確認
   if (!await bbsService.verifyOwnership(url, token)) {
@@ -156,10 +149,10 @@ async function handlePost(request: NextRequest, searchParams: URLSearchParams) {
   
   // 投稿オプション
   const options = {
-    icon: searchParams.get('icon') || undefined,
-    select1: searchParams.get('select1') || undefined,
-    select2: searchParams.get('select2') || undefined,
-    select3: searchParams.get('select3') || undefined,
+    icon: icon || undefined,
+    select1: select1 || undefined,
+    select2: select2 || undefined,
+    select3: select3 || undefined,
     ipAddress: getClientIP(request),
     userAgent: getUserAgent(request)
   }
@@ -174,16 +167,12 @@ async function handlePost(request: NextRequest, searchParams: URLSearchParams) {
 }
 
 async function handleGet(searchParams: URLSearchParams) {
-  const id = searchParams.get('id')
-  const page = parseInt(searchParams.get('page') || '1')
-  
-  if (!id) {
-    return createApiErrorResponse('id parameter is required for get action', 400)
+  const validation = validateApiParams(BBSGetParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  if (page < BBS_LIMITS.MIN_PAGE) {
-    return createApiErrorResponse(`page parameter must be ${BBS_LIMITS.MIN_PAGE} or greater`, 400)
-  }
+  const { id, page } = validation.data
   
   // BBSデータを取得
   const bbsData = await bbsService.getBBSById(id, page)
@@ -196,17 +185,12 @@ async function handleGet(searchParams: URLSearchParams) {
 }
 
 async function handleRemove(request: NextRequest, searchParams: URLSearchParams) {
-  const url = searchParams.get('url')
-  const token = searchParams.get('token')
-  const messageId = searchParams.get('messageId')
-  
-  if (!url || !messageId) {
-    return createApiErrorResponse('url and messageId parameters are required for remove action', 400)
+  const validation = validateApiParams(BBSRemoveParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  if (!validateURL(url)) {
-    return createApiErrorResponse('Invalid URL format', 400)
-  }
+  const { url, messageId, token } = validation.data
   
   // BBS取得
   const bbs = await bbsService.getBBSByUrl(url)
@@ -228,16 +212,12 @@ async function handleRemove(request: NextRequest, searchParams: URLSearchParams)
 }
 
 async function handleClear(searchParams: URLSearchParams) {
-  const url = searchParams.get('url')
-  const token = searchParams.get('token')
-  
-  if (!url || !token) {
-    return createApiErrorResponse('url and token parameters are required for clear action', 400)
+  const validation = validateApiParams(BBSClearParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  if (!validateURL(url)) {
-    return createApiErrorResponse('Invalid URL format', 400)
-  }
+  const { url, token } = validation.data
   
   const success = await bbsService.clearBBS(url, token)
   
@@ -249,21 +229,12 @@ async function handleClear(searchParams: URLSearchParams) {
 }
 
 async function handleUpdate(request: NextRequest, searchParams: URLSearchParams) {
-  const url = searchParams.get('url')
-  const messageId = searchParams.get('messageId')
-  const newMessage = searchParams.get('message')
-  
-  if (!url || !messageId || !newMessage) {
-    return createApiErrorResponse('url, messageId, and message parameters are required for update action', 400)
+  const validation = validateApiParams(BBSUpdateParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  if (!validateURL(url)) {
-    return createApiErrorResponse('Invalid URL format', 400)
-  }
-  
-  if (newMessage.length > 1000) {
-    return createApiErrorResponse('Message must be 1000 characters or less', 400)
-  }
+  const { url, messageId, message: newMessage } = validation.data
   
   // BBS取得
   const bbs = await bbsService.getBBSByUrl(url)

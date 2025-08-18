@@ -1,10 +1,18 @@
-import { CounterData, CounterMetadata } from '@/types/counter'
 import { getRedis } from '@/lib/core/db'
 import { generatePublicId } from '@/lib/core/id'
 import { counterKeys } from '@/lib/utils/redis-keys'
 import { createUserIdentification } from '@/lib/utils/user-identification'
 import { createOwnershipManager } from '@/lib/utils/ownership'
 import { TTL } from '@/lib/utils/ttl-constants'
+import { 
+  CounterData,
+  CounterMetadata,
+  CounterDataSchema,
+  CounterMetadataSchema
+} from '@/lib/validation/schemas'
+import { safeParseRedisData, safeParseInt } from '@/lib/validation/safe-parse'
+import { safeRedisSet, safeRedisSetNumber } from '@/lib/validation/db-validation'
+import { safeRedisGetJson, safeRedisGetNumber, safeRedisGetString } from '@/lib/validation/redis-validation'
 
 export class CounterService {
   private get redis() {
@@ -15,7 +23,13 @@ export class CounterService {
   async getCounterById(id: string): Promise<CounterData | null> {
     const metadataStr = await this.redis.get(counterKeys.metadata(id))
     if (!metadataStr) return null
-    const metadata: CounterMetadata = JSON.parse(metadataStr)
+    
+    const metadataResult = safeParseRedisData(CounterMetadataSchema, metadataStr)
+    if (!metadataResult.success) {
+      console.error(`Counter metadata validation failed for ${id}:`, metadataResult.error)
+      return null
+    }
+    const metadata = metadataResult.data
 
     const [totalStr, today, yesterday, lastVisitStr] = await Promise.all([
       this.redis.get(counterKeys.total(id)),
@@ -24,7 +38,7 @@ export class CounterService {
       this.redis.get(counterKeys.lastVisit(id))
     ])
     
-    const total = totalStr ? parseInt(totalStr) : 0
+    const total = safeParseInt(totalStr, 0)
 
     const week = await this.getPeriodCount(id, 7)
     const month = await this.getPeriodCount(id, 30)
@@ -49,7 +63,13 @@ export class CounterService {
 
     const metadataStr = await this.redis.get(counterKeys.metadata(id))
     if (!metadataStr) return null
-    const metadata: CounterMetadata = JSON.parse(metadataStr)
+    
+    const metadataResult = safeParseRedisData(CounterMetadataSchema, metadataStr)
+    if (!metadataResult.success) {
+      console.error(`Counter metadata validation failed for ${id}:`, metadataResult.error)
+      return null
+    }
+    const metadata = metadataResult.data
 
     return { id, url: metadata.url }
   }
@@ -66,9 +86,18 @@ export class CounterService {
       created: now
     }
     
+    // 安全なRedis書き込み
+    const metadataResult = await safeRedisSet(this.redis, counterKeys.metadata(id), CounterMetadataSchema, metadata)
+    const totalResult = await safeRedisSetNumber(this.redis, counterKeys.total(id), 0)
+    
+    if (!metadataResult.success) {
+      throw new Error(`Failed to save counter metadata: ${metadataResult.error}`)
+    }
+    if (!totalResult.success) {
+      throw new Error(`Failed to save counter total: ${totalResult.error}`)
+    }
+    
     await Promise.all([
-      this.redis.set(counterKeys.metadata(id), JSON.stringify(metadata)),
-      this.redis.set(counterKeys.total(id), '0'),
       ownershipManager.set(id, token),
       this.redis.set(counterKeys.urlMapping(url), id)
     ])
@@ -121,7 +150,10 @@ export class CounterService {
     const result = await this.getCounterByUrl(url)
     if (!result) return false
     
-    await this.redis.set(counterKeys.total(result.id), total.toString())
+    const setResult = await safeRedisSetNumber(this.redis, counterKeys.total(result.id), total)
+    if (!setResult.success) {
+      throw new Error(`Failed to set counter value: ${setResult.error}`)
+    }
     return true
   }
   
@@ -145,13 +177,13 @@ export class CounterService {
   private async getTodayCount(id: string): Promise<number> {
     const today = new Date().toISOString().split('T')[0]
     const count = await this.redis.get(counterKeys.daily(id, today))
-    return count ? parseInt(count) : 0
+    return safeParseInt(count, 0)
   }
 
   private async getYesterdayCount(id: string): Promise<number> {
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
     const count = await this.redis.get(counterKeys.daily(id, yesterday))
-    return count ? parseInt(count) : 0
+    return safeParseInt(count, 0)
   }
 
   private async getPeriodCount(id: string, days: number): Promise<number> {
@@ -161,7 +193,7 @@ export class CounterService {
     for (let i = 0; i < days; i++) {
       const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
       const dateStr = date.toISOString().split('T')[0]
-      promises.push(this.redis.get(counterKeys.daily(id, dateStr)).then(count => count ? parseInt(count) : 0))
+      promises.push(this.redis.get(counterKeys.daily(id, dateStr)).then(count => safeParseInt(count, 0)))
     }
     
     const counts = await Promise.all(promises)

@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { likeService } from '@/lib/services/like'
 import { generateCounterSVG } from '@/lib/image-generator'
-import { LikeType } from '@/types/like'
 import { 
   validateAction,
-  validateCreateParams,
   createApiSuccessResponse,
   createApiErrorResponse,
   handleApiError,
@@ -13,6 +11,14 @@ import {
   getUserAgent
 } from '@/lib/utils/api'
 import { LIKE_LIMITS, CACHE_SETTINGS } from '@/lib/utils/service-constants'
+import {
+  CreateParamsSchema,
+  LikeToggleParamsSchema,
+  LikeDisplayParamsSchema,
+  LikeSetParamsSchema,
+  LikeType
+} from '@/lib/validation/schemas'
+import { validateApiParams } from '@/lib/utils/api-validation'
 
 export async function GET(request: NextRequest) {
   try {
@@ -52,12 +58,12 @@ export async function OPTIONS() {
 }
 
 async function handleCreate(request: NextRequest, searchParams: URLSearchParams) {
-  const validation = validateCreateParams(searchParams)
-  if (!validation.isValid) {
-    return createApiErrorResponse(validation.error!, 400)
+  const validation = validateApiParams(CreateParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  const { url, token } = validation.params!
+  const { url, token } = validation.data
   
   // 既存いいねを検索
   const existing = await likeService.getLikeByUrl(url)
@@ -81,10 +87,23 @@ async function handleCreate(request: NextRequest, searchParams: URLSearchParams)
 }
 
 async function handleToggle(request: NextRequest, searchParams: URLSearchParams) {
-  const id = searchParams.get('id')
+  // toggleアクションは実際にはurl/tokenを必要とします
+  const validation = validateApiParams(LikeToggleParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
+  }
   
-  if (!id) {
-    return createApiErrorResponse('id parameter is required for toggle action', 400)
+  const { url, token } = validation.data
+  
+  // オーナー確認
+  if (!await likeService.verifyOwnership(url, token)) {
+    return createApiErrorResponse('Invalid token for this URL', 403)
+  }
+  
+  // Like取得
+  const like = await likeService.getLikeByUrl(url)
+  if (!like) {
+    return createApiErrorResponse('Like not found', 404)
   }
   
   const clientIP = getClientIP(request)
@@ -92,27 +111,21 @@ async function handleToggle(request: NextRequest, searchParams: URLSearchParams)
   const userHash = likeService.generateUserHash(clientIP, userAgent)
   
   // いいねの切り替え
-  const likeData = await likeService.toggleLike(id, userHash)
+  const likeData = await likeService.toggleLike(like.id, userHash)
   if (!likeData) {
-    return createApiErrorResponse('Like not found', 404)
+    return createApiErrorResponse('Failed to toggle like', 500)
   }
   
   return createApiSuccessResponse(likeData)
 }
 
 async function handleDisplay(request: NextRequest, searchParams: URLSearchParams) {
-  const id = searchParams.get('id')
-  const theme = searchParams.get('theme') || searchParams.get('style') || LIKE_LIMITS.DEFAULT_THEME
-  const digits = parseInt(searchParams.get('digits') || LIKE_LIMITS.DEFAULT_DIGITS.toString())
-  const format = searchParams.get('format') || LIKE_LIMITS.DEFAULT_FORMAT
-  
-  if (!id) {
-    return createApiErrorResponse('id parameter is required', 400)
+  const validation = validateApiParams(LikeDisplayParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  if (!LIKE_LIMITS.THEMES.includes(theme as any)) {
-    return createApiErrorResponse('Invalid theme parameter', 400)
-  }
+  const { id, theme, digits, format } = validation.data
   
   const clientIP = getClientIP(request)
   const userAgent = getUserAgent(request)
@@ -135,7 +148,7 @@ async function handleDisplay(request: NextRequest, searchParams: URLSearchParams
     const svg = generateCounterSVG({
       value: 0,
       type: 'total',
-      style: theme as 'classic' | 'modern' | 'retro',
+      style: theme,
       digits
     })
     
@@ -178,13 +191,12 @@ async function handleDisplay(request: NextRequest, searchParams: URLSearchParams
 }
 
 async function handleSet(searchParams: URLSearchParams) {
-  const validation = validateCreateParams(searchParams)
-  if (!validation.isValid) {
-    return createApiErrorResponse(validation.error!, 400)
+  const validation = validateApiParams(LikeSetParamsSchema, searchParams)
+  if (!validation.success) {
+    return validation.response
   }
   
-  const { url, token } = validation.params!
-  const total = parseInt(searchParams.get('total') || '0')
+  const { url, token, total } = validation.data
   
   const success = await likeService.setLikeValue(url, token, total)
   

@@ -1,10 +1,18 @@
-import { LikeData, LikeMetadata } from '@/types/like'
 import { getRedis } from '@/lib/core/db'
 import { generatePublicId } from '@/lib/core/id'
 import { likeKeys } from '@/lib/utils/redis-keys'
 import { generateUserHash } from '@/lib/utils/user-identification'
 import { createOwnershipManager } from '@/lib/utils/ownership'
 import { TTL } from '@/lib/utils/ttl-constants'
+import {
+  LikeData,
+  LikeMetadata,
+  LikeDataSchema,
+  LikeMetadataSchema
+} from '@/lib/validation/schemas'
+import { safeParseRedisData, safeParseInt } from '@/lib/validation/safe-parse'
+import { safeRedisSet, safeRedisSetNumber } from '@/lib/validation/db-validation'
+import { safeRedisGetJson, safeRedisGetNumber } from '@/lib/validation/redis-validation'
 
 export class LikeService {
   private get redis() {
@@ -15,14 +23,20 @@ export class LikeService {
   async getLikeById(id: string, userHash: string): Promise<LikeData | null> {
     const metadataStr = await this.redis.get(likeKeys.metadata(id))
     if (!metadataStr) return null
-    const metadata: LikeMetadata = JSON.parse(metadataStr)
+    
+    const metadataResult = safeParseRedisData(LikeMetadataSchema, metadataStr)
+    if (!metadataResult.success) {
+      console.error(`Like metadata validation failed for ${id}:`, metadataResult.error)
+      return null
+    }
+    const metadata = metadataResult.data
 
     const [totalStr, userLikedStr] = await Promise.all([
       this.redis.get(likeKeys.total(id)),
       this.redis.get(likeKeys.userState(id, userHash))
     ])
     
-    const total = totalStr ? parseInt(totalStr) : 0
+    const total = safeParseInt(totalStr, 0)
     const userLiked = userLikedStr === '1'
 
     return {
@@ -42,7 +56,13 @@ export class LikeService {
 
     const metadataStr = await this.redis.get(likeKeys.metadata(id))
     if (!metadataStr) return null
-    const metadata: LikeMetadata = JSON.parse(metadataStr)
+    
+    const metadataResult = safeParseRedisData(LikeMetadataSchema, metadataStr)
+    if (!metadataResult.success) {
+      console.error(`Like metadata validation failed for ${id}:`, metadataResult.error)
+      return null
+    }
+    const metadata = metadataResult.data
 
     return { id, url: metadata.url }
   }
@@ -59,9 +79,18 @@ export class LikeService {
       created: now
     }
     
+    // 安全なRedis書き込み
+    const metadataResult = await safeRedisSet(this.redis, likeKeys.metadata(id), LikeMetadataSchema, metadata)
+    const totalResult = await safeRedisSetNumber(this.redis, likeKeys.total(id), 0)
+    
+    if (!metadataResult.success) {
+      throw new Error(`Failed to save like metadata: ${metadataResult.error}`)
+    }
+    if (!totalResult.success) {
+      throw new Error(`Failed to save like total: ${totalResult.error}`)
+    }
+    
     await Promise.all([
-      this.redis.set(likeKeys.metadata(id), JSON.stringify(metadata)),
-      this.redis.set(likeKeys.total(id), '0'),
       ownershipManager.set(id, token),
       this.redis.set(likeKeys.urlMapping(url), id)
     ])
@@ -88,26 +117,41 @@ export class LikeService {
     const userLiked = await this.redis.get(userLikeKey)
     
     // メタデータを更新（lastLikeタイムスタンプ）
-    const metadata: LikeMetadata = JSON.parse(metadataStr)
+    const metadataResult = safeParseRedisData(LikeMetadataSchema, metadataStr)
+    if (!metadataResult.success) {
+      console.error(`Like metadata validation failed for ${id}:`, metadataResult.error)
+      return null
+    }
+    const metadata = metadataResult.data
     metadata.lastLike = now
     
     if (userLiked === '1') {
       // いいねを取り消し
       const currentTotal = await this.redis.get(likeKeys.total(id))
-      const newTotal = Math.max(0, parseInt(currentTotal || '0') - 1)
+      const newTotal = Math.max(0, safeParseInt(currentTotal, 0) - 1)
       
-      await Promise.all([
-        this.redis.set(userLikeKey, '0'),
-        this.redis.set(likeKeys.total(id), newTotal.toString()),
-        this.redis.set(likeKeys.metadata(id), JSON.stringify(metadata))
-      ])
+      const totalResult = await safeRedisSetNumber(this.redis, likeKeys.total(id), newTotal)
+      const metadataResult = await safeRedisSet(this.redis, likeKeys.metadata(id), LikeMetadataSchema, metadata)
+      
+      if (!totalResult.success || !metadataResult.success) {
+        console.error('Failed to update like data:', { totalResult, metadataResult })
+        return null
+      }
+      
+      await this.redis.set(userLikeKey, '0')
       
     } else {
       // いいねを追加
+      const metadataResult = await safeRedisSet(this.redis, likeKeys.metadata(id), LikeMetadataSchema, metadata)
+      
+      if (!metadataResult.success) {
+        console.error('Failed to update like metadata:', metadataResult.error)
+        return null
+      }
+      
       await Promise.all([
         this.redis.set(userLikeKey, '1'),
-        this.redis.incr(likeKeys.total(id)),
-        this.redis.set(likeKeys.metadata(id), JSON.stringify(metadata))
+        this.redis.incr(likeKeys.total(id))
       ])
     }
     
@@ -131,7 +175,10 @@ export class LikeService {
     const result = await this.getLikeByUrl(url)
     if (!result) return false
     
-    await this.redis.set(likeKeys.total(result.id), total.toString())
+    const setResult = await safeRedisSetNumber(this.redis, likeKeys.total(result.id), total)
+    if (!setResult.success) {
+      throw new Error(`Failed to set like value: ${setResult.error}`)
+    }
     return true
   }
   

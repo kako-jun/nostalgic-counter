@@ -1,27 +1,15 @@
-export interface CounterData {
-  id: string        // 公開ID（例: blog-2025-a7b9）
-  url: string
-  total: number
-  today: number
-  yesterday: number
-  week: number
-  month: number
-  lastVisit: Date
-  firstVisit: Date
-}
+// Re-export types from Zod schemas for backward compatibility
+export type {
+  CounterData,
+  CounterMetadata,
+  CounterType
+} from '@/lib/validation/schemas'
 
-export interface CounterMetadata {
-  id: string
-  url: string
-  created: Date
-}
-
+// Additional legacy types for backward compatibility
 export interface DailyCount {
   date: string // YYYY-MM-DD format
   count: number
 }
-
-export type CounterType = 'total' | 'today' | 'yesterday' | 'week' | 'month'
 
 export interface CounterRequest {
   url: string

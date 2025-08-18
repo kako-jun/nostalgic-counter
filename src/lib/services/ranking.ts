@@ -1,8 +1,17 @@
-import { RankingData, RankingMetadata, RankingEntry } from '@/types/ranking'
 import { getRedis } from '@/lib/core/db'
 import { generatePublicId } from '@/lib/core/id'
 import { rankingKeys } from '@/lib/utils/redis-keys'
 import { createOwnershipManager } from '@/lib/utils/ownership'
+import {
+  RankingData,
+  RankingMetadata,
+  RankingEntry,
+  RankingDataSchema,
+  RankingMetadataSchema
+} from '@/lib/validation/schemas'
+import { safeParseRedisData, safeParseInt } from '@/lib/validation/safe-parse'
+import { safeRedisSet } from '@/lib/validation/db-validation'
+import { safeRedisZRevRangeWithScores } from '@/lib/validation/redis-validation'
 
 export class RankingService {
   private get redis() {
@@ -13,24 +22,27 @@ export class RankingService {
   async getRankingById(id: string, limit: number = 10): Promise<RankingData | null> {
     const metadataStr = await this.redis.get(rankingKeys.metadata(id))
     if (!metadataStr) return null
-    const metadata: RankingMetadata = JSON.parse(metadataStr)
+    const metadataResult = safeParseRedisData(RankingMetadataSchema, metadataStr)
+    if (!metadataResult.success) {
+      console.error(`Ranking metadata validation failed for ${id}:`, metadataResult.error)
+      return null
+    }
+    const metadata = metadataResult.data
 
     // Sorted Setから上位を取得（スコア降順）
-    const rawEntries = await this.redis.zrevrange(rankingKeys.scores(id), 0, limit - 1, 'WITHSCORES')
+    const entriesResult = await safeRedisZRevRangeWithScores(this.redis, rankingKeys.scores(id), 0, limit - 1)
     
-    const entries: RankingEntry[] = []
-    for (let i = 0; i < rawEntries.length; i += 2) {
-      const name = rawEntries[i]
-      const score = parseInt(rawEntries[i + 1])
-      const rank = Math.floor(i / 2) + 1
-      
-      entries.push({
-        name,
-        score,
-        rank,
-        timestamp: new Date() // 簡易実装（実際のタイムスタンプは別途管理が必要）
-      })
+    if (!entriesResult.success) {
+      console.error(`Failed to get ranking entries for ${id}:`, entriesResult.error)
+      return null
     }
+    
+    const entries: RankingEntry[] = entriesResult.data.map((entry, index) => ({
+      name: entry.name,
+      score: entry.score,
+      rank: index + 1,
+      timestamp: new Date() // 簡易実装（実際のタイムスタンプは別途管理が必要）
+    }))
 
     const totalEntries = await this.redis.zcard(rankingKeys.scores(id))
 
@@ -49,7 +61,12 @@ export class RankingService {
 
     const metadataStr = await this.redis.get(rankingKeys.metadata(id))
     if (!metadataStr) return null
-    const metadata: RankingMetadata = JSON.parse(metadataStr)
+    const metadataResult = safeParseRedisData(RankingMetadataSchema, metadataStr)
+    if (!metadataResult.success) {
+      console.error(`Ranking metadata validation failed for ${id}:`, metadataResult.error)
+      return null
+    }
+    const metadata = metadataResult.data
 
     return { id, url: metadata.url }
   }
@@ -67,8 +84,14 @@ export class RankingService {
       maxEntries
     }
     
+    // 安全なRedis書き込み
+    const metadataResult = await safeRedisSet(this.redis, rankingKeys.metadata(id), RankingMetadataSchema, metadata)
+    
+    if (!metadataResult.success) {
+      throw new Error(`Failed to save ranking metadata: ${metadataResult.error}`)
+    }
+    
     await Promise.all([
-      this.redis.set(rankingKeys.metadata(id), JSON.stringify(metadata)),
       ownershipManager.set(id, token),
       this.redis.set(rankingKeys.urlMapping(url), id)
     ])
@@ -87,7 +110,12 @@ export class RankingService {
   async submitScore(id: string, name: string, score: number): Promise<RankingData | null> {
     const metadataStr = await this.redis.get(rankingKeys.metadata(id))
     if (!metadataStr) return null
-    const metadata: RankingMetadata = JSON.parse(metadataStr)
+    const metadataResult = safeParseRedisData(RankingMetadataSchema, metadataStr)
+    if (!metadataResult.success) {
+      console.error(`Ranking metadata validation failed for ${id}:`, metadataResult.error)
+      return null
+    }
+    const metadata = metadataResult.data
     
     // Sorted Setにスコアを追加
     await this.redis.zadd(rankingKeys.scores(id), score, name)
