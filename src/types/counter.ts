@@ -14,7 +14,6 @@ export interface CounterMetadata {
   id: string
   url: string
   created: Date
-  ownerTokenHash: string  // SHA256ハッシュ化されたオーナートークン
 }
 
 export interface DailyCount {

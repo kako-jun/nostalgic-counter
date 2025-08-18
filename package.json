@@ -1,7 +1,33 @@
 {
   "name": "nostalgic",
   "version": "1.0.0",
-  "main": "index.js",
+  "private": false,
+  "description": "昔のWebツールを最新技術で復活させた総合プラットフォーム - カウンター、いいね、ランキング、BBS機能を提供",
+  "author": "kako-jun",
+  "license": "MIT",
+  "homepage": "https://nostalgic.llll-ll.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kako-jun/nostalgic.git"
+  },
+  "bugs": {
+    "url": "https://github.com/kako-jun/nostalgic/issues"
+  },
+  "keywords": [
+    "nostalgic",
+    "counter",
+    "like",
+    "ranking",
+    "bbs",
+    "web-components",
+    "retro",
+    "1997",
+    "vintage-web",
+    "nextjs",
+    "typescript",
+    "redis",
+    "vercel"
+  ],
   "scripts": {
     "dev": "next dev",
     "dev:debug": "next dev --inspect",
@@ -9,15 +35,12 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "typecheck": "tsc --noEmit",
     "redis:show": "node scripts/show-all-data.js",
     "redis:info": "node scripts/redis-info.js", 
     "redis:service": "node scripts/show-service-data.js",
     "redis:fix": "node scripts/fix-service.js"
   },
-  "keywords": ["nostalgic", "counter", "like", "ranking", "bbs", "web-components"],
-  "author": "",
-  "license": "ISC",
-  "description": "Nostalgic web tools suite - Counter, Like, Ranking, and BBS services",
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.8",
     "@types/ioredis": "^4.28.10",

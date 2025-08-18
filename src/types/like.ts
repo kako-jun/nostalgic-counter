@@ -11,7 +11,7 @@ export interface LikeMetadata {
   id: string
   url: string
   created: Date
-  ownerTokenHash: string
+  lastLike?: Date
 }
 
 // いいねは累計のみ

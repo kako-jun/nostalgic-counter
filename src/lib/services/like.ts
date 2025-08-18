@@ -1,8 +1,10 @@
 import { LikeData, LikeMetadata } from '@/types/like'
 import { getRedis } from '@/lib/core/db'
 import { generatePublicId } from '@/lib/core/id'
-import { hashToken } from '@/lib/core/auth'
-import { createHash } from 'crypto'
+import { likeKeys } from '@/lib/utils/redis-keys'
+import { generateUserHash } from '@/lib/utils/user-identification'
+import { createOwnershipManager } from '@/lib/utils/ownership'
+import { TTL } from '@/lib/utils/ttl-constants'
 
 export class LikeService {
   private get redis() {
@@ -11,14 +13,13 @@ export class LikeService {
 
   // 公開IDでいいねデータを取得
   async getLikeById(id: string, userHash: string): Promise<LikeData | null> {
-    const metadataStr = await this.redis.get(`like:${id}`)
+    const metadataStr = await this.redis.get(likeKeys.metadata(id))
     if (!metadataStr) return null
     const metadata: LikeMetadata = JSON.parse(metadataStr)
 
-    const [totalStr, userLikedStr, lastLikeStr] = await Promise.all([
-      this.redis.get(`like:${id}:total`),
-      this.redis.get(`like:${id}:user:${userHash}`),
-      this.redis.get(`like:${id}:lastLike`)
+    const [totalStr, userLikedStr] = await Promise.all([
+      this.redis.get(likeKeys.total(id)),
+      this.redis.get(likeKeys.userState(id, userHash))
     ])
     
     const total = totalStr ? parseInt(totalStr) : 0
@@ -29,17 +30,17 @@ export class LikeService {
       url: metadata.url,
       total,
       userLiked,
-      lastLike: lastLikeStr ? new Date(lastLikeStr) : metadata.created,
+      lastLike: metadata.lastLike || metadata.created,
       firstLike: metadata.created
     }
   }
 
   // URL+トークンでいいねを検索
   async getLikeByUrl(url: string): Promise<{ id: string; url: string } | null> {
-    const id = await this.redis.get(`url:like:${encodeURIComponent(url)}`)
+    const id = await this.redis.get(likeKeys.urlMapping(url))
     if (!id) return null
 
-    const metadataStr = await this.redis.get(`like:${id}`)
+    const metadataStr = await this.redis.get(likeKeys.metadata(id))
     if (!metadataStr) return null
     const metadata: LikeMetadata = JSON.parse(metadataStr)
 
@@ -50,20 +51,19 @@ export class LikeService {
   async createLike(url: string, token: string): Promise<{ id: string; likeData: LikeData }> {
     const id = generatePublicId(url)
     const now = new Date()
-    const hashedToken = hashToken(token)
+    const ownershipManager = createOwnershipManager('like', this.getLikeByUrl.bind(this))
     
     const metadata: LikeMetadata = {
       id,
       url,
-      created: now,
-      ownerTokenHash: hashedToken
+      created: now
     }
     
     await Promise.all([
-      this.redis.set(`like:${id}`, JSON.stringify(metadata)),
-      this.redis.set(`like:${id}:total`, '0'),
-      this.redis.set(`like:${id}:owner`, hashedToken),
-      this.redis.set(`url:like:${encodeURIComponent(url)}`, id)
+      this.redis.set(likeKeys.metadata(id), JSON.stringify(metadata)),
+      this.redis.set(likeKeys.total(id), '0'),
+      ownershipManager.set(id, token),
+      this.redis.set(likeKeys.urlMapping(url), id)
     ])
     
     const likeData: LikeData = {
@@ -80,48 +80,47 @@ export class LikeService {
 
   // いいねの切り替え（いいね/取り消し）
   async toggleLike(id: string, userHash: string): Promise<LikeData | null> {
-    const metadataStr = await this.redis.get(`like:${id}`)
+    const metadataStr = await this.redis.get(likeKeys.metadata(id))
     if (!metadataStr) return null
     
-    const now = new Date().toISOString()
-    const userLikeKey = `like:${id}:user:${userHash}`
+    const now = new Date()
+    const userLikeKey = likeKeys.userState(id, userHash)
     const userLiked = await this.redis.get(userLikeKey)
+    
+    // メタデータを更新（lastLikeタイムスタンプ）
+    const metadata: LikeMetadata = JSON.parse(metadataStr)
+    metadata.lastLike = now
     
     if (userLiked === '1') {
       // いいねを取り消し
-      const currentTotal = await this.redis.get(`like:${id}:total`)
+      const currentTotal = await this.redis.get(likeKeys.total(id))
       const newTotal = Math.max(0, parseInt(currentTotal || '0') - 1)
       
       await Promise.all([
         this.redis.set(userLikeKey, '0'),
-        this.redis.set(`like:${id}:total`, newTotal.toString()),
-        this.redis.set(`like:${id}:lastLike`, now)
+        this.redis.set(likeKeys.total(id), newTotal.toString()),
+        this.redis.set(likeKeys.metadata(id), JSON.stringify(metadata))
       ])
       
     } else {
       // いいねを追加
       await Promise.all([
         this.redis.set(userLikeKey, '1'),
-        this.redis.incr(`like:${id}:total`),
-        this.redis.set(`like:${id}:lastLike`, now)
+        this.redis.incr(likeKeys.total(id)),
+        this.redis.set(likeKeys.metadata(id), JSON.stringify(metadata))
       ])
     }
     
     // TTLを設定（ユーザーのいいね状態は30日で自動削除）
-    await this.redis.expire(userLikeKey, 30 * 24 * 60 * 60)
+    await this.redis.expire(userLikeKey, TTL.USER_STATE)
     
     return await this.getLikeById(id, userHash)
   }
   
   // オーナートークンの検証
   async verifyOwnership(url: string, token: string): Promise<boolean> {
-    const result = await this.getLikeByUrl(url)
-    if (!result) return false
-    
-    const storedHash = await this.redis.get(`like:${result.id}:owner`)
-    if (!storedHash) return false
-    
-    return hashToken(token) === storedHash
+    const ownershipManager = createOwnershipManager('like', this.getLikeByUrl.bind(this))
+    return ownershipManager.verify(url, token)
   }
   
   // いいねの値を設定
@@ -132,16 +131,13 @@ export class LikeService {
     const result = await this.getLikeByUrl(url)
     if (!result) return false
     
-    await this.redis.set(`like:${result.id}:total`, total.toString())
+    await this.redis.set(likeKeys.total(result.id), total.toString())
     return true
   }
   
   // ユーザーハッシュ生成（IP+UserAgentベース）
   generateUserHash(ip: string, userAgent: string): string {
-    return createHash('sha256')
-      .update(`${ip}:${userAgent}`)
-      .digest('hex')
-      .substring(0, 16)
+    return generateUserHash(ip, userAgent)
   }
 }
 

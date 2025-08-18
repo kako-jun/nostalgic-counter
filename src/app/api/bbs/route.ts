@@ -1,94 +1,75 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { bbsService } from '@/lib/services/bbs'
-import { getClientIP, getUserAgent } from '@/lib/utils/request'
-import { validateURL } from '@/lib/utils/validation'
-import { validateOwnerToken } from '@/lib/core/auth'
 import { BBSOptions } from '@/types/bbs'
-import { addCorsHeaders, createCorsOptionsResponse } from '@/lib/utils/cors'
+import { 
+  validateAction,
+  validateCreateParams,
+  validateURL,
+  validateOwnerToken,
+  createApiSuccessResponse,
+  createApiErrorResponse,
+  handleApiError,
+  createOptionsResponse,
+  getClientIP,
+  getUserAgent
+} from '@/lib/utils/api'
+import { BBS_LIMITS } from '@/lib/utils/service-constants'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const action = searchParams.get('action')
     
-    if (!action) {
-      return addCorsHeaders(NextResponse.json({ 
-        error: 'action parameter is required' 
-      }, { status: 400 }))
+    const validActions = ['create', 'post', 'get', 'remove', 'clear', 'update']
+    const actionValidation = validateAction(action, validActions)
+    if (!actionValidation.isValid) {
+      return createApiErrorResponse(actionValidation.error!, 400)
     }
-    
-    let response: NextResponse
     
     switch (action) {
       case 'create':
-        response = await handleCreate(searchParams)
-        break
+        return await handleCreate(searchParams)
       
       case 'post':
-        response = await handlePost(request, searchParams)
-        break
+        return await handlePost(request, searchParams)
       
       case 'get':
-        response = await handleGet(searchParams)
-        break
+        return await handleGet(searchParams)
       
       case 'remove':
-        response = await handleRemove(request, searchParams)
-        break
+        return await handleRemove(request, searchParams)
       
       case 'clear':
-        response = await handleClear(searchParams)
-        break
+        return await handleClear(searchParams)
       
       case 'update':
-        response = await handleUpdate(request, searchParams)
-        break
+        return await handleUpdate(request, searchParams)
       
       default:
-        response = NextResponse.json({ 
-          error: 'Invalid action. Valid actions are: create, post, get, remove, clear, update' 
-        }, { status: 400 })
-        break
+        return createApiErrorResponse('Invalid action', 400)
     }
     
-    return addCorsHeaders(response)
-    
   } catch (error) {
-    console.error('Error in BBS API:', error)
-    return addCorsHeaders(NextResponse.json({ error: 'Internal server error' }, { status: 500 }))
+    return handleApiError(error, 'bbs')
   }
 }
 
 export async function OPTIONS() {
-  return createCorsOptionsResponse()
+  return createOptionsResponse()
 }
 
 async function handleCreate(searchParams: URLSearchParams) {
-  const url = searchParams.get('url')
-  const token = searchParams.get('token')
-  const maxMessages = parseInt(searchParams.get('max') || '1000')
-  const messagesPerPage = parseInt(searchParams.get('perPage') || '10')
-  
-  if (!url || !token) {
-    return NextResponse.json({ 
-      error: 'url and token parameters are required for create action' 
-    }, { status: 400 })
+  const validation = validateCreateParams(searchParams)
+  if (!validation.isValid) {
+    return createApiErrorResponse(validation.error!, 400)
   }
   
-  if (!validateURL(url)) {
-    return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 })
-  }
+  const { url, token } = validation.params!
+  const maxMessages = parseInt(searchParams.get('max') || BBS_LIMITS.DEFAULT_MAX_MESSAGES.toString())
+  const messagesPerPage = parseInt(searchParams.get('perPage') || BBS_LIMITS.DEFAULT_MESSAGES_PER_PAGE.toString())
   
-  if (!validateOwnerToken(token)) {
-    return NextResponse.json({ 
-      error: 'Token must be 8-16 characters long' 
-    }, { status: 400 })
-  }
-  
-  if (maxMessages < 1 || maxMessages > 10000) {
-    return NextResponse.json({ 
-      error: 'max parameter must be between 1 and 10000' 
-    }, { status: 400 })
+  if (maxMessages < BBS_LIMITS.MIN_MESSAGES || maxMessages > BBS_LIMITS.MAX_MESSAGES_LIMIT) {
+    return createApiErrorResponse(`max parameter must be between ${BBS_LIMITS.MIN_MESSAGES} and ${BBS_LIMITS.MAX_MESSAGES_LIMIT}`, 400)
   }
   
   // オプション設定の解析
@@ -97,7 +78,7 @@ async function handleCreate(searchParams: URLSearchParams) {
   // アイコン設定
   const icons = searchParams.get('icons')
   if (icons) {
-    options.availableIcons = icons.split(',').slice(0, 20) // 最大20個
+    options.availableIcons = icons.split(',').slice(0, BBS_LIMITS.MAX_ICONS) // 最大アイコン数
   }
   
   // ドロップダウン設定
@@ -108,8 +89,8 @@ async function handleCreate(searchParams: URLSearchParams) {
     
     if (label && values) {
       const selectOption = {
-        label: label.substring(0, 50),
-        values: values.split(',').slice(0, 50), // 最大50個の選択肢
+        label: label.substring(0, BBS_LIMITS.MAX_SELECT_LABEL_LENGTH),
+        values: values.split(',').slice(0, BBS_LIMITS.MAX_SELECT_VALUES), // 最大選択肢数
         required
       }
       
@@ -125,62 +106,52 @@ async function handleCreate(searchParams: URLSearchParams) {
   if (existing) {
     // 既存BBS：オーナー確認
     if (!await bbsService.verifyOwnership(url, token)) {
-      return NextResponse.json({ error: 'Invalid token for this URL' }, { status: 403 })
+      return createApiErrorResponse('Invalid token for this URL', 403)
     }
     
-    return NextResponse.json({
+    return createApiSuccessResponse({
       id: existing.id,
-      url: existing.url,
-      message: 'BBS already exists'
-    })
+      url: existing.url
+    }, 'BBS already exists')
   }
   
   // 新規作成
   const { id: newId, bbsData } = await bbsService.createBBS(url, token, maxMessages, messagesPerPage, options)
   
-  return NextResponse.json({ 
-    ...bbsData,
-    message: 'BBS created successfully'
-  })
+  return createApiSuccessResponse(bbsData, 'BBS created successfully')
 }
 
 async function handlePost(request: NextRequest, searchParams: URLSearchParams) {
   const url = searchParams.get('url')
   const token = searchParams.get('token')
-  const author = searchParams.get('author') || '名無しさん'
+  const author = searchParams.get('author') || BBS_LIMITS.DEFAULT_AUTHOR
   const message = searchParams.get('message')
   
   if (!url || !token || !message) {
-    return NextResponse.json({ 
-      error: 'url, token, and message parameters are required for post action' 
-    }, { status: 400 })
+    return createApiErrorResponse('url, token, and message parameters are required for post action', 400)
   }
   
   if (!validateURL(url)) {
-    return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 })
+    return createApiErrorResponse('Invalid URL format', 400)
   }
   
   if (!validateOwnerToken(token)) {
-    return NextResponse.json({ 
-      error: 'Token must be 8-16 characters long' 
-    }, { status: 400 })
+    return createApiErrorResponse('Token must be 8-16 characters long', 400)
   }
   
-  if (message.length > 1000) {
-    return NextResponse.json({ 
-      error: 'Message must be 1000 characters or less' 
-    }, { status: 400 })
+  if (message.length > BBS_LIMITS.MAX_MESSAGE_LENGTH) {
+    return createApiErrorResponse(`Message must be ${BBS_LIMITS.MAX_MESSAGE_LENGTH} characters or less`, 400)
   }
   
   // オーナー確認
   if (!await bbsService.verifyOwnership(url, token)) {
-    return NextResponse.json({ error: 'Invalid token for this URL' }, { status: 403 })
+    return createApiErrorResponse('Invalid token for this URL', 403)
   }
   
   // BBS取得
   const bbs = await bbsService.getBBSByUrl(url)
   if (!bbs) {
-    return NextResponse.json({ error: 'BBS not found' }, { status: 404 })
+    return createApiErrorResponse('BBS not found', 404)
   }
   
   // 投稿オプション
@@ -196,13 +167,10 @@ async function handlePost(request: NextRequest, searchParams: URLSearchParams) {
   // メッセージ投稿
   const newMessage = await bbsService.postMessage(bbs.id, author, message, options)
   if (!newMessage) {
-    return NextResponse.json({ error: 'Failed to post message' }, { status: 500 })
+    return createApiErrorResponse('Failed to post message', 500)
   }
   
-  return NextResponse.json({
-    message: 'Message posted successfully',
-    data: newMessage
-  })
+  return createApiSuccessResponse(newMessage, 'Message posted successfully')
 }
 
 async function handleGet(searchParams: URLSearchParams) {
@@ -210,27 +178,21 @@ async function handleGet(searchParams: URLSearchParams) {
   const page = parseInt(searchParams.get('page') || '1')
   
   if (!id) {
-    return NextResponse.json({ 
-      error: 'id parameter is required for get action' 
-    }, { status: 400 })
+    return createApiErrorResponse('id parameter is required for get action', 400)
   }
   
-  if (page < 1) {
-    return NextResponse.json({ 
-      error: 'page parameter must be 1 or greater' 
-    }, { status: 400 })
+  if (page < BBS_LIMITS.MIN_PAGE) {
+    return createApiErrorResponse(`page parameter must be ${BBS_LIMITS.MIN_PAGE} or greater`, 400)
   }
   
   // BBSデータを取得
   const bbsData = await bbsService.getBBSById(id, page)
   
   if (!bbsData) {
-    return NextResponse.json({ 
-      error: 'BBS not found' 
-    }, { status: 404 })
+    return createApiErrorResponse('BBS not found', 404)
   }
   
-  return NextResponse.json(bbsData)
+  return createApiSuccessResponse(bbsData)
 }
 
 async function handleRemove(request: NextRequest, searchParams: URLSearchParams) {
@@ -239,19 +201,17 @@ async function handleRemove(request: NextRequest, searchParams: URLSearchParams)
   const messageId = searchParams.get('messageId')
   
   if (!url || !messageId) {
-    return NextResponse.json({ 
-      error: 'url and messageId parameters are required for remove action' 
-    }, { status: 400 })
+    return createApiErrorResponse('url and messageId parameters are required for remove action', 400)
   }
   
   if (!validateURL(url)) {
-    return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 })
+    return createApiErrorResponse('Invalid URL format', 400)
   }
   
   // BBS取得
   const bbs = await bbsService.getBBSByUrl(url)
   if (!bbs) {
-    return NextResponse.json({ error: 'BBS not found' }, { status: 404 })
+    return createApiErrorResponse('BBS not found', 404)
   }
   
   // ユーザーハッシュ生成（投稿者確認用）
@@ -261,15 +221,10 @@ async function handleRemove(request: NextRequest, searchParams: URLSearchParams)
   const success = await bbsService.removeMessage(bbs.id, messageId, userHash, token || undefined, url)
   
   if (!success) {
-    return NextResponse.json({ 
-      error: 'Message not found or you are not authorized to remove it' 
-    }, { status: 403 })
+    return createApiErrorResponse('Message not found or you are not authorized to remove it', 403)
   }
   
-  return NextResponse.json({
-    success: true,
-    message: 'Message removed successfully'
-  })
+  return createApiSuccessResponse({ success: true }, 'Message removed successfully')
 }
 
 async function handleClear(searchParams: URLSearchParams) {
@@ -277,27 +232,20 @@ async function handleClear(searchParams: URLSearchParams) {
   const token = searchParams.get('token')
   
   if (!url || !token) {
-    return NextResponse.json({ 
-      error: 'url and token parameters are required for clear action' 
-    }, { status: 400 })
+    return createApiErrorResponse('url and token parameters are required for clear action', 400)
   }
   
   if (!validateURL(url)) {
-    return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 })
+    return createApiErrorResponse('Invalid URL format', 400)
   }
   
   const success = await bbsService.clearBBS(url, token)
   
   if (!success) {
-    return NextResponse.json({ 
-      error: 'Invalid token or BBS not found' 
-    }, { status: 403 })
+    return createApiErrorResponse('Invalid token or BBS not found', 403)
   }
   
-  return NextResponse.json({
-    success: true,
-    message: `BBS for ${url} has been cleared`
-  })
+  return createApiSuccessResponse({ success: true }, `BBS for ${url} has been cleared`)
 }
 
 async function handleUpdate(request: NextRequest, searchParams: URLSearchParams) {
@@ -306,25 +254,21 @@ async function handleUpdate(request: NextRequest, searchParams: URLSearchParams)
   const newMessage = searchParams.get('message')
   
   if (!url || !messageId || !newMessage) {
-    return NextResponse.json({ 
-      error: 'url, messageId, and message parameters are required for update action' 
-    }, { status: 400 })
+    return createApiErrorResponse('url, messageId, and message parameters are required for update action', 400)
   }
   
   if (!validateURL(url)) {
-    return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 })
+    return createApiErrorResponse('Invalid URL format', 400)
   }
   
   if (newMessage.length > 1000) {
-    return NextResponse.json({ 
-      error: 'Message must be 1000 characters or less' 
-    }, { status: 400 })
+    return createApiErrorResponse('Message must be 1000 characters or less', 400)
   }
   
   // BBS取得
   const bbs = await bbsService.getBBSByUrl(url)
   if (!bbs) {
-    return NextResponse.json({ error: 'BBS not found' }, { status: 404 })
+    return createApiErrorResponse('BBS not found', 404)
   }
   
   // ユーザーハッシュ生成（投稿者確認用）
@@ -334,15 +278,10 @@ async function handleUpdate(request: NextRequest, searchParams: URLSearchParams)
   const success = await bbsService.updateMessage(bbs.id, messageId, newMessage, userHash)
   
   if (!success) {
-    return NextResponse.json({ 
-      error: 'Message not found or you are not the author' 
-    }, { status: 403 })
+    return createApiErrorResponse('Message not found or you are not the author', 403)
   }
   
-  return NextResponse.json({
-    success: true,
-    message: 'Message updated successfully'
-  })
+  return createApiSuccessResponse({ success: true }, 'Message updated successfully')
 }
 
 export async function POST(request: NextRequest) {

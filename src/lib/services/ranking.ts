@@ -1,7 +1,8 @@
 import { RankingData, RankingMetadata, RankingEntry } from '@/types/ranking'
 import { getRedis } from '@/lib/core/db'
 import { generatePublicId } from '@/lib/core/id'
-import { hashToken } from '@/lib/core/auth'
+import { rankingKeys } from '@/lib/utils/redis-keys'
+import { createOwnershipManager } from '@/lib/utils/ownership'
 
 export class RankingService {
   private get redis() {
@@ -10,12 +11,12 @@ export class RankingService {
 
   // 公開IDでランキングデータを取得
   async getRankingById(id: string, limit: number = 10): Promise<RankingData | null> {
-    const metadataStr = await this.redis.get(`ranking:${id}`)
+    const metadataStr = await this.redis.get(rankingKeys.metadata(id))
     if (!metadataStr) return null
     const metadata: RankingMetadata = JSON.parse(metadataStr)
 
     // Sorted Setから上位を取得（スコア降順）
-    const rawEntries = await this.redis.zrevrange(`ranking:${id}:scores`, 0, limit - 1, 'WITHSCORES')
+    const rawEntries = await this.redis.zrevrange(rankingKeys.scores(id), 0, limit - 1, 'WITHSCORES')
     
     const entries: RankingEntry[] = []
     for (let i = 0; i < rawEntries.length; i += 2) {
@@ -31,7 +32,7 @@ export class RankingService {
       })
     }
 
-    const totalEntries = await this.redis.zcard(`ranking:${id}:scores`)
+    const totalEntries = await this.redis.zcard(rankingKeys.scores(id))
 
     return {
       id: metadata.id,
@@ -43,10 +44,10 @@ export class RankingService {
 
   // URL+トークンでランキングを検索
   async getRankingByUrl(url: string): Promise<{ id: string; url: string } | null> {
-    const id = await this.redis.get(`url:ranking:${encodeURIComponent(url)}`)
+    const id = await this.redis.get(rankingKeys.urlMapping(url))
     if (!id) return null
 
-    const metadataStr = await this.redis.get(`ranking:${id}`)
+    const metadataStr = await this.redis.get(rankingKeys.metadata(id))
     if (!metadataStr) return null
     const metadata: RankingMetadata = JSON.parse(metadataStr)
 
@@ -57,20 +58,19 @@ export class RankingService {
   async createRanking(url: string, token: string, maxEntries: number = 100): Promise<{ id: string; rankingData: RankingData }> {
     const id = generatePublicId(url)
     const now = new Date()
-    const hashedToken = hashToken(token)
+    const ownershipManager = createOwnershipManager('ranking', this.getRankingByUrl.bind(this))
     
     const metadata: RankingMetadata = {
       id,
       url,
       created: now,
-      ownerTokenHash: hashedToken,
       maxEntries
     }
     
     await Promise.all([
-      this.redis.set(`ranking:${id}`, JSON.stringify(metadata)),
-      this.redis.set(`ranking:${id}:owner`, hashedToken),
-      this.redis.set(`url:ranking:${encodeURIComponent(url)}`, id)
+      this.redis.set(rankingKeys.metadata(id), JSON.stringify(metadata)),
+      ownershipManager.set(id, token),
+      this.redis.set(rankingKeys.urlMapping(url), id)
     ])
     
     const rankingData: RankingData = {
@@ -85,18 +85,18 @@ export class RankingService {
 
   // スコア送信
   async submitScore(id: string, name: string, score: number): Promise<RankingData | null> {
-    const metadataStr = await this.redis.get(`ranking:${id}`)
+    const metadataStr = await this.redis.get(rankingKeys.metadata(id))
     if (!metadataStr) return null
     const metadata: RankingMetadata = JSON.parse(metadataStr)
     
     // Sorted Setにスコアを追加
-    await this.redis.zadd(`ranking:${id}:scores`, score, name)
+    await this.redis.zadd(rankingKeys.scores(id), score, name)
     
     // 最大エントリー数を超えた場合、下位を削除
-    const totalEntries = await this.redis.zcard(`ranking:${id}:scores`)
+    const totalEntries = await this.redis.zcard(rankingKeys.scores(id))
     if (totalEntries > metadata.maxEntries) {
       const removeCount = totalEntries - metadata.maxEntries
-      await this.redis.zremrangebyrank(`ranking:${id}:scores`, 0, removeCount - 1)
+      await this.redis.zremrangebyrank(rankingKeys.scores(id), 0, removeCount - 1)
     }
     
     return await this.getRankingById(id, 10)
@@ -104,13 +104,8 @@ export class RankingService {
   
   // オーナートークンの検証
   async verifyOwnership(url: string, token: string): Promise<boolean> {
-    const result = await this.getRankingByUrl(url)
-    if (!result) return false
-    
-    const storedHash = await this.redis.get(`ranking:${result.id}:owner`)
-    if (!storedHash) return false
-    
-    return hashToken(token) === storedHash
+    const ownershipManager = createOwnershipManager('ranking', this.getRankingByUrl.bind(this))
+    return ownershipManager.verify(url, token)
   }
   
   // ランキングのクリア
@@ -121,7 +116,7 @@ export class RankingService {
     const result = await this.getRankingByUrl(url)
     if (!result) return false
     
-    await this.redis.del(`ranking:${result.id}:scores`)
+    await this.redis.del(rankingKeys.scores(result.id))
     return true
   }
   
@@ -133,7 +128,7 @@ export class RankingService {
     const result = await this.getRankingByUrl(url)
     if (!result) return false
     
-    const removed = await this.redis.zrem(`ranking:${result.id}:scores`, name)
+    const removed = await this.redis.zrem(rankingKeys.scores(result.id), name)
     return removed > 0
   }
   
@@ -146,11 +141,11 @@ export class RankingService {
     if (!result) return false
     
     // 既存のエントリが存在するか確認
-    const currentScore = await this.redis.zscore(`ranking:${result.id}:scores`, name)
+    const currentScore = await this.redis.zscore(rankingKeys.scores(result.id), name)
     if (currentScore === null) return false
     
     // スコアを更新（既存エントリを上書き）
-    await this.redis.zadd(`ranking:${result.id}:scores`, newScore, name)
+    await this.redis.zadd(rankingKeys.scores(result.id), newScore, name)
     return true
   }
 }

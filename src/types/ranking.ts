@@ -16,6 +16,5 @@ export interface RankingMetadata {
   id: string
   url: string
   created: Date
-  ownerTokenHash: string
   maxEntries: number // ランキングに保持する最大エントリー数
 }

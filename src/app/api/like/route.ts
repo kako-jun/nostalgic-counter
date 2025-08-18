@@ -1,81 +1,63 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { likeService } from '@/lib/services/like'
-import { getClientIP, getUserAgent } from '@/lib/utils/request'
-import { validateURL } from '@/lib/utils/validation'
-import { validateOwnerToken } from '@/lib/core/auth'
 import { generateCounterSVG } from '@/lib/image-generator'
 import { LikeType } from '@/types/like'
-
-import { addCorsHeaders, createCorsOptionsResponse } from '@/lib/utils/cors'
+import { 
+  validateAction,
+  validateCreateParams,
+  createApiSuccessResponse,
+  createApiErrorResponse,
+  handleApiError,
+  createOptionsResponse,
+  getClientIP,
+  getUserAgent
+} from '@/lib/utils/api'
+import { LIKE_LIMITS, CACHE_SETTINGS } from '@/lib/utils/service-constants'
 
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const action = searchParams.get('action')
     
-    if (!action) {
-      return addCorsHeaders(NextResponse.json({ 
-        error: 'action parameter is required' 
-      }, { status: 400 }))
+    const validActions = ['create', 'toggle', 'display', 'set']
+    const actionValidation = validateAction(action, validActions)
+    if (!actionValidation.isValid) {
+      return createApiErrorResponse(actionValidation.error!, 400)
     }
-    
-    let response: NextResponse
     
     switch (action) {
       case 'create':
-        response = await handleCreate(request, searchParams)
-        break
+        return await handleCreate(request, searchParams)
       
       case 'toggle':
-        response = await handleToggle(request, searchParams)
-        break
+        return await handleToggle(request, searchParams)
       
       case 'display':
-        response = await handleDisplay(request, searchParams)
-        break
+        return await handleDisplay(request, searchParams)
       
       case 'set':
-        response = await handleSet(searchParams)
-        break
+        return await handleSet(searchParams)
       
       default:
-        response = NextResponse.json({ 
-          error: 'Invalid action. Valid actions are: create, toggle, display, set' 
-        }, { status: 400 })
-        break
+        return createApiErrorResponse('Invalid action', 400)
     }
     
-    return addCorsHeaders(response)
-    
   } catch (error) {
-    console.error('Error in like API:', error)
-    return addCorsHeaders(NextResponse.json({ error: 'Internal server error' }, { status: 500 }))
+    return handleApiError(error, 'like')
   }
 }
 
 export async function OPTIONS() {
-  return createCorsOptionsResponse()
+  return createOptionsResponse()
 }
 
 async function handleCreate(request: NextRequest, searchParams: URLSearchParams) {
-  const url = searchParams.get('url')
-  const token = searchParams.get('token')
-  
-  if (!url || !token) {
-    return NextResponse.json({ 
-      error: 'url and token parameters are required for create action' 
-    }, { status: 400 })
+  const validation = validateCreateParams(searchParams)
+  if (!validation.isValid) {
+    return createApiErrorResponse(validation.error!, 400)
   }
   
-  if (!validateURL(url)) {
-    return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 })
-  }
-  
-  if (!validateOwnerToken(token)) {
-    return NextResponse.json({ 
-      error: 'Token must be 8-16 characters long' 
-    }, { status: 400 })
-  }
+  const { url, token } = validation.params!
   
   // 既存いいねを検索
   const existing = await likeService.getLikeByUrl(url)
@@ -83,32 +65,26 @@ async function handleCreate(request: NextRequest, searchParams: URLSearchParams)
   if (existing) {
     // 既存いいね：オーナー確認
     if (!await likeService.verifyOwnership(url, token)) {
-      return NextResponse.json({ error: 'Invalid token for this URL' }, { status: 403 })
+      return createApiErrorResponse('Invalid token for this URL', 403)
     }
     
-    return NextResponse.json({
+    return createApiSuccessResponse({
       id: existing.id,
-      url: existing.url,
-      message: 'Like already exists'
-    })
+      url: existing.url
+    }, 'Like already exists')
   }
   
   // 新規作成
   const { id: newId, likeData } = await likeService.createLike(url, token)
   
-  return NextResponse.json({ 
-    ...likeData,
-    message: 'Like created successfully'
-  })
+  return createApiSuccessResponse(likeData, 'Like created successfully')
 }
 
 async function handleToggle(request: NextRequest, searchParams: URLSearchParams) {
   const id = searchParams.get('id')
   
   if (!id) {
-    return NextResponse.json({ 
-      error: 'id parameter is required for toggle action' 
-    }, { status: 400 })
+    return createApiErrorResponse('id parameter is required for toggle action', 400)
   }
   
   const clientIP = getClientIP(request)
@@ -118,24 +94,24 @@ async function handleToggle(request: NextRequest, searchParams: URLSearchParams)
   // いいねの切り替え
   const likeData = await likeService.toggleLike(id, userHash)
   if (!likeData) {
-    return NextResponse.json({ error: 'Like not found' }, { status: 404 })
+    return createApiErrorResponse('Like not found', 404)
   }
   
-  return NextResponse.json(likeData)
+  return createApiSuccessResponse(likeData)
 }
 
 async function handleDisplay(request: NextRequest, searchParams: URLSearchParams) {
   const id = searchParams.get('id')
-  const theme = searchParams.get('theme') || searchParams.get('style') || 'classic'
-  const digits = parseInt(searchParams.get('digits') || '6')
-  const format = searchParams.get('format') || 'image'
+  const theme = searchParams.get('theme') || searchParams.get('style') || LIKE_LIMITS.DEFAULT_THEME
+  const digits = parseInt(searchParams.get('digits') || LIKE_LIMITS.DEFAULT_DIGITS.toString())
+  const format = searchParams.get('format') || LIKE_LIMITS.DEFAULT_FORMAT
   
   if (!id) {
-    return NextResponse.json({ error: 'id parameter is required' }, { status: 400 })
+    return createApiErrorResponse('id parameter is required', 400)
   }
   
-  if (!['classic', 'modern', 'retro'].includes(theme)) {
-    return NextResponse.json({ error: 'Invalid theme parameter' }, { status: 400 })
+  if (!LIKE_LIMITS.THEMES.includes(theme as any)) {
+    return createApiErrorResponse('Invalid theme parameter', 400)
   }
   
   const clientIP = getClientIP(request)
@@ -150,8 +126,8 @@ async function handleDisplay(request: NextRequest, searchParams: URLSearchParams
     if (format === 'text') {
       return new NextResponse('0', {
         headers: {
-          'Content-Type': 'text/plain',
-          'Cache-Control': 'public, max-age=60',
+          'Content-Type': CACHE_SETTINGS.CONTENT_TYPES.TEXT,
+          'Cache-Control': `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`,
         },
       })
     }
@@ -165,8 +141,8 @@ async function handleDisplay(request: NextRequest, searchParams: URLSearchParams
     
     return new NextResponse(svg, {
       headers: {
-        'Content-Type': 'image/svg+xml',
-        'Cache-Control': 'public, max-age=60',
+        'Content-Type': CACHE_SETTINGS.CONTENT_TYPES.SVG,
+        'Cache-Control': `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`,
       },
     })
   }
@@ -175,8 +151,8 @@ async function handleDisplay(request: NextRequest, searchParams: URLSearchParams
   if (format === 'text') {
     return new NextResponse(likeData.total.toString(), {
       headers: {
-        'Content-Type': 'text/plain',
-        'Cache-Control': 'public, max-age=60',
+        'Content-Type': CACHE_SETTINGS.CONTENT_TYPES.TEXT,
+        'Cache-Control': `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`,
       },
     })
   }
@@ -195,39 +171,31 @@ async function handleDisplay(request: NextRequest, searchParams: URLSearchParams
   
   return new NextResponse(svg, {
     headers: {
-      'Content-Type': 'image/svg+xml',
-      'Cache-Control': 'public, max-age=60',
+      'Content-Type': CACHE_SETTINGS.CONTENT_TYPES.SVG,
+      'Cache-Control': `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`,
     },
   })
 }
 
 async function handleSet(searchParams: URLSearchParams) {
-  const url = searchParams.get('url')
-  const token = searchParams.get('token')
+  const validation = validateCreateParams(searchParams)
+  if (!validation.isValid) {
+    return createApiErrorResponse(validation.error!, 400)
+  }
+  
+  const { url, token } = validation.params!
   const total = parseInt(searchParams.get('total') || '0')
-  
-  if (!url || !token) {
-    return NextResponse.json({ 
-      error: 'url and token parameters are required for set action' 
-    }, { status: 400 })
-  }
-  
-  if (!validateURL(url)) {
-    return NextResponse.json({ error: 'Invalid URL format' }, { status: 400 })
-  }
   
   const success = await likeService.setLikeValue(url, token, total)
   
   if (!success) {
-    return NextResponse.json({ 
-      error: 'Invalid token or like not found' 
-    }, { status: 403 })
+    return createApiErrorResponse('Invalid token or like not found', 403)
   }
   
-  return NextResponse.json({
-    success: true,
-    message: `Like for ${url} has been set to ${total}`
-  })
+  return createApiSuccessResponse(
+    { success: true },
+    `Like for ${url} has been set to ${total}`
+  )
 }
 
 // いいね専用のSVG生成関数

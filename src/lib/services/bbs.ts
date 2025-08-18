@@ -1,7 +1,10 @@
 import { BBSData, BBSMetadata, BBSMessage, BBSOptions } from '@/types/bbs'
 import { getRedis } from '@/lib/core/db'
 import { generatePublicId } from '@/lib/core/id'
-import { hashToken } from '@/lib/core/auth'
+import { bbsKeys } from '@/lib/utils/redis-keys'
+import { generateAuthorHash, generateUserHash } from '@/lib/utils/user-identification'
+import { createOwnershipManager } from '@/lib/utils/ownership'
+import { TTL } from '@/lib/utils/ttl-constants'
 import { createHash } from 'crypto'
 
 export class BBSService {
@@ -11,7 +14,7 @@ export class BBSService {
 
   // 公開IDでBBSデータを取得
   async getBBSById(id: string, page: number = 1): Promise<BBSData | null> {
-    const metadataStr = await this.redis.get(`bbs:${id}`)
+    const metadataStr = await this.redis.get(bbsKeys.metadata(id))
     if (!metadataStr) return null
     const metadata: BBSMetadata = JSON.parse(metadataStr)
 
@@ -20,10 +23,9 @@ export class BBSService {
     const end = start + messagesPerPage - 1
 
     // Listから指定範囲のメッセージを取得（新しい順）
-    const [rawMessages, totalMessages, lastPostStr] = await Promise.all([
-      this.redis.lrange(`bbs:${id}:messages`, start, end),
-      this.redis.llen(`bbs:${id}:messages`),
-      this.redis.get(`bbs:${id}:lastPost`)
+    const [rawMessages, totalMessages] = await Promise.all([
+      this.redis.lrange(bbsKeys.messages(id), start, end),
+      this.redis.llen(bbsKeys.messages(id))
     ])
     
     const messages: BBSMessage[] = rawMessages.map(msg => JSON.parse(msg))
@@ -36,17 +38,17 @@ export class BBSService {
       currentPage: page,
       messagesPerPage,
       options: metadata.options,
-      lastPost: lastPostStr ? new Date(lastPostStr) : undefined,
+      lastPost: metadata.lastPost,
       firstPost: metadata.created
     }
   }
 
   // URL+トークンでBBSを検索
   async getBBSByUrl(url: string): Promise<{ id: string; url: string } | null> {
-    const id = await this.redis.get(`url:bbs:${encodeURIComponent(url)}`)
+    const id = await this.redis.get(bbsKeys.urlMapping(url))
     if (!id) return null
 
-    const metadataStr = await this.redis.get(`bbs:${id}`)
+    const metadataStr = await this.redis.get(bbsKeys.metadata(id))
     if (!metadataStr) return null
     const metadata: BBSMetadata = JSON.parse(metadataStr)
 
@@ -63,22 +65,21 @@ export class BBSService {
   ): Promise<{ id: string; bbsData: BBSData }> {
     const id = generatePublicId(url)
     const now = new Date()
-    const hashedToken = hashToken(token)
+    const ownershipManager = createOwnershipManager('bbs', this.getBBSByUrl.bind(this))
     
     const metadata: BBSMetadata = {
       id,
       url,
       created: now,
-      ownerTokenHash: hashedToken,
       maxMessages,
       messagesPerPage,
       options
     }
     
     await Promise.all([
-      this.redis.set(`bbs:${id}`, JSON.stringify(metadata)),
-      this.redis.set(`bbs:${id}:owner`, hashedToken),
-      this.redis.set(`url:bbs:${encodeURIComponent(url)}`, id)
+      this.redis.set(bbsKeys.metadata(id), JSON.stringify(metadata)),
+      ownershipManager.set(id, token),
+      this.redis.set(bbsKeys.urlMapping(url), id)
     ])
     
     const bbsData: BBSData = {
@@ -109,7 +110,7 @@ export class BBSService {
       userAgent?: string
     }
   ): Promise<BBSMessage | null> {
-    const metadataStr = await this.redis.get(`bbs:${id}`)
+    const metadataStr = await this.redis.get(bbsKeys.metadata(id))
     if (!metadataStr) return null
     const metadata: BBSMetadata = JSON.parse(metadataStr)
     
@@ -126,19 +127,22 @@ export class BBSService {
       select2: options?.select2,
       select3: options?.select3,
       userAgent: options?.userAgent,
-      ipHash: options?.ipAddress ? this.hashIP(options.ipAddress) : undefined
+      ipHash: options?.ipAddress ? generateAuthorHash(options.ipAddress, options.userAgent || '') : undefined
     }
+    
+    // メタデータ更新（lastPostタイムスタンプ）
+    metadata.lastPost = timestamp
     
     // メッセージをListに追加（先頭に追加で新しい順）
     await Promise.all([
-      this.redis.lpush(`bbs:${id}:messages`, JSON.stringify(newMessage)),
-      this.redis.set(`bbs:${id}:lastPost`, timestamp.toISOString())
+      this.redis.lpush(bbsKeys.messages(id), JSON.stringify(newMessage)),
+      this.redis.set(bbsKeys.metadata(id), JSON.stringify(metadata))
     ])
     
     // 最大メッセージ数を超えた場合、古いものを削除
-    const totalMessages = await this.redis.llen(`bbs:${id}:messages`)
+    const totalMessages = await this.redis.llen(bbsKeys.messages(id))
     if (totalMessages > metadata.maxMessages) {
-      await this.redis.ltrim(`bbs:${id}:messages`, 0, metadata.maxMessages - 1)
+      await this.redis.ltrim(bbsKeys.messages(id), 0, metadata.maxMessages - 1)
     }
     
     return newMessage
@@ -152,7 +156,7 @@ export class BBSService {
     userHash: string
   ): Promise<boolean> {
     // 全メッセージを取得
-    const rawMessages = await this.redis.lrange(`bbs:${id}:messages`, 0, -1)
+    const rawMessages = await this.redis.lrange(bbsKeys.messages(id), 0, -1)
     
     let messageFound = false
     const updatedMessages = rawMessages.map(msg => {
@@ -160,7 +164,7 @@ export class BBSService {
       
       if (parsedMsg.id === messageId) {
         // 投稿者の確認（IP+UserAgentハッシュ）
-        const messageUserHash = this.generateUserHash(parsedMsg.ipHash || '', parsedMsg.userAgent || '')
+        const messageUserHash = generateUserHash(parsedMsg.ipHash || '', parsedMsg.userAgent || '')
         
         if (messageUserHash === userHash) {
           messageFound = true
@@ -178,9 +182,9 @@ export class BBSService {
     if (!messageFound) return false
     
     // Listを再構築
-    await this.redis.del(`bbs:${id}:messages`)
+    await this.redis.del(bbsKeys.messages(id))
     if (updatedMessages.length > 0) {
-      await this.redis.rpush(`bbs:${id}:messages`, ...updatedMessages)
+      await this.redis.rpush(bbsKeys.messages(id), ...updatedMessages)
     }
     
     return true
@@ -201,7 +205,7 @@ export class BBSService {
     }
     
     // 全メッセージを取得
-    const rawMessages = await this.redis.lrange(`bbs:${id}:messages`, 0, -1)
+    const rawMessages = await this.redis.lrange(bbsKeys.messages(id), 0, -1)
     
     let messageFound = false
     const filteredMessages = rawMessages.filter(msg => {
@@ -215,7 +219,7 @@ export class BBSService {
         
         // 投稿者本人なら削除可能
         if (userHash) {
-          const messageUserHash = this.generateUserHash(parsedMsg.ipHash || '', parsedMsg.userAgent || '')
+          const messageUserHash = generateUserHash(parsedMsg.ipHash || '', parsedMsg.userAgent || '')
           if (messageUserHash === userHash) return false
         }
         
@@ -230,9 +234,9 @@ export class BBSService {
     if (filteredMessages.length === rawMessages.length) return false // 削除権限なし
     
     // Listを再構築
-    await this.redis.del(`bbs:${id}:messages`)
+    await this.redis.del(bbsKeys.messages(id))
     if (filteredMessages.length > 0) {
-      await this.redis.rpush(`bbs:${id}:messages`, ...filteredMessages)
+      await this.redis.rpush(bbsKeys.messages(id), ...filteredMessages)
     }
     
     return true
@@ -240,13 +244,8 @@ export class BBSService {
   
   // オーナートークンの検証
   async verifyOwnership(url: string, token: string): Promise<boolean> {
-    const result = await this.getBBSByUrl(url)
-    if (!result) return false
-    
-    const storedHash = await this.redis.get(`bbs:${result.id}:owner`)
-    if (!storedHash) return false
-    
-    return hashToken(token) === storedHash
+    const ownershipManager = createOwnershipManager('bbs', this.getBBSByUrl.bind(this))
+    return ownershipManager.verify(url, token)
   }
   
   // BBSのクリア
@@ -257,24 +256,8 @@ export class BBSService {
     const result = await this.getBBSByUrl(url)
     if (!result) return false
     
-    await this.redis.del(`bbs:${result.id}:messages`)
+    await this.redis.del(bbsKeys.messages(result.id))
     return true
-  }
-  
-  // IPアドレスのハッシュ化
-  private hashIP(ip: string): string {
-    return createHash('sha256')
-      .update(ip)
-      .digest('hex')
-      .substring(0, 8)
-  }
-  
-  // ユーザーハッシュの生成（投稿者識別用）
-  private generateUserHash(ipHash: string, userAgent: string): string {
-    return createHash('sha256')
-      .update(`${ipHash}:${userAgent}`)
-      .digest('hex')
-      .substring(0, 8)
   }
   
   // メッセージIDの生成
