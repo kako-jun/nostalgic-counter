@@ -48,7 +48,7 @@ https://nostalgic.llll-ll.com/api/counter?action=create&url=https://yoursite.com
 
 2. **Embed in your site**:
 ```html
-<script src="https://nostalgic.llll-ll.com/components/display.js"></script>
+<script src="https://nostalgic.llll-ll.com/components/counter.js"></script>
 <nostalgic-counter id="yoursite-a7b9c3d4" type="total" theme="classic"></nostalgic-counter>
 ```
 

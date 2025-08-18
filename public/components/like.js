@@ -58,15 +58,20 @@ class NostalgicLike extends HTMLElement {
 
     try {
       const baseUrl = this.getAttribute('api-base') || NostalgicLike.apiBaseUrl;
-      const apiUrl = `${baseUrl}/api/like?action=display&id=${encodeURIComponent(id)}&format=json`;
+      const apiUrl = `${baseUrl}/api/like?action=get&id=${encodeURIComponent(id)}`;
       
       const response = await fetch(apiUrl);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}`);
       }
       
-      this.likeData = await response.json();
-      console.log('nostalgic-like: Data loaded:', this.likeData);
+      const responseData = await response.json();
+      if (responseData.success) {
+        this.likeData = responseData.data;
+        console.log('nostalgic-like: Data loaded:', this.likeData);
+      } else {
+        throw new Error(responseData.error || 'API returned error');
+      }
     } catch (error) {
       console.error('nostalgic-like: Failed to load data:', error);
       this.likeData = { total: 0, userLiked: false };
@@ -94,8 +99,13 @@ class NostalgicLike extends HTMLElement {
         throw new Error(`HTTP ${response.status}`);
       }
       
-      this.likeData = await response.json();
-      console.log('nostalgic-like: Toggle successful:', this.likeData);
+      const responseData = await response.json();
+      if (responseData.success) {
+        this.likeData = responseData.data;
+        console.log('nostalgic-like: Toggle successful:', this.likeData);
+      } else {
+        throw new Error(responseData.error || 'API returned error');
+      }
     } catch (error) {
       console.error('nostalgic-like: Toggle failed:', error);
     }
