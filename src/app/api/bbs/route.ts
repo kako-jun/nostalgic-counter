@@ -10,13 +10,19 @@ import {
   getClientIP,
   getUserAgent
 } from '@/lib/utils/api'
+import { 
+  createValidatedApiResponse
+} from '@/lib/validation/response-validation'
+import { z } from 'zod'
 import {
   BBSCreateParamsSchema,
   BBSPostParamsSchema,
   BBSGetParamsSchema,
   BBSRemoveParamsSchema,
   BBSClearParamsSchema,
-  BBSUpdateParamsSchema
+  BBSUpdateParamsSchema,
+  BBSDataSchema,
+  BBSMessageSchema
 } from '@/lib/validation/schemas'
 import { validateApiParams } from '@/lib/utils/api-validation'
 import { BBS_LIMITS } from '@/lib/utils/service-constants'
@@ -116,16 +122,21 @@ async function handleCreate(searchParams: URLSearchParams) {
       return createApiErrorResponse('Invalid token for this URL', 403)
     }
     
-    return createApiSuccessResponse({
-      id: existing.id,
-      url: existing.url
-    }, 'BBS already exists')
+    return createValidatedApiResponse(
+      z.object({ id: z.string(), url: z.string() }),
+      { id: existing.id, url: existing.url },
+      'BBS already exists'
+    )
   }
   
   // 新規作成
   const { id: newId, bbsData } = await bbsService.createBBS(url, token, maxMessages, messagesPerPage, options)
   
-  return createApiSuccessResponse(bbsData, 'BBS created successfully')
+  return createValidatedApiResponse(
+    BBSDataSchema,
+    bbsData,
+    'BBS created successfully'
+  )
 }
 
 async function handlePost(request: NextRequest, searchParams: URLSearchParams) {
@@ -163,7 +174,11 @@ async function handlePost(request: NextRequest, searchParams: URLSearchParams) {
     return createApiErrorResponse('Failed to post message', 500)
   }
   
-  return createApiSuccessResponse(newMessage, 'Message posted successfully')
+  return createValidatedApiResponse(
+    BBSMessageSchema,
+    newMessage,
+    'Message posted successfully'
+  )
 }
 
 async function handleGet(searchParams: URLSearchParams) {
@@ -181,7 +196,10 @@ async function handleGet(searchParams: URLSearchParams) {
     return createApiErrorResponse('BBS not found', 404)
   }
   
-  return createApiSuccessResponse(bbsData)
+  return createValidatedApiResponse(
+    BBSDataSchema,
+    bbsData
+  )
 }
 
 async function handleRemove(request: NextRequest, searchParams: URLSearchParams) {
@@ -208,7 +226,11 @@ async function handleRemove(request: NextRequest, searchParams: URLSearchParams)
     return createApiErrorResponse('Message not found or you are not authorized to remove it', 403)
   }
   
-  return createApiSuccessResponse({ success: true }, 'Message removed successfully')
+  return createValidatedApiResponse(
+    z.object({ success: z.literal(true) }),
+    { success: true },
+    'Message removed successfully'
+  )
 }
 
 async function handleClear(searchParams: URLSearchParams) {
@@ -225,7 +247,11 @@ async function handleClear(searchParams: URLSearchParams) {
     return createApiErrorResponse('Invalid token or BBS not found', 403)
   }
   
-  return createApiSuccessResponse({ success: true }, `BBS for ${url} has been cleared`)
+  return createValidatedApiResponse(
+    z.object({ success: z.literal(true) }),
+    { success: true },
+    `BBS for ${url} has been cleared`
+  )
 }
 
 async function handleUpdate(request: NextRequest, searchParams: URLSearchParams) {
@@ -252,7 +278,11 @@ async function handleUpdate(request: NextRequest, searchParams: URLSearchParams)
     return createApiErrorResponse('Message not found or you are not the author', 403)
   }
   
-  return createApiSuccessResponse({ success: true }, 'Message updated successfully')
+  return createValidatedApiResponse(
+    z.object({ success: z.literal(true) }),
+    { success: true },
+    'Message updated successfully'
+  )
 }
 
 export async function POST(request: NextRequest) {

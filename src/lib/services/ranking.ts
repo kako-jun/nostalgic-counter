@@ -169,8 +169,8 @@ export class RankingService {
     if (!result) return false
     
     // 既存のエントリが存在するか確認
-    const currentScore = await this.redis.zscore(rankingKeys.scores(result.id), name)
-    if (currentScore === null) return false
+    const currentScoreResult = await this.redis.zscore(rankingKeys.scores(result.id), name)
+    if (currentScoreResult === null) return false
     
     // スコアを更新（既存エントリを上書き）
     await this.redis.zadd(rankingKeys.scores(result.id), newScore, name)

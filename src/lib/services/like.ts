@@ -31,13 +31,13 @@ export class LikeService {
     }
     const metadata = metadataResult.data
 
-    const [totalStr, userLikedStr] = await Promise.all([
-      this.redis.get(likeKeys.total(id)),
-      this.redis.get(likeKeys.userState(id, userHash))
+    const [totalResult, userLikedResult] = await Promise.all([
+      safeRedisGetNumber(this.redis, likeKeys.total(id)),
+      safeRedisGetString(this.redis, likeKeys.userState(id, userHash))
     ])
     
-    const total = safeParseInt(totalStr, 0)
-    const userLiked = userLikedStr === '1'
+    const total = totalResult.success ? totalResult.data : 0
+    const userLiked = userLikedResult.success ? userLikedResult.data === '1' : false
 
     return {
       id: metadata.id,
@@ -114,7 +114,8 @@ export class LikeService {
     
     const now = new Date()
     const userLikeKey = likeKeys.userState(id, userHash)
-    const userLiked = await this.redis.get(userLikeKey)
+    const userLikedResult = await safeRedisGetString(this.redis, userLikeKey)
+    const userLiked = userLikedResult.success ? userLikedResult.data : null
     
     // メタデータを更新（lastLikeタイムスタンプ）
     const metadataResult = safeParseRedisData(LikeMetadataSchema, metadataStr)
@@ -127,8 +128,9 @@ export class LikeService {
     
     if (userLiked === '1') {
       // いいねを取り消し
-      const currentTotal = await this.redis.get(likeKeys.total(id))
-      const newTotal = Math.max(0, safeParseInt(currentTotal, 0) - 1)
+      const currentTotalResult = await safeRedisGetNumber(this.redis, likeKeys.total(id))
+      const currentTotal = currentTotalResult.success ? currentTotalResult.data : 0
+      const newTotal = Math.max(0, currentTotal - 1)
       
       const totalResult = await safeRedisSetNumber(this.redis, likeKeys.total(id), newTotal)
       const metadataResult = await safeRedisSet(this.redis, likeKeys.metadata(id), LikeMetadataSchema, metadata)

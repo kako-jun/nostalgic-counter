@@ -31,14 +31,15 @@ export class CounterService {
     }
     const metadata = metadataResult.data
 
-    const [totalStr, today, yesterday, lastVisitStr] = await Promise.all([
-      this.redis.get(counterKeys.total(id)),
+    const [totalResult, today, yesterday, lastVisitResult] = await Promise.all([
+      safeRedisGetNumber(this.redis, counterKeys.total(id)),
       this.getTodayCount(id),
       this.getYesterdayCount(id),
-      this.redis.get(counterKeys.lastVisit(id))
+      safeRedisGetString(this.redis, counterKeys.lastVisit(id))
     ])
     
-    const total = safeParseInt(totalStr, 0)
+    const total = totalResult.success ? totalResult.data : 0
+    const lastVisitStr = lastVisitResult.success ? lastVisitResult.data : null
 
     const week = await this.getPeriodCount(id, 7)
     const month = await this.getPeriodCount(id, 30)
@@ -176,14 +177,14 @@ export class CounterService {
   // Private methods
   private async getTodayCount(id: string): Promise<number> {
     const today = new Date().toISOString().split('T')[0]
-    const count = await this.redis.get(counterKeys.daily(id, today))
-    return safeParseInt(count, 0)
+    const result = await safeRedisGetNumber(this.redis, counterKeys.daily(id, today))
+    return result.success ? result.data : 0
   }
 
   private async getYesterdayCount(id: string): Promise<number> {
     const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString().split('T')[0]
-    const count = await this.redis.get(counterKeys.daily(id, yesterday))
-    return safeParseInt(count, 0)
+    const result = await safeRedisGetNumber(this.redis, counterKeys.daily(id, yesterday))
+    return result.success ? result.data : 0
   }
 
   private async getPeriodCount(id: string, days: number): Promise<number> {
@@ -193,7 +194,7 @@ export class CounterService {
     for (let i = 0; i < days; i++) {
       const date = new Date(now.getTime() - i * 24 * 60 * 60 * 1000)
       const dateStr = date.toISOString().split('T')[0]
-      promises.push(this.redis.get(counterKeys.daily(id, dateStr)).then(count => safeParseInt(count, 0)))
+      promises.push(safeRedisGetNumber(this.redis, counterKeys.daily(id, dateStr)).then(result => result.success ? result.data : 0))
     }
     
     const counts = await Promise.all(promises)

@@ -7,13 +7,18 @@ import {
   handleApiError,
   createOptionsResponse
 } from '@/lib/utils/api'
+import { 
+  createValidatedApiResponse
+} from '@/lib/validation/response-validation'
+import { z } from 'zod'
 import {
   RankingCreateParamsSchema,
   RankingSubmitParamsSchema,
   RankingGetParamsSchema,
   RankingClearParamsSchema,
   RankingRemoveParamsSchema,
-  RankingUpdateParamsSchema
+  RankingUpdateParamsSchema,
+  RankingDataSchema
 } from '@/lib/validation/schemas'
 import { validateApiParams } from '@/lib/utils/api-validation'
 import { RANKING_LIMITS } from '@/lib/utils/service-constants'
@@ -79,16 +84,21 @@ async function handleCreate(searchParams: URLSearchParams) {
       return createApiErrorResponse('Invalid token for this URL', 403)
     }
     
-    return createApiSuccessResponse({
-      id: existing.id,
-      url: existing.url
-    }, 'Ranking already exists')
+    return createValidatedApiResponse(
+      z.object({ id: z.string(), url: z.string() }),
+      { id: existing.id, url: existing.url },
+      'Ranking already exists'
+    )
   }
   
   // 新規作成
   const { id: newId, rankingData } = await rankingService.createRanking(url, token, maxEntries)
   
-  return createApiSuccessResponse(rankingData, 'Ranking created successfully')
+  return createValidatedApiResponse(
+    RankingDataSchema,
+    rankingData,
+    'Ranking created successfully'
+  )
 }
 
 async function handleSubmit(searchParams: URLSearchParams) {
@@ -116,7 +126,11 @@ async function handleSubmit(searchParams: URLSearchParams) {
     return createApiErrorResponse('Failed to submit score', 500)
   }
   
-  return createApiSuccessResponse(rankingData, 'Score submitted successfully')
+  return createValidatedApiResponse(
+    RankingDataSchema,
+    rankingData,
+    'Score submitted successfully'
+  )
 }
 
 async function handleGet(searchParams: URLSearchParams) {
@@ -134,7 +148,10 @@ async function handleGet(searchParams: URLSearchParams) {
     return createApiErrorResponse('Ranking not found', 404)
   }
   
-  return createApiSuccessResponse(rankingData)
+  return createValidatedApiResponse(
+    RankingDataSchema,
+    rankingData
+  )
 }
 
 async function handleClear(searchParams: URLSearchParams) {
@@ -151,7 +168,11 @@ async function handleClear(searchParams: URLSearchParams) {
     return createApiErrorResponse('Invalid token or ranking not found', 403)
   }
   
-  return createApiSuccessResponse({ success: true }, `Ranking for ${url} has been cleared`)
+  return createValidatedApiResponse(
+    z.object({ success: z.literal(true) }),
+    { success: true },
+    `Ranking for ${url} has been cleared`
+  )
 }
 
 async function handleRemove(searchParams: URLSearchParams) {
@@ -168,7 +189,11 @@ async function handleRemove(searchParams: URLSearchParams) {
     return createApiErrorResponse('Invalid token, ranking not found, or name not found', 403)
   }
   
-  return createApiSuccessResponse({ success: true }, `Score for ${name} has been removed`)
+  return createValidatedApiResponse(
+    z.object({ success: z.literal(true) }),
+    { success: true },
+    `Score for ${name} has been removed`
+  )
 }
 
 async function handleUpdate(searchParams: URLSearchParams) {
@@ -185,7 +210,11 @@ async function handleUpdate(searchParams: URLSearchParams) {
     return createApiErrorResponse('Invalid token, ranking not found, or name not found', 403)
   }
   
-  return createApiSuccessResponse({ success: true }, `Score for ${name} has been updated to ${score}`)
+  return createValidatedApiResponse(
+    z.object({ success: z.literal(true) }),
+    { success: true },
+    `Score for ${name} has been updated to ${score}`
+  )
 }
 
 export async function POST(request: NextRequest) {

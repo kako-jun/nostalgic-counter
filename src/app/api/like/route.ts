@@ -10,13 +10,20 @@ import {
   getClientIP,
   getUserAgent
 } from '@/lib/utils/api'
+import { 
+  createValidatedApiResponse,
+  createValidatedSpecialResponse,
+  DisplayDataSchema
+} from '@/lib/validation/response-validation'
+import { z } from 'zod'
 import { LIKE_LIMITS, CACHE_SETTINGS } from '@/lib/utils/service-constants'
 import {
   CreateParamsSchema,
   LikeToggleParamsSchema,
   LikeDisplayParamsSchema,
   LikeSetParamsSchema,
-  LikeType
+  LikeType,
+  LikeDataSchema
 } from '@/lib/validation/schemas'
 import { validateApiParams } from '@/lib/utils/api-validation'
 
@@ -74,16 +81,21 @@ async function handleCreate(request: NextRequest, searchParams: URLSearchParams)
       return createApiErrorResponse('Invalid token for this URL', 403)
     }
     
-    return createApiSuccessResponse({
-      id: existing.id,
-      url: existing.url
-    }, 'Like already exists')
+    return createValidatedApiResponse(
+      z.object({ id: z.string(), url: z.string() }),
+      { id: existing.id, url: existing.url },
+      'Like already exists'
+    )
   }
   
   // 新規作成
   const { id: newId, likeData } = await likeService.createLike(url, token)
   
-  return createApiSuccessResponse(likeData, 'Like created successfully')
+  return createValidatedApiResponse(
+    LikeDataSchema,
+    likeData,
+    'Like created successfully'
+  )
 }
 
 async function handleToggle(request: NextRequest, searchParams: URLSearchParams) {
@@ -116,7 +128,10 @@ async function handleToggle(request: NextRequest, searchParams: URLSearchParams)
     return createApiErrorResponse('Failed to toggle like', 500)
   }
   
-  return createApiSuccessResponse(likeData)
+  return createValidatedApiResponse(
+    LikeDataSchema,
+    likeData
+  )
 }
 
 async function handleDisplay(request: NextRequest, searchParams: URLSearchParams) {
@@ -137,57 +152,73 @@ async function handleDisplay(request: NextRequest, searchParams: URLSearchParams
   if (!likeData) {
     // いいねが存在しない場合
     if (format === 'text') {
-      return new NextResponse('0', {
-        headers: {
-          'Content-Type': CACHE_SETTINGS.CONTENT_TYPES.TEXT,
-          'Cache-Control': `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`,
-        },
-      })
+      return createValidatedSpecialResponse(
+        z.number().int().min(0),
+        0,
+        (val) => val.toString(),
+        CACHE_SETTINGS.CONTENT_TYPES.TEXT,
+        `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`
+      )
     }
     
-    const svg = generateCounterSVG({
-      value: 0,
-      type: 'total',
-      style: theme,
-      digits
-    })
-    
-    return new NextResponse(svg, {
-      headers: {
-        'Content-Type': CACHE_SETTINGS.CONTENT_TYPES.SVG,
-        'Cache-Control': `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`,
-      },
-    })
+    const displayData = { value: 0, type: 'total', theme, digits }
+    return createValidatedSpecialResponse(
+      DisplayDataSchema,
+      displayData,
+      (data) => generateCounterSVG({
+        value: data.value,
+        type: data.type,
+        style: data.theme,
+        digits: data.digits
+      }),
+      CACHE_SETTINGS.CONTENT_TYPES.SVG,
+      `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`
+    )
   }
   
   // フォーマットに応じてレスポンス
   if (format === 'text') {
-    return new NextResponse(likeData.total.toString(), {
-      headers: {
-        'Content-Type': CACHE_SETTINGS.CONTENT_TYPES.TEXT,
-        'Cache-Control': `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`,
-      },
-    })
+    return createValidatedSpecialResponse(
+      z.number().int().min(0),
+      likeData.total,
+      (val) => val.toString(),
+      CACHE_SETTINGS.CONTENT_TYPES.TEXT,
+      `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`
+    )
   }
   
   if (format === 'json') {
-    return NextResponse.json(likeData)
+    return createValidatedApiResponse(
+      LikeDataSchema,
+      likeData
+    )
   }
   
   // SVG画像を生成（いいねアイコン付き）
-  const svg = generateLikeSVG({
+  const likeDisplayData = {
     value: likeData.total,
     userLiked: likeData.userLiked,
-    style: theme as 'classic' | 'modern' | 'retro',
+    theme,
     digits
-  })
+  }
   
-  return new NextResponse(svg, {
-    headers: {
-      'Content-Type': CACHE_SETTINGS.CONTENT_TYPES.SVG,
-      'Cache-Control': `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`,
-    },
-  })
+  return createValidatedSpecialResponse(
+    z.object({
+      value: z.number().int().min(0),
+      userLiked: z.boolean(),
+      theme: z.enum(['classic', 'modern', 'retro']),
+      digits: z.number().int().min(1).max(10)
+    }),
+    likeDisplayData,
+    (data) => generateLikeSVG({
+      value: data.value,
+      userLiked: data.userLiked,
+      style: data.theme,
+      digits: data.digits
+    }),
+    CACHE_SETTINGS.CONTENT_TYPES.SVG,
+    `public, max-age=${CACHE_SETTINGS.DISPLAY_MAX_AGE}`
+  )
 }
 
 async function handleSet(searchParams: URLSearchParams) {
@@ -204,7 +235,8 @@ async function handleSet(searchParams: URLSearchParams) {
     return createApiErrorResponse('Invalid token or like not found', 403)
   }
   
-  return createApiSuccessResponse(
+  return createValidatedApiResponse(
+    z.object({ success: z.literal(true) }),
     { success: true },
     `Like for ${url} has been set to ${total}`
   )
