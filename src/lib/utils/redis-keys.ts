@@ -2,7 +2,7 @@
  * Redis key builder utility for consistent key generation across services
  */
 export class RedisKeyBuilder {
-  constructor(private service: string) {}
+  constructor(protected service: string) {}
 
   /**
    * Service metadata key: {service}:{id}

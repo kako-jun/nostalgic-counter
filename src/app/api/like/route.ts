@@ -161,13 +161,13 @@ async function handleDisplay(request: NextRequest, searchParams: URLSearchParams
       )
     }
     
-    const displayData = { value: 0, type: 'total', theme, digits }
+    const displayData = { value: 0, type: 'total' as const, theme, digits }
     return createValidatedSpecialResponse(
       DisplayDataSchema,
       displayData,
       (data) => generateCounterSVG({
         value: data.value,
-        type: data.type,
+        type: data.type as 'total',
         style: data.theme,
         digits: data.digits
       }),

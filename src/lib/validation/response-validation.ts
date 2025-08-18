@@ -108,7 +108,7 @@ export const ApiResponseSchema = z.union([
  */
 export const DisplayDataSchema = z.object({
   value: z.number().int().min(0),
-  type: z.string(),
+  type: z.union([z.literal('total'), z.literal('today'), z.literal('yesterday'), z.literal('week'), z.literal('month')]),
   theme: z.enum(['classic', 'modern', 'retro']),
   digits: z.number().int().min(1).max(10)
 })

@@ -143,12 +143,12 @@ export class BBSService {
   ): Promise<BBSMessage | null> {
     const metadataStr = await this.redis.get(bbsKeys.metadata(id))
     if (!metadataStr) return null
-    const metadataResult = safeParseRedisData(BBSMetadataSchema, metadataStr)
-    if (!metadataResult.success) {
-      console.error(`BBS metadata validation failed for ${id}:`, metadataResult.error)
+    const metadataParseResult = safeParseRedisData(BBSMetadataSchema, metadataStr)
+    if (!metadataParseResult.success) {
+      console.error(`BBS metadata validation failed for ${id}:`, metadataParseResult.error)
       return null
     }
-    const metadata = metadataResult.data
+    const metadata = metadataParseResult.data
     
     const timestamp = new Date()
     const messageId = this.generateMessageId(author, message, timestamp)
@@ -170,11 +170,13 @@ export class BBSService {
     metadata.lastPost = timestamp
     
     // 安全なメタデータ更新
-    const metadataResult = await safeRedisSet(this.redis, bbsKeys.metadata(id), BBSMetadataSchema, metadata)
-    const messageResult = await safeRedisSet(this.redis, '', BBSMessageSchema, newMessage)
+    const metadataUpdateResult = await safeRedisSet(this.redis, bbsKeys.metadata(id), BBSMetadataSchema, metadata)
     
-    if (!metadataResult.success) {
-      console.error('Failed to update BBS metadata:', metadataResult.error)
+    const { safeStringifyForRedis } = await import('@/lib/validation/db-validation')
+    const messageResult = safeStringifyForRedis(BBSMessageSchema, newMessage)
+    
+    if (!metadataUpdateResult.success) {
+      console.error('Failed to update BBS metadata:', metadataUpdateResult.error)
       return null
     }
     if (!messageResult.success) {
@@ -205,6 +207,8 @@ export class BBSService {
     const rawMessages = await this.redis.lrange(bbsKeys.messages(id), 0, -1)
     
     let messageFound = false
+    const { safeStringifyForRedis } = await import('@/lib/validation/db-validation')
+    
     const updatedMessages = rawMessages.map(msg => {
       const msgResult = safeParseRedisData(BBSMessageSchema, msg)
       if (!msgResult.success) {
@@ -224,9 +228,7 @@ export class BBSService {
             message: newMessage.substring(0, 1000),
             updated: new Date()
           }
-          const messageResult = await import('@/lib/validation/db-validation').then(({safeStringifyForRedis}) => 
-            safeStringifyForRedis(BBSMessageSchema, updatedMessage)
-          )
+          const messageResult = safeStringifyForRedis(BBSMessageSchema, updatedMessage)
           if (!messageResult.success) {
             console.error('Failed to validate updated message:', messageResult.error)
             return msg

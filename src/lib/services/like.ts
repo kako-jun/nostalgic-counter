@@ -12,7 +12,7 @@ import {
 } from '@/lib/validation/schemas'
 import { safeParseRedisData, safeParseInt } from '@/lib/validation/safe-parse'
 import { safeRedisSet, safeRedisSetNumber } from '@/lib/validation/db-validation'
-import { safeRedisGetJson, safeRedisGetNumber } from '@/lib/validation/redis-validation'
+import { safeRedisGetJson, safeRedisGetNumber, safeRedisGetString } from '@/lib/validation/redis-validation'
 
 export class LikeService {
   private get redis() {

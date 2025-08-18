@@ -22,9 +22,9 @@ import {
   CounterIncrementParamsSchema,
   CounterDisplayParamsSchema,
   CounterSetParamsSchema,
-  CounterType,
   CounterDataSchema
 } from '@/lib/validation/schemas'
+import { CounterType } from '@/types/counter'
 import { validateApiParams } from '@/lib/utils/api-validation'
 
 export async function GET(request: NextRequest) {
@@ -147,6 +147,7 @@ async function handleDisplay(searchParams: URLSearchParams) {
   }
   
   const { id, type, theme, digits, format } = validation.data
+  const counterType = type as CounterType
   
   // カウンターデータを取得
   const counterData = await counterService.getCounterById(id)
@@ -163,7 +164,7 @@ async function handleDisplay(searchParams: URLSearchParams) {
       )
     }
     
-    const displayData = { value: 0, type, theme, digits }
+    const displayData = { value: 0, type: counterType, theme, digits }
     return createValidatedSpecialResponse(
       DisplayDataSchema,
       displayData,
@@ -179,7 +180,7 @@ async function handleDisplay(searchParams: URLSearchParams) {
   }
   
   // 指定されたタイプの値を取得
-  const value = counterData[type]
+  const value = counterData[counterType]
   
   // フォーマットに応じてレスポンス
   if (format === 'text') {
@@ -193,7 +194,7 @@ async function handleDisplay(searchParams: URLSearchParams) {
   }
   
   // SVG画像を生成用のデータ検証
-  const displayData = { value, type, theme, digits }
+  const displayData = { value, type: counterType, theme, digits }
   return createValidatedSpecialResponse(
     DisplayDataSchema,
     displayData,
