@@ -53,8 +53,8 @@ body {
 
 /* タイトルバー */
 .nostalgic-title-bar {
-  background: #000080 !important;
-  color: white !important;
+  background: rgb(204, 255, 204) !important;
+  color: black !important;
   padding: 5px !important;
   margin: -10px -10px 10px -10px !important;
   font-size: 24px !important;
@@ -215,8 +215,8 @@ p {
   top: 10px !important;
   left: 10px !important;
   z-index: 9999 !important;
-  background: #000080 !important;
-  color: white !important;
+  background: rgb(204, 255, 204) !important;
+  color: black !important;
   border: 2px outset #c0c0c0 !important;
   padding: 8px 12px !important;
   font-size: 18px !important;
@@ -226,7 +226,7 @@ p {
 }
 
 .nostalgic-mobile-menu-button:hover {
-  background: #0000a0 !important;
+  background: rgb(184, 235, 184) !important;
 }
 
 .nostalgic-mobile-menu-button:active {

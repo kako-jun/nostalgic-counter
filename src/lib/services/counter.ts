@@ -15,10 +15,11 @@ export class CounterService {
     if (!metadataStr) return null
     const metadata: CounterMetadata = JSON.parse(metadataStr)
 
-    const [totalStr, today, yesterday] = await Promise.all([
+    const [totalStr, today, yesterday, lastVisitStr] = await Promise.all([
       this.redis.get(`counter:${id}:total`),
       this.getTodayCount(id),
-      this.getYesterdayCount(id)
+      this.getYesterdayCount(id),
+      this.redis.get(`counter:${id}:lastVisit`)
     ])
     
     const total = totalStr ? parseInt(totalStr) : 0
@@ -34,7 +35,7 @@ export class CounterService {
       yesterday,
       week,
       month,
-      lastVisit: metadata.created,
+      lastVisit: lastVisitStr ? new Date(lastVisitStr) : metadata.created,
       firstVisit: metadata.created
     }
   }
@@ -91,11 +92,13 @@ export class CounterService {
     const metadataStr = await this.redis.get(`counter:${id}`)
     if (!metadataStr) return null
     
-    const today = new Date().toISOString().split('T')[0]
+    const now = new Date().toISOString()
+    const today = now.split('T')[0]
     
     await Promise.all([
       this.redis.incr(`counter:${id}:total`),
-      this.redis.incr(`counter:${id}:daily:${today}`)
+      this.redis.incr(`counter:${id}:daily:${today}`),
+      this.redis.set(`counter:${id}:lastVisit`, now)
     ])
     
     await this.redis.expire(`counter:${id}:daily:${today}`, 90 * 24 * 60 * 60)

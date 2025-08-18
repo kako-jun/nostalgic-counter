@@ -117,7 +117,7 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-              <p style={{ textAlign: "center", marginTop: "20px", fontSize: "16px", color: "#0000ff", fontFamily: "monospace", border: "2px dashed #ff0000", padding: "5px", backgroundColor: "#ffffcc" }}>
+              <p style={{ textAlign: "center", marginTop: "20px", fontSize: "16px", color: "black", fontFamily: "monospace", border: "2px dashed #ff0000", padding: "5px", backgroundColor: "#ffffcc" }}>
                 ★キリ番報告用の、Nostalgic BBSというサービスも開発中です★
               </p>
             </div>
