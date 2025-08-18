@@ -260,11 +260,11 @@ export class ValidationLogger {
 /**
  * バリデーションのパフォーマンス計測デコレータ
  */
-export function measureValidation<T extends (...args: any[]) => Result<any, ValidationError>>(
+export function measureValidation<T extends (...args: unknown[]) => Result<unknown, ValidationError>>(
   operation: string,
   fn: T
 ): T {
-  return ((...args: any[]) => {
+  return ((...args: Parameters<T>) => {
     const startTime = Date.now()
     const result = fn(...args)
     

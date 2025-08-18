@@ -61,7 +61,7 @@ export function logRedisWrite(
  * 安全なRedis書き込みヘルパー
  */
 export async function safeRedisSet<T>(
-  redis: any,
+  redis: { set: (key: string, value: string) => Promise<void> },
   key: string,
   schema: z.ZodType<T>,
   data: T
@@ -87,7 +87,7 @@ export async function safeRedisSet<T>(
  * 安全なRedis数値書き込みヘルパー
  */
 export async function safeRedisSetNumber(
-  redis: any,
+  redis: { set: (key: string, value: string) => Promise<void> },
   key: string,
   value: unknown
 ): Promise<{ success: boolean; error?: string }> {

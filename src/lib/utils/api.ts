@@ -4,7 +4,7 @@ import { addCorsHeaders } from '@/lib/utils/cors'
 export interface ApiError {
   message: string
   code?: string
-  details?: any
+  details?: Record<string, unknown>
 }
 
 export interface ApiResponse<T = any> {
@@ -141,7 +141,7 @@ export function createApiErrorResponse(
   message: string,
   status: number = 400,
   code?: string,
-  details?: any
+  details?: Record<string, unknown>
 ): NextResponse {
   const response: ApiResponse = {
     success: false,

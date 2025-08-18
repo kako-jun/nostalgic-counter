@@ -3,7 +3,7 @@
  * 新アーキテクチャの起動処理
  */
 
-import { config } from './config'
+import { config, type Config } from './config'
 import { eventBus, Events } from './event-bus'
 import { Result, Ok, Err, ValidationError } from './result'
 
@@ -65,21 +65,21 @@ export class Application {
   private static setupEventBus(): void {
     // パフォーマンス警告の監視
     eventBus.on(Events.PERFORMANCE_WARNING, async (event) => {
-      const { operation, duration, threshold, service } = event.data as any
-      console.warn(`⚠️ Performance Warning: ${service}.${operation} took ${duration}ms (threshold: ${threshold}ms)`)
+      const data = event.data as { operation: string; duration: number; threshold: number; service: string }
+      console.warn(`⚠️ Performance Warning: ${data.service}.${data.operation} took ${data.duration}ms (threshold: ${data.threshold}ms)`)
     }, { priority: 100 })
 
     // エラー発生の監視
     eventBus.on(Events.ERROR_OCCURRED, async (event) => {
-      const { error, context, service } = event.data as any
-      console.error(`❌ Error in ${service}:`, error, context)
+      const data = event.data as { error: string; context?: unknown; service: string }
+      console.error(`❌ Error in ${data.service}:`, data.error, data.context)
     }, { priority: 100 })
 
     // ユーザー訪問の統計
     const visitStats = new Map<string, number>()
     eventBus.on(Events.USER_VISIT, async (event) => {
-      const { service, userHash } = event.data as any
-      const key = `${service}:${userHash}`
+      const data = event.data as { service: string; userHash: string }
+      const key = `${data.service}:${data.userHash}`
       visitStats.set(key, (visitStats.get(key) || 0) + 1)
       
       // 10分おきに統計をログ出力
@@ -174,7 +174,7 @@ export class Application {
       uptime: process.uptime(),
       memoryUsage: process.memoryUsage(),
       eventBusStats: eventBus.getStats(),
-      config: this.initialized ? config.toJSON() : {} as any
+      config: this.initialized ? config.toJSON() : {} as Config
     }
   }
 

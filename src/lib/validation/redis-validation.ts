@@ -9,7 +9,7 @@ import { safeParseRedisData } from './safe-parse'
  * 安全なRedis GET操作（文字列値用）
  */
 export async function safeRedisGetString(
-  redis: any,
+  redis: { get: (key: string) => Promise<string | null> },
   key: string
 ): Promise<{ success: true; data: string } | { success: false; error: string }> {
   try {
@@ -36,7 +36,7 @@ export async function safeRedisGetString(
  * 安全なRedis GET操作（数値用）
  */
 export async function safeRedisGetNumber(
-  redis: any,
+  redis: { get: (key: string) => Promise<string | null> },
   key: string
 ): Promise<{ success: true; data: number } | { success: false; error: string }> {
   const NumberSchema = z.coerce.number().int().min(0)
@@ -69,7 +69,7 @@ export async function safeRedisGetNumber(
  * 安全なRedis GET操作（JSON用）
  */
 export async function safeRedisGetJson<T>(
-  redis: any,
+  redis: { get: (key: string) => Promise<string | null> },
   key: string,
   schema: z.ZodType<T>
 ): Promise<{ success: true; data: T } | { success: false; error: string }> {
@@ -93,7 +93,7 @@ export async function safeRedisGetJson<T>(
  * 安全なRedis LRANGE操作
  */
 export async function safeRedisLRange<T>(
-  redis: any,
+  redis: { lrange: (key: string, start: number, end: number) => Promise<string[]> },
   key: string,
   start: number,
   end: number,
@@ -132,7 +132,7 @@ export async function safeRedisLRange<T>(
  * 安全なRedis ZREVRANGE操作（スコア付き）
  */
 export async function safeRedisZRevRangeWithScores(
-  redis: any,
+  redis: { zrevrange: (key: string, start: number, end: number, withScores: string) => Promise<string[]> },
   key: string,
   start: number,
   end: number

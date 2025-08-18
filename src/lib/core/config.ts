@@ -380,14 +380,20 @@ export class ConfigManager {
     }
   }
 
-  private mergeDeep(target: any, source: any): any {
+  private mergeDeep(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
     const result = { ...target }
     
     for (const key in source) {
-      if (source[key] && typeof source[key] === 'object' && !Array.isArray(source[key])) {
-        result[key] = this.mergeDeep(target[key] || {}, source[key])
+      const sourceValue = source[key]
+      const targetValue = target[key]
+      
+      if (sourceValue && typeof sourceValue === 'object' && !Array.isArray(sourceValue)) {
+        const targetObj = (targetValue && typeof targetValue === 'object' && !Array.isArray(targetValue)) 
+          ? targetValue as Record<string, unknown>
+          : {} as Record<string, unknown>
+        result[key] = this.mergeDeep(targetObj, sourceValue as Record<string, unknown>)
       } else {
-        result[key] = source[key]
+        result[key] = sourceValue
       }
     }
     
@@ -421,15 +427,28 @@ export const getRedisSettings = (): RedisSettings => config.getRedisSettings()
 export const getLoggingSettings = (): LoggingSettings => config.getLoggingSettings()
 
 /**
- * 設定値のバリデーション用ヘルパー
+ * 設定値のバリデーション用ヘルパー（型安全版）
  */
-export const validateServiceParam = <T extends keyof ServiceLimits>(
-  service: T,
-  param: string,
-  value: number
-): boolean => {
-  const limits = getServiceLimits(service)
-  const limitValue = (limits as any)[param]
-  const maxValue = typeof limitValue === 'number' ? limitValue : 999999999
+export const validateCounterParam = (param: keyof ServiceLimits['counter'], value: number): boolean => {
+  const limits = getCounterLimits()
+  const maxValue = limits[param]
+  return typeof value === 'number' && value >= 0 && value <= maxValue
+}
+
+export const validateLikeParam = (param: keyof ServiceLimits['like'], value: number): boolean => {
+  const limits = getLikeLimits()
+  const maxValue = limits[param]
+  return typeof value === 'number' && value >= 0 && value <= maxValue
+}
+
+export const validateRankingParam = (param: keyof ServiceLimits['ranking'], value: number): boolean => {
+  const limits = getRankingLimits()
+  const maxValue = limits[param]
+  return typeof value === 'number' && value >= 0 && value <= maxValue
+}
+
+export const validateBBSParam = (param: keyof ServiceLimits['bbs'], value: number): boolean => {
+  const limits = getBBSLimits()
+  const maxValue = limits[param]
   return typeof value === 'number' && value >= 0 && value <= maxValue
 }

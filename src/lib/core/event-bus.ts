@@ -175,7 +175,7 @@ export class EventBus {
           }
 
           // ハンドラー実行
-          await listener.handler(event as any)
+          await listener.handler(event)
 
           // 一回のみのリスナーは削除
           if (listener.once) {
@@ -238,7 +238,7 @@ export class EventBus {
         }
 
         // 同期ハンドラー実行
-        const result = listener.handler(event as any)
+        const result = listener.handler(event)
         
         // Promiseが返された場合は警告
         if (result && typeof result.then === 'function') {
@@ -278,7 +278,7 @@ export class EventBus {
   /**
    * リスナー情報の取得
    */
-  getListeners(eventType?: string): { eventType: string; count: number; listeners: Omit<EventListener, 'handler'>[] }[] {
+  getListeners(eventType?: string): { eventType: string; count: number; listeners: Array<Omit<EventListener, 'handler' | 'schema'> & { hasSchema: boolean }> }[] {
     if (eventType) {
       const listeners = this.listeners.get(eventType) || []
       return [{
@@ -289,8 +289,8 @@ export class EventBus {
           eventType: l.eventType,
           priority: l.priority,
           once: l.once,
-          schema: l.schema ? 'present' : undefined
-        })) as any[]
+          hasSchema: !!l.schema
+        }))
       }]
     }
 
@@ -302,8 +302,8 @@ export class EventBus {
         eventType: l.eventType,
         priority: l.priority,
         once: l.once,
-        schema: l.schema ? 'present' : undefined
-      })) as any[]
+        hasSchema: !!l.schema
+      }))
     }))
   }
 

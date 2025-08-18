@@ -162,7 +162,7 @@ export class ApiHandler {
    * バッチ処理用APIエンドポイント
    */
   static createBatch<TParams, TResult>(
-    config: ApiHandlerConfig<TParams[], TResult[]>
+    config: ApiHandlerConfig<TParams, TResult>
   ) {
     return async (request: NextRequest): Promise<NextResponse> => {
       try {
@@ -184,14 +184,19 @@ export class ApiHandler {
         // エラーがあるかチェック
         const errors = results.filter(result => !result.success)
         if (errors.length > 0) {
-          const firstError = errors[0] as Result<never, AppError>
-          return this.createErrorResponse((firstError as any).error)
+          const firstError = errors[0]
+          if (!firstError.success) {
+            return this.createErrorResponse(firstError.error)
+          }
         }
 
         // 成功結果を抽出
-        const successResults = results
-          .filter(result => result.success)
-          .map(result => (result as any).data)
+        const successResults: TResult[] = []
+        for (const result of results) {
+          if (result.success) {
+            successResults.push(result.data)
+          }
+        }
 
         // レスポンス検証
         const validatedResult = ValidationFramework.output(batchResultSchema, successResults)

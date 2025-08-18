@@ -99,21 +99,21 @@ export const asyncMap = async <T, U, E>(
   return result as Failure<E>
 }
 
-// 複数のResultを組み合わせる
+// 複数のResultを組み合わせる（型安全版）
 export const combine = <T extends readonly unknown[], E>(
   results: { [K in keyof T]: Result<T[K], E> }
 ): Result<T, E> => {
-  const values = [] as unknown as T
+  const values = [] as { -readonly [K in keyof T]: T[K] }
   
   for (let i = 0; i < results.length; i++) {
     const result = results[i]
     if (isErr(result)) {
       return result
     }
-    ;(values as any)[i] = result.data
+    values[i] = result.data
   }
   
-  return Ok(values)
+  return Ok(values as T)
 }
 
 // すべて成功か、一つでも失敗したら失敗

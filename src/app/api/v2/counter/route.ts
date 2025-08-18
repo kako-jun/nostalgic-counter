@@ -171,7 +171,7 @@ const svgHandler = ApiHandler.createSpecialResponse(
     }),
     formatter: (data) => generateCounterSVG({
       value: data.value,
-      type: data.type as any,
+      type: data.type as 'total' | 'today' | 'yesterday' | 'week' | 'month',
       style: data.theme,
       digits: data.digits
     }),

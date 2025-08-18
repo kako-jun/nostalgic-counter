@@ -7,7 +7,7 @@ export function addCorsHeaders(response: NextResponse) {
   return response
 }
 
-export function createCorsResponse(data?: any, options?: { status?: number }) {
+export function createCorsResponse<T = Record<string, unknown>>(data?: T, options?: { status?: number }) {
   const response = NextResponse.json(data || {}, options)
   return addCorsHeaders(response)
 }
