@@ -157,7 +157,7 @@ const svgHandler = ApiHandler.createSpecialResponse(
     
     return Ok({
       value: displayResult.data,
-      type: type as string,
+      type: type,
       theme: 'classic' as const,
       digits: 6
     })
@@ -165,13 +165,13 @@ const svgHandler = ApiHandler.createSpecialResponse(
   {
     schema: z.object({
       value: z.number().int().min(0),
-      type: z.string(),
+      type: z.enum(['total', 'today', 'yesterday', 'week', 'month']),
       theme: z.enum(['classic', 'modern', 'retro']),
       digits: z.number().int().min(1).max(10)
     }),
     formatter: (data) => generateCounterSVG({
       value: data.value,
-      type: data.type as 'total' | 'today' | 'yesterday' | 'week' | 'month',
+      type: data.type,
       style: data.theme,
       digits: data.digits
     }),

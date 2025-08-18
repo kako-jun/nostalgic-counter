@@ -41,7 +41,7 @@ export const map = <T, U, E>(
   if (isOk(result)) {
     return Ok(fn(result.data))
   }
-  return result as Failure<E>
+  return Err(result.error)
 }
 
 // flatMap関数：成功時に別のResultを返す関数を適用
@@ -52,7 +52,7 @@ export const flatMap = <T, U, E>(
   if (isOk(result)) {
     return fn(result.data)
   }
-  return result as Failure<E>
+  return Err(result.error)
 }
 
 // mapError関数：エラーを変換
@@ -63,7 +63,7 @@ export const mapError = <T, E, F>(
   if (isErr(result)) {
     return Err(fn(result.error))
   }
-  return result as Success<T>
+  return Ok(result.data)
 }
 
 // unwrap関数：成功時のデータを取得（エラー時は例外）
@@ -96,24 +96,24 @@ export const asyncMap = async <T, U, E>(
       return Err(error as E)
     }
   }
-  return result as Failure<E>
+  return Err(result.error)
 }
 
 // 複数のResultを組み合わせる（型安全版）
 export const combine = <T extends readonly unknown[], E>(
   results: { [K in keyof T]: Result<T[K], E> }
 ): Result<T, E> => {
-  const values = [] as { -readonly [K in keyof T]: T[K] }
+  const values: unknown[] = []
   
   for (let i = 0; i < results.length; i++) {
     const result = results[i]
     if (isErr(result)) {
-      return result
+      return Err(result.error)
     }
     values[i] = result.data
   }
   
-  return Ok(values as T)
+  return Ok(values as unknown as T)
 }
 
 // すべて成功か、一つでも失敗したら失敗
@@ -122,7 +122,7 @@ export const all = <T, E>(results: Result<T, E>[]): Result<T[], E> => {
   
   for (const result of results) {
     if (isErr(result)) {
-      return result
+      return Err(result.error)
     }
     values.push(result.data)
   }

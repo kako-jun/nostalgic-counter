@@ -72,7 +72,7 @@ export class EventBus {
     const listener: EventListener = {
       id: listenerId,
       eventType,
-      handler: handler as EventHandler,
+      handler: handler as EventHandler<unknown>,
       schema: options.schema,
       priority: options.priority || 0,
       once: options.once || false
@@ -330,10 +330,10 @@ export class EventBus {
 
     const recentEvents = this.eventHistory
       .slice(-100) // 直近100イベント
-      .reduce((acc, event) => {
+      .reduce((acc: Record<string, number>, event) => {
         acc[event.type] = (acc[event.type] || 0) + 1
         return acc
-      }, {} as Record<string, number>)
+      }, {})
 
     const recentEventsList = Object.entries(recentEvents)
       .map(([type, count]) => ({ type, count }))

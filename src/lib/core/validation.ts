@@ -192,11 +192,14 @@ export class ValidationFramework {
   /**
    * 部分的なデータの更新バリデーション
    */
-  static partial<T>(schema: z.ZodObject<any>, data: unknown): Result<Partial<T>, ValidationError> {
+  static partial<T extends Record<string, unknown>>(
+    schema: z.ZodObject<z.ZodRawShape>, 
+    data: unknown
+  ): Result<Partial<T>, ValidationError> {
     const partialSchema = schema.partial()
     const result = this.input(partialSchema, data)
     if (!result.success) {
-      return result
+      return Err(result.error)
     }
     return Ok(result.data as Partial<T>)
   }
@@ -264,7 +267,7 @@ export function measureValidation<T extends (...args: unknown[]) => Result<unkno
   operation: string,
   fn: T
 ): T {
-  return ((...args: Parameters<T>) => {
+  const wrapper = (...args: Parameters<T>) => {
     const startTime = Date.now()
     const result = fn(...args)
     
@@ -272,5 +275,7 @@ export function measureValidation<T extends (...args: unknown[]) => Result<unkno
     ValidationLogger.logValidation(operation, result.success, result.success ? undefined : result.error)
     
     return result
-  }) as T
+  }
+  
+  return wrapper as T
 }

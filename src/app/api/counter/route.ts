@@ -147,7 +147,7 @@ async function handleDisplay(searchParams: URLSearchParams) {
   }
   
   const { id, type, theme, digits, format } = validation.data
-  const counterType = type as CounterType
+  const counterType = type
   
   // カウンターデータを取得
   const counterData = await counterService.getCounterById(id)

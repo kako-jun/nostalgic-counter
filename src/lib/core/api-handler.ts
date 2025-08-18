@@ -415,7 +415,10 @@ export class ApiHandlerFactory {
       update: ApiHandler.create({
         paramsSchema: z.object({ id: z.string() }).and(config.updateParamsSchema),
         resultSchema: config.entitySchema,
-        handler: async ({ id, ...params }) => await config.service.update(id, params as TUpdateParams),
+        handler: async (data) => {
+          const { id, ...params } = data
+          return await config.service.update(id, params as TUpdateParams)
+        },
         allowedMethods: ['PUT', 'PATCH']
       }),
 
@@ -427,7 +430,7 @@ export class ApiHandlerFactory {
           if (result.success) {
             return Ok({ success: true as const })
           }
-          return result as Result<{ success: true }, AppError>
+          return Err(result.error)
         },
         allowedMethods: ['DELETE']
       }),
