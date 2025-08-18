@@ -8,10 +8,13 @@ interface RedisLike {
   set(key: string, value: string): Promise<any>
   setex(key: string, seconds: number, value: string): Promise<any>
   incr(key: string): Promise<number>
+  incrby(key: string, increment: number): Promise<number>
+  decrby(key: string, decrement: number): Promise<number>
+  exists(key: string): Promise<number>
   expire(key: string, seconds: number): Promise<any>
   del(key: string): Promise<any>
   // List operations
-  lpush(key: string, value: string): Promise<any>
+  lpush(key: string, ...values: string[]): Promise<number>
   lrange(key: string, start: number, end: number): Promise<string[]>
   llen(key: string): Promise<number>
   ltrim(key: string, start: number, end: number): Promise<any>
