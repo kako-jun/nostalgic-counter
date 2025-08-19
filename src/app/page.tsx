@@ -31,6 +31,8 @@ export default function HomePage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMobileSidebarOpen]);
 
+
+
   const renderContent = () => {
     switch (currentPage) {
       case "home":
@@ -93,11 +95,10 @@ export default function HomePage() {
                 <p style={{ fontSize: "20px", fontWeight: "bold", textAlign: "center" }}>
                   ようこそ！
                   <br />
-                  今まで
-                  <span style={{ transform: "scale(2)", display: "inline-block", transformOrigin: "center", margin: "0 30px" }}>
+                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
                     <nostalgic-counter id="nostalgic-b89803bb" type="total" theme="classic" />
+                    回も閲覧されました！
                   </span>
-                  回も閲覧されました！
                 </p>
               </div>
               <div>
@@ -115,6 +116,7 @@ export default function HomePage() {
                     <nostalgic-counter id="nostalgic-b89803bb" type="yesterday" theme="modern" digits="3" />
                   </div>
                 </div>
+                <div style={{ margin: "0 15px" }}></div>
                 <div className="nostalgic-counter-item">
                   <b>今週</b>
                   <br />
@@ -130,34 +132,15 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="nostalgic-section">
-              <p>
-                <span style={{ color: "#ff8c00" }}>
-                  <b>◆このサイトへの評価をお願いします◆</b>
-                </span>
-              </p>
               <div style={{ textAlign: "center", margin: "20px 0" }}>
                 <p style={{ marginBottom: "10px" }}>このサイトが気に入ったら、いいねを押してください！</p>
                 <nostalgic-like id="nostalgic-b89803bb" theme="classic" />
               </div>
             </div>
 
-            <div className="nostalgic-section">
-              <p>
-                <span style={{ color: "#ff8c00" }}>
-                  <b>◆サービス人気ランキング◆</b>
-                </span>
-              </p>
-              <div style={{ textAlign: "center", margin: "20px 0" }}>
-                <p style={{ marginBottom: "10px" }}>どのサービスが人気か見てみよう！</p>
-                <nostalgic-ranking id="nostalgic-services-ranking" theme="classic" />
-              </div>
-            </div>
 
             <div className="nostalgic-section">
-              <p>
+              <p style={{ textAlign: "center" }}>
                 <span style={{ color: "#ff8c00" }}>
                   <b>◆足跡帳・ゲストブック◆</b>
                 </span>
@@ -543,9 +526,10 @@ export default function HomePage() {
           right: "10px",
           fontSize: "12px",
           color: "#666666",
-          backgroundColor: "transparent",
+          backgroundColor: "rgba(255, 255, 255, 0.7)",
           padding: "5px 8px",
           fontStyle: "italic",
+          borderRadius: "4px",
         }}
       >
         1997年風のデザインを再現しています

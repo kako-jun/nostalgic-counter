@@ -33,7 +33,7 @@ export default function NostalgicSidebar({
 
   return (
     <div className={`nostalgic-sidebar-left ${isOpen ? 'mobile-open' : ''}`}>
-      <div className="nostalgic-title-bar" style={{ fontSize: "16px !important" }}>MENU</div>
+      <div className="nostalgic-mobile-menu-title" style={{ fontSize: "20px", margin: "0 -10px 10px -10px", height: "67px", background: "rgb(204, 255, 204)", color: "black", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", borderBottom: "3px double #808080" }}>MENU</div>
       <p>
         {isHomePage && currentPage === "home" ? (
           <>
@@ -64,7 +64,7 @@ export default function NostalgicSidebar({
         <br />
         <span>●</span>
         <a href="/counter" className={currentService === 'counter' ? "nostalgic-old-link-visited" : "nostalgic-old-link"} onClick={() => onClose?.()}>
-          Nostalgic Counter📊
+          Nostalgic Counter
         </a>
         <br />
         {isHomePage ? (
@@ -125,7 +125,7 @@ export default function NostalgicSidebar({
         )}
         <span>●</span>
         <a href="/like" className={currentService === 'like' ? "nostalgic-old-link-visited" : "nostalgic-old-link"} onClick={() => onClose?.()}>
-          Nostalgic Like💖
+          Nostalgic Like
         </a>
         <br />
         {isHomePage ? (
@@ -186,7 +186,7 @@ export default function NostalgicSidebar({
         )}
         <span>●</span>
         <a href="/ranking" className={currentService === 'ranking' ? "nostalgic-old-link-visited" : "nostalgic-old-link"} onClick={() => onClose?.()}>
-          Nostalgic Ranking🏆
+          Nostalgic Ranking
         </a>
         <br />
         {isHomePage ? (
@@ -247,7 +247,7 @@ export default function NostalgicSidebar({
         )}
         <span>●</span>
         <a href="/bbs" className={currentService === 'bbs' ? "nostalgic-old-link-visited" : "nostalgic-old-link"} onClick={() => onClose?.()}>
-          Nostalgic BBS💬
+          Nostalgic BBS
         </a>
         <br />
         {isHomePage ? (
@@ -326,7 +326,7 @@ export default function NostalgicSidebar({
                 このサイトについて
               </a>
             ) : (
-              <a href="/#about" className="nostalgic-old-link" onClick={() => onClose?.()}>
+              <a href="/about" className="nostalgic-old-link" onClick={() => onClose?.()}>
                 このサイトについて
               </a>
             )}

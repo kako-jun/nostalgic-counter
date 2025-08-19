@@ -28,7 +28,7 @@ body {
   flex: 0 0 250px !important;
   background-color: #f0f0f0 !important;
   border: 2px inset #c0c0c0 !important;
-  padding: 10px !important;
+  padding: 0 10px 10px 10px !important;
   font-size: 16px !important;
   overflow-x: hidden !important;
 }
@@ -56,10 +56,11 @@ body {
   background: rgb(204, 255, 204) !important;
   color: black !important;
   padding: 5px !important;
-  margin: -10px -10px 10px -10px !important;
+  margin: -15px -15px 10px -15px !important;
   font-size: 24px !important;
   font-weight: bold !important;
   text-align: center !important;
+  border-bottom: 3px double #808080 !important;
 }
 
 /* セクション */
@@ -135,7 +136,7 @@ body {
   background-color: #ffff00 !important;
   border: 1px solid black !important;
   padding: 5px !important;
-  margin: 10px 0 !important;
+  margin: 15px 0 !important;
   overflow: hidden !important;
   white-space: nowrap !important;
   font-size: 18px !important;
@@ -265,6 +266,11 @@ p {
     transition: left 0.3s ease !important;
     overflow-y: auto !important;
     flex: none !important;
+    padding: 0 10px 10px 10px !important;
+  }
+  
+  .nostalgic-mobile-menu-title {
+    padding-top: 30px !important;
   }
   
   .nostalgic-sidebar-left.mobile-open {
@@ -273,7 +279,6 @@ p {
   
   .nostalgic-content-area {
     margin-left: 0 !important;
-    padding-top: 60px !important;
   }
   
   .nostalgic-mobile-overlay {
@@ -284,11 +289,13 @@ p {
 /* タブレット対応 */
 @media screen and (max-width: 1024px) and (min-width: 769px) {
   .nostalgic-sidebar-left {
-    flex: 0 0 200px !important;
-    font-size: 14px !important;
+    flex: 0 0 250px !important;
+    font-size: 16px !important;
   }
   
   .nostalgic-content-area {
-    font-size: 16px !important;
+    font-size: 18px !important;
+    min-width: 0 !important;
+    overflow-x: hidden !important;
   }
 }

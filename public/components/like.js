@@ -54,7 +54,6 @@ class NostalgicLike extends HTMLElement {
     }
 
     this.isLoading = true;
-    this.render();
 
     try {
       const baseUrl = this.getAttribute('api-base') || NostalgicLike.apiBaseUrl;
@@ -86,7 +85,6 @@ class NostalgicLike extends HTMLElement {
     if (!id || this.isLoading) return;
 
     this.isLoading = true;
-    this.render();
 
     try {
       const baseUrl = this.getAttribute('api-base') || NostalgicLike.apiBaseUrl;
@@ -219,7 +217,7 @@ class NostalgicLike extends HTMLElement {
       
       <button class="like-button ${isLoading ? 'loading' : ''}" ${isLoading ? 'disabled' : ''}>
         <span class="heart-icon">${style.heartIcon}</span>
-        <span class="like-count">${isLoading ? '...' : total}</span>
+        <span class="like-count">${total}</span>
       </button>
     `;
     
