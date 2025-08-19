@@ -208,8 +208,12 @@ class NostalgicLike extends HTMLElement {
         }
         
         .loading {
-          cursor: pointer;
+          cursor: pointer !important;
           opacity: 0.7;
+        }
+        
+        .like-button:disabled {
+          cursor: pointer !important;
         }
       </style>
       
