@@ -61,7 +61,11 @@ export default function LikePage() {
       case "main":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ Like Service - いいねボタン ★☆★</div>
+            <div className="nostalgic-title-bar">
+              ★☆★ Nostalgic Like ★☆★
+              <br />
+              いいねボタン
+            </div>
 
             <div className="nostalgic-marquee-box">
               <div className="nostalgic-marquee-text">

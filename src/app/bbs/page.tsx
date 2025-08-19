@@ -96,7 +96,11 @@ export default function BBSPage() {
       case "main":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ BBS Service - 掲示板システム ★☆★</div>
+            <div className="nostalgic-title-bar">
+              ★☆★ Nostalgic BBS ★☆★
+              <br />
+              掲示板システム
+            </div>
 
             <div className="nostalgic-marquee-box">
               <div className="nostalgic-marquee-text">

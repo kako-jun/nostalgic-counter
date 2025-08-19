@@ -77,7 +77,11 @@ export default function RankingPage() {
       case "main":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ Ranking Service - スコアランキング ★☆★</div>
+            <div className="nostalgic-title-bar">
+              ★☆★ Nostalgic Ranking ★☆★
+              <br />
+              スコアランキング
+            </div>
 
             <div className="nostalgic-marquee-box">
               <div className="nostalgic-marquee-text">

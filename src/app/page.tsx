@@ -30,7 +30,11 @@ export default function HomePage() {
       case "home":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ Nostalgic - 懐かしいWebツール集 ★☆★</div>
+            <div className="nostalgic-title-bar">
+              ★☆★ Nostalgic ★☆★
+              <br />
+              懐かしいWebツール集
+            </div>
 
             <div className="nostalgic-marquee-box">
               <div className="nostalgic-marquee-text">
@@ -296,7 +300,7 @@ export default function HomePage() {
               <p>
                 • Next.js + Vercel でホスティング
                 <br />
-                • Vercel KV でデータ保存
+                • Redis でデータ保存
                 <br />
                 • SVG画像で美しい表示
                 <br />• 必要なすべての要素が無料プランの範囲で動作するため、完全無料・広告なしを実現
@@ -448,7 +452,7 @@ export default function HomePage() {
                 <br />
                 • Vercel Edge Functions
                 <br />
-                • Vercel KV (Redis)
+                • Redis
                 <br />
                 • Web Components
                 <br />• SVG Graphics

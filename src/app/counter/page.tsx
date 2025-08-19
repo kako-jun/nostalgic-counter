@@ -67,7 +67,11 @@ export default function CounterPage() {
       case "main":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ Counter Service - アクセスカウンター ★☆★</div>
+            <div className="nostalgic-title-bar">
+              ★☆★ Nostalgic Counter ★☆★
+              <br />
+              アクセスカウンター
+            </div>
 
             <div className="nostalgic-marquee-box">
               <div className="nostalgic-marquee-text">
