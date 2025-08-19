@@ -47,7 +47,7 @@ body {
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"><text x="10%" y="50%" font-family="MS Gothic, monospace" font-size="40" font-style="italic" fill="%23dddddd" fill-opacity="0.3">Nostalgic Counter</text></svg>') !important;
   background-size: 35% 15% !important;
   border: 2px inset #c0c0c0 !important;
-  padding: 15px !important;
+  padding: 15px 15px 50px 15px !important;
   font-size: 18px !important;
 }
 

@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Script from "next/script";
+import NostalgicSidebar from "@/components/NostalgicSidebar";
 import "./nostalgic.css";
 
 export default function HomePage() {
@@ -79,8 +80,10 @@ export default function HomePage() {
                 </span>
               </p>
               <div style={{ textAlign: "center", marginBottom: "20px", marginTop: "30px" }}>
-                <p style={{ fontSize: "20px", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", gap: "20px" }}>
-                  ようこそ！今まで
+                <p style={{ fontSize: "20px", fontWeight: "bold", textAlign: "center" }}>
+                  ようこそ！
+                  <br />
+                  今まで
                   <span style={{ transform: "scale(2)", display: "inline-block", transformOrigin: "center", margin: "0 30px" }}>
                     <nostalgic-counter id="nostalgic-b89803bb" type="total" theme="classic" />
                   </span>
@@ -117,9 +120,6 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
-              <p style={{ textAlign: "center", marginTop: "20px", fontSize: "16px", color: "black", fontFamily: "monospace", border: "2px dashed #ff0000", padding: "5px", backgroundColor: "#ffffcc" }}>
-                ★キリ番報告用の、Nostalgic BBSというサービスも開発中です★
-              </p>
             </div>
 
             <div className="nostalgic-section">
@@ -501,246 +501,16 @@ export default function HomePage() {
         
         {isMobileSidebarOpen && <div className="nostalgic-mobile-overlay" onClick={() => setIsMobileSidebarOpen(false)} />}
         
-        <div className={`nostalgic-sidebar-left ${isMobileSidebarOpen ? 'mobile-open' : ''}`}>
-        <div className="nostalgic-title-bar" style={{ fontSize: "16px !important" }}>MENU</div>
-        <p>
-          {currentPage === "home" ? (
-            <>
-              <span className="nostalgic-blink">●</span>
-              <span className="nostalgic-nav-active">ホーム</span>
-            </>
-          ) : (
-            <>
-              <span>●</span>
-              <a
-                href="#"
-                className={visitedPages.has("home") ? "nostalgic-old-link-visited" : "nostalgic-old-link"}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage("home");
-                  setVisitedPages((prev) => new Set([...prev, "home"]));
-                  setIsMobileSidebarOpen(false);
-                }}
-              >
-                ホーム
-              </a>
-            </>
-          )}
-          <br />
-          <span>●</span>
-          <a href="/counter" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>
-            📊 Nostalgic Counter
-          </a>
-          <br />
-          <span style={{ marginLeft: "1em" }}>├ </span>
-          {currentPage === "counter-usage" ? (
-            <span className="nostalgic-nav-active">使い方</span>
-          ) : (
-            <a href="/counter#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
-          )}
-          <br />
-          <span style={{ marginLeft: "1em" }}>├ </span>
-          {currentPage === "counter-features" ? (
-            <span className="nostalgic-nav-active">機能一覧</span>
-          ) : (
-            <a href="/counter#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
-          )}
-          <br />
-          <span style={{ marginLeft: "1em" }}>├ </span>
-          {currentPage === "counter-api" ? (
-            <span className="nostalgic-nav-active">API仕様</span>
-          ) : (
-            <a href="/counter#api" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>API仕様</a>
-          )}
-          <br />
-          <span>●</span>
-          <a href="/like" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>
-            💖 Nostalgic Like
-          </a>
-          <br />
-          <span style={{ marginLeft: "1em" }}>├ </span>
-          {currentPage === "like-usage" ? (
-            <span className="nostalgic-nav-active">使い方</span>
-          ) : (
-            <a href="/like#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
-          )}
-          <br />
-          <span style={{ marginLeft: "1em" }}>├ </span>
-          {currentPage === "like-features" ? (
-            <span className="nostalgic-nav-active">機能一覧</span>
-          ) : (
-            <a href="/like#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
-          )}
-          <br />
-          <span style={{ marginLeft: "1em" }}>├ </span>
-          {currentPage === "like-api" ? (
-            <span className="nostalgic-nav-active">API仕様</span>
-          ) : (
-            <a href="/like#api" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>API仕様</a>
-          )}
-          <br />
-          <span>●</span>
-          <a href="/ranking" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>
-            🏆 Nostalgic Ranking
-          </a>
-          <br />
-          <span style={{ marginLeft: "1em" }}>├ </span>
-          {currentPage === "ranking-usage" ? (
-            <span className="nostalgic-nav-active">使い方</span>
-          ) : (
-            <a href="/ranking#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
-          )}
-          <br />
-          <span style={{ marginLeft: "1em" }}>├ </span>
-          {currentPage === "ranking-features" ? (
-            <span className="nostalgic-nav-active">機能一覧</span>
-          ) : (
-            <a href="/ranking#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
-          )}
-          <br />
-          <span style={{ marginLeft: "1em" }}>├ </span>
-          {currentPage === "ranking-api" ? (
-            <span className="nostalgic-nav-active">API仕様</span>
-          ) : (
-            <a href="/ranking#api" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>API仕様</a>
-          )}
-          <br />
-          <span>●</span>
-          <a href="/bbs" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>
-            💬 Nostalgic BBS
-          </a>
-          <br />
-          <span style={{ marginLeft: "1em" }}>├ </span>
-          {currentPage === "bbs-usage" ? (
-            <span className="nostalgic-nav-active">使い方</span>
-          ) : (
-            <a href="/bbs#usage" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>使い方</a>
-          )}
-          <br />
-          <span style={{ marginLeft: "1em" }}>├ </span>
-          {currentPage === "bbs-features" ? (
-            <span className="nostalgic-nav-active">機能一覧</span>
-          ) : (
-            <a href="/bbs#features" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>機能一覧</a>
-          )}
-          <br />
-          <span style={{ marginLeft: "1em" }}>├ </span>
-          {currentPage === "bbs-api" ? (
-            <span className="nostalgic-nav-active">API仕様</span>
-          ) : (
-            <a href="/bbs#api" className="nostalgic-old-link" onClick={() => setIsMobileSidebarOpen(false)}>API仕様</a>
-          )}
-          <br />
-          {currentPage === "about" ? (
-            <>
-              <span className="nostalgic-blink">●</span>
-              <span className="nostalgic-nav-active">このサイトについて</span>
-            </>
-          ) : (
-            <>
-              <span>●</span>
-              <a
-                href="#"
-                className={visitedPages.has("about") ? "nostalgic-old-link-visited" : "nostalgic-old-link"}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setCurrentPage("about");
-                  setVisitedPages((prev) => new Set([...prev, "about"]));
-                  setIsMobileSidebarOpen(false);
-                }}
-              >
-                このサイトについて
-              </a>
-            </>
-          )}
-        </p>
-        <hr />
-        <p>
-          <b>◆リンク集◆</b>
-        </p>
-        <p>
-          <span>●</span>
-          <a
-            href="https://mixi.social/@kako_jun"
-            className="nostalgic-old-link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            mixi2
-          </a>
-          <br />
-          <span>●</span>
-          <a
-            href="https://github.com/kako-jun/nostalgic-counter"
-            className="nostalgic-old-link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            GitHub
-          </a>
-          <br />
-          <span>●</span>
-          <a href="https://llll-ll.com/" className="nostalgic-old-link" target="_blank" rel="noopener noreferrer">
-            llll-ll.com
-          </a>
-          <br />
-          <span style={{ marginLeft: "1em" }}>(作者のサイト)</span>
-          <br />
-          <span>●</span>
-          <a href="https://x.com/kako_jun_42" className="nostalgic-old-link" target="_blank" rel="noopener noreferrer">
-            Twitter
-          </a>
-          <br />
-          <span>●</span>
-          <a
-            href="https://www.instagram.com/kako_jun_42"
-            className="nostalgic-old-link"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Instagram
-          </a>
-          <br />
-          <span>●</span>
-          <a href="https://zenn.dev/kako_jun" className="nostalgic-old-link" target="_blank" rel="noopener noreferrer">
-            Zenn
-          </a>
-          <br />
-          <span>●</span>
-          <a href="https://note.com/kako_jun" className="nostalgic-old-link" target="_blank" rel="noopener noreferrer">
-            note
-          </a>
-        </p>
-        <p style={{ fontSize: "14px", color: "#ff0000" }}>
-          <b>相互リンク募集中です！</b>
-        </p>
-        <div style={{ marginTop: "10px" }}>
-          <img src="/nostalgic-counter-banner.webp" alt="Nostalgic Counter - 無料アクセスカウンター" style={{ display: "block" }} />
-        </div>
-        <hr />
-        <div className="nostalgic-update-box">
-          <p style={{ margin: "5px 0", textAlign: "center" }}>
-            <b style={{ color: "#008000" }}>◆更新履歴◆</b>
-          </p>
-          <p style={{ margin: "5px 0" }}>
-            <span style={{ color: "red" }}>NEW!</span>
-            <br />
-            ・2025/08/07
-            <br />
-            サービス開始！
-            <br />
-            （のび太の誕生日）
-          </p>
-          <p style={{ margin: "5px 0" }}>
-            ・2025/06/10
-            <br />
-            アイデアが浮かぶ
-          </p>
-        </div>
-        <p style={{ textAlign: "center", fontSize: "14px" }}>
-          Netscape Navigator 4.2<span style={{ textDecoration: "line-through" }}>対応</span>
-        </p>
-      </div>
+        <NostalgicSidebar 
+          isOpen={isMobileSidebarOpen}
+          onClose={() => setIsMobileSidebarOpen(false)}
+          currentPage={currentPage}
+          visitedPages={visitedPages}
+          onPageChange={(page) => {
+            setCurrentPage(page);
+            setVisitedPages((prev) => new Set([...prev, page]));
+          }}
+        />
 
       <div className="nostalgic-content-area">{renderContent()}</div>
 
