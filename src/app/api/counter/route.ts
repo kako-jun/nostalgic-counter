@@ -24,7 +24,9 @@ import {
  */
 const ApiParamsSchema = z.object({
   action: z.enum(['create', 'increment', 'display', 'set']),
-  url: z.string().url().optional(),
+  url: z.string().url().refine(url => url.startsWith('https://'), {
+    message: "URL must start with 'https://'"
+  }).optional(),
   token: z.string().min(8).max(16).optional(),
   id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/).optional(),
   type: z.enum(['total', 'today', 'yesterday', 'week', 'month']).default('total'),
@@ -40,7 +42,9 @@ const ApiParamsSchema = z.object({
 const createHandler = ApiHandler.create({
   paramsSchema: z.object({
     action: z.literal('create'),
-    url: z.string().url(),
+    url: z.string().url().refine(url => url.startsWith('https://'), {
+      message: "URL must start with 'https://'"
+    }),
     token: z.string().min(8).max(16)
   }),
   resultSchema: z.object({
@@ -85,7 +89,9 @@ const incrementHandler = ApiHandler.create({
 const setHandler = ApiHandler.create({
   paramsSchema: z.object({
     action: z.literal('set'),
-    url: z.string().url(),
+    url: z.string().url().refine(url => url.startsWith('https://'), {
+      message: "URL must start with 'https://'"
+    }),
     token: z.string().min(8).max(16),
     total: z.coerce.number().int().min(0)
   }),
@@ -200,7 +206,9 @@ const svgHandler = ApiHandler.createSpecialResponse(
 const deleteHandler = ApiHandler.create({
   paramsSchema: z.object({
     action: z.literal('delete'),
-    url: z.string().url(),
+    url: z.string().url().refine(url => url.startsWith('https://'), {
+      message: "URL must start with 'https://'"
+    }),
     token: z.string().min(8).max(16)
   }),
   resultSchema: z.object({

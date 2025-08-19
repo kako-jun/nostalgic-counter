@@ -5,7 +5,7 @@ import NostalgicLayout from "@/components/NostalgicLayout";
 import { ServiceStructuredData, BreadcrumbStructuredData } from "@/components/StructuredData";
 
 export default function CounterPage() {
-  const [currentPage, setCurrentPage] = useState("main");
+  const [currentPage, setCurrentPage] = useState("features");
   const [response, setResponse] = useState("");
   const [publicId, setPublicId] = useState("");
   const [mode, setMode] = useState("create");
@@ -19,7 +19,7 @@ export default function CounterPage() {
     if (hash) {
       setCurrentPage(hash);
     } else {
-      setCurrentPage("main");
+      setCurrentPage("features");
     }
     
     const handleHashChange = () => {
@@ -27,7 +27,7 @@ export default function CounterPage() {
       if (hash) {
         setCurrentPage(hash);
       } else {
-        setCurrentPage("main");
+        setCurrentPage("features");
       }
     };
     
@@ -65,7 +65,7 @@ export default function CounterPage() {
 
   const renderContent = () => {
     switch (currentPage) {
-      case "main":
+      case "usage":
         return (
           <>
             <div className="nostalgic-title-bar">
@@ -74,187 +74,6 @@ export default function CounterPage() {
               アクセスカウンター
             </div>
 
-            <div className="nostalgic-marquee-box">
-              <div className="nostalgic-marquee-text">
-                懐かしのアクセスカウンターがここに復活！累計・今日・昨日・週間・月間のカウントを表示できます！
-              </div>
-            </div>
-
-            <div className="nostalgic-section">
-              <p>
-                <span className="nostalgic-section-title">
-                  <b>◆カウンターAPIテスト◆</b>
-                </span>
-              </p>
-              
-              <form onSubmit={handleSubmit}>
-                <p>
-                  <b>アクション選択：</b>
-                  <select
-                    value={mode}
-                    onChange={(e) => setMode(e.target.value)}
-                    style={{
-                      padding: "2px",
-                      border: "1px solid #666",
-                      fontFamily: "inherit",
-                      fontSize: "16px"
-                    }}
-                  >
-                    <option value="create">カウンター作成</option>
-                    <option value="increment">カウントアップ</option>
-                    <option value="set">カウント設定</option>
-                    <option value="clear">カウンタークリア（数値を0に）</option>
-                    <option value="delete">カウンター削除（完全削除）</option>
-                  </select>
-                </p>
-
-                <p>
-                  <b>URL：</b>
-                  <br />
-                  <input
-                    ref={urlRef}
-                    type="url"
-                    placeholder="https://example.com"
-                    style={{
-                      width: "80%",
-                      padding: "4px",
-                      border: "1px solid #666",
-                      fontFamily: "inherit",
-                      fontSize: "16px"
-                    }}
-                    required
-                  />
-                </p>
-
-                <p>
-                  <b>オーナートークン（8-16文字）：</b>
-                  <br />
-                  <input
-                    ref={tokenRef}
-                    type="text"
-                    placeholder="8-16文字"
-                    style={{
-                      width: "50%",
-                      padding: "4px",
-                      border: "1px solid #666",
-                      fontFamily: "inherit",
-                      fontSize: "16px"
-                    }}
-                    minLength={8}
-                    maxLength={16}
-                    required
-                  />
-                </p>
-
-                {mode === "set" && (
-                  <p>
-                    <b>新しいカウント値：</b>
-                    <br />
-                    <input
-                      ref={valueRef}
-                      type="number"
-                      placeholder="0"
-                      style={{
-                        width: "30%",
-                        padding: "4px",
-                        border: "1px solid #666",
-                        fontFamily: "inherit",
-                        fontSize: "16px"
-                      }}
-                      min="0"
-                    />
-                  </p>
-                )}
-
-                <p>
-                  <button
-                    type="submit"
-                    style={{
-                      padding: "5px 20px",
-                      backgroundColor: "#008000",
-                      color: "white",
-                      border: "2px outset #00a000",
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                      fontSize: "16px",
-                      fontWeight: "bold"
-                    }}
-                  >
-                    {mode === "create" ? "作成する" : mode === "increment" ? "カウントアップ" : mode === "set" ? "設定する" : mode === "clear" ? "クリアする" : "削除する"}
-                  </button>
-                </p>
-              </form>
-            </div>
-
-            {response && (
-              <div className="nostalgic-section">
-                <p>
-                  <span className="nostalgic-section-title">
-                    <b>◆APIレスポンス◆</b>
-                  </span>
-                </p>
-                <pre style={{ backgroundColor: "#000000", color: "#00ff00", padding: "10px", overflow: "auto", fontSize: "14px" }}>
-                  {response}
-                </pre>
-              </div>
-            )}
-
-            {publicId && (
-              <div className="nostalgic-counter-section">
-                <p>
-                  <span style={{ color: "#ff8c00" }}>
-                    <b>◆カウンター設置方法◆</b>
-                  </span>
-                </p>
-                <p>公開ID: <span style={{ backgroundColor: "#ffff00", padding: "2px 4px", fontFamily: "monospace" }}>{publicId}</span></p>
-                <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px", wordBreak: "break-all" }}>
-{`<script src="https://nostalgic.llll-ll.com/components/display.js"></script>
-<nostalgic-counter id="${publicId}" type="total" theme="classic"></nostalgic-counter>`}
-                </p>
-                <p>表示URL:</p>
-                <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px", wordBreak: "break-all" }}>
-                  {`https://nostalgic.llll-ll.com/api/counter?action=display&id=${publicId}&type=total&theme=classic`}
-                </p>
-              </div>
-            )}
-
-            <div className="nostalgic-counter-section">
-              <p>
-                <span style={{ color: "#ff8c00" }}>
-                  <b>◆実際のカウンター表示例◆</b>
-                </span>
-              </p>
-              <div>
-                <div className="nostalgic-counter-item">
-                  <b>累計</b>
-                  <br />
-                  <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgic-0f74e503" type="total" theme="classic" />
-                  </div>
-                </div>
-                <div className="nostalgic-counter-item">
-                  <b>今日</b>
-                  <br />
-                  <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgic-0f74e503" type="today" theme="modern" />
-                  </div>
-                </div>
-                <div className="nostalgic-counter-item">
-                  <b>昨日</b>
-                  <br />
-                  <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgic-0f74e503" type="yesterday" theme="retro" />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </>
-        );
-
-      case "usage":
-        return (
-          <>
-            <div className="nostalgic-title-bar">★☆★ Counter - 使い方 ★☆★</div>
 
             <div className="nostalgic-section">
               <p>
@@ -262,7 +81,7 @@ export default function CounterPage() {
                   <b>◆STEP 1: カウンター作成◆</b>
                 </span>
               </p>
-              <p>ブラウザのアドレスバーに以下のURLを入力してアクセス：</p>
+              <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
               <p
                 style={{
                   backgroundColor: "#f0f0f0",
@@ -280,9 +99,101 @@ export default function CounterPage() {
                 <br />
                 ※オーナートークンに、
                 <span style={{ color: "#ff0000" }}>ほかのサイトでのパスワードを使い回さないでください</span>
-                。（8〜16文字）
+                。（8-16文字）
               </p>
               <p>上記URLにアクセスすると、JSONで公開IDが返されます。この公開IDをSTEP 2で使用してください。</p>
+              
+              <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
+              
+              <p style={{ marginTop: "20px" }}>
+                または、以下のフォームで簡単に作成できます。
+              </p>
+              
+              <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
+                <input type="hidden" name="mode" value="create" />
+                <p>
+                  <b>サイトURL：</b>
+                  <input
+                    ref={urlRef}
+                    type="url"
+                    placeholder="https://example.com"
+                    style={{
+                      marginLeft: "10px",
+                      width: "60%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                </p>
+
+                <p>
+                  <b>オーナートークン：</b>
+                  <input
+                    ref={tokenRef}
+                    type="text"
+                    placeholder="8-16文字"
+                    style={{
+                      marginLeft: "10px",
+                      width: "30%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      marginLeft: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "2px outset #4CAF50",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                    onClick={() => setMode("create")}
+                  >
+                    作成
+                  </button>
+                </p>
+              </form>
+
+              {response && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆APIレスポンス◆</b>
+                    </span>
+                  </p>
+                  <pre style={{ backgroundColor: "#000000", color: "#00ff00", padding: "10px", overflow: "auto", fontSize: "14px" }}>
+                    {response}
+                  </pre>
+                </div>
+              )}
+              {publicId && (
+                <div
+                  style={{
+                    backgroundColor: "#ffffcc",
+                    border: "2px solid #ff0000",
+                    padding: "10px",
+                    marginTop: "10px",
+                    fontSize: "14px"
+                  }}
+                >
+                  <b style={{ color: "#ff0000" }}>✨ 作成成功！</b>
+                  <br />
+                  あなたの公開ID：<span style={{ color: "#008000", fontWeight: "bold", fontSize: "16px", fontFamily: "monospace" }}>{publicId}</span>
+                  <br />
+                  <small>※この公開IDをSTEP 2で使用してください</small>
+                </div>
+              )}
             </div>
 
             <div className="nostalgic-section">
@@ -291,53 +202,366 @@ export default function CounterPage() {
                   <b>◆STEP 2: カウンター表示◆</b>
                 </span>
               </p>
-              <p>HTMLに以下のコードを追加：</p>
+              <p>あなたのサイトのHTMLに以下のコードを追加してください。</p>
               <pre style={{ backgroundColor: "#f0f0f0", padding: "10px", overflow: "auto", fontSize: "14px", margin: "10px 0" }}>
-                {`<script src="https://nostalgic.llll-ll.com/components/display.js"></script>
+                {`<script src="https://nostalgic.llll-ll.com/components/counter.js"></script>
 <nostalgic-counter id="`}
-                <span style={{ color: "#008000" }}>あなたの公開ID</span>
+                <span style={{ color: "#008000" }}>公開ID</span>
                 {`" type="`}
                 <span style={{ color: "#008000" }}>total</span>
                 {`" theme="`}
                 <span style={{ color: "#008000" }}>classic</span>
                 {`"></nostalgic-counter>`}
               </pre>
+              
+              <div className="nostalgic-section">
+                <p>
+                  <span className="nostalgic-section-title">
+                    <b>◆type 期間タイプ◆</b>
+                  </span>
+                </p>
+                <p>
+                  • <span style={{ color: "#008000" }}>total</span> - 累計訪問数
+                  <br />• <span style={{ color: "#008000" }}>today</span> - 今日の訪問数
+                  <br />• <span style={{ color: "#008000" }}>yesterday</span> - 昨日の訪問数
+                  <br />• <span style={{ color: "#008000" }}>week</span> - 今週の訪問数
+                  <br />• <span style={{ color: "#008000" }}>month</span> - 今月の訪問数
+                </p>
+              </div>
+
+              <div className="nostalgic-section">
+                <p>
+                  <span className="nostalgic-section-title">
+                    <b>◆theme デザインテーマ◆</b>
+                  </span>
+                </p>
+                <p>
+                  • <span style={{ color: "#008000" }}>classic</span> - クラシック（緑のデジタル）
+                  <br />• <span style={{ color: "#008000" }}>modern</span> - モダン（青のデジタル）
+                  <br />• <span style={{ color: "#008000" }}>retro</span> - レトロ（赤のドット）
+                </p>
+              </div>
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆type 表示タイプ◆</b>
+                  <b>◆公開IDを再確認したいときは？◆</b>
                 </span>
               </p>
-              <p>
-                • <span style={{ color: "#008000" }}>total</span> - 累計訪問数
-                <br />• <span style={{ color: "#008000" }}>today</span> - 今日の訪問数
-                <br />• <span style={{ color: "#008000" }}>yesterday</span> - 昨日の訪問数
-                <br />• <span style={{ color: "#008000" }}>week</span> - 今週の訪問数
-                <br />• <span style={{ color: "#008000" }}>month</span> - 今月の訪問数
+              <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
+              <p
+                style={{
+                  backgroundColor: "#f0f0f0",
+                  padding: "10px",
+                  fontFamily: "monospace",
+                  fontSize: "14px",
+                  wordBreak: "break-all",
+                }}
+              >
+                https://nostalgic.llll-ll.com/api/counter?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                &token=<span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
+              <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
+              
+              <p>または、以下のフォームで確認できます。</p>
+              
+              <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
+                <p>
+                  <b>サイトURL：</b>
+                  <input
+                    ref={urlRef}
+                    type="url"
+                    placeholder="https://example.com"
+                    style={{
+                      marginLeft: "10px",
+                      width: "60%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                </p>
+
+                <p>
+                  <b>オーナートークン：</b>
+                  <input
+                    ref={tokenRef}
+                    type="text"
+                    placeholder="8-16文字"
+                    style={{
+                      marginLeft: "10px",
+                      width: "30%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      marginLeft: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "2px outset #4CAF50",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                    onClick={() => setMode("create")}
+                  >
+                    公開ID確認
+                  </button>
+                </p>
+              </form>
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆theme デザインテーマ◆</b>
+                  <b>◆カウンター値を設定したいときは？◆</b>
                 </span>
               </p>
-              <p>
-                • <span style={{ color: "#008000" }}>classic</span> - クラシック（緑の7セグ）
-                <br />• <span style={{ color: "#008000" }}>modern</span> - モダン（青のデジタル）
-                <br />• <span style={{ color: "#008000" }}>retro</span> - レトロ（赤のドット）
+              <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
+              <p
+                style={{
+                  backgroundColor: "#f0f0f0",
+                  padding: "10px",
+                  fontFamily: "monospace",
+                  fontSize: "14px",
+                  wordBreak: "break-all",
+                }}
+              >
+                https://nostalgic.llll-ll.com/api/counter?action=set&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                &token=<span style={{ color: "#008000" }}>オーナートークン</span>&total=<span style={{ color: "#008000" }}>数値</span>
               </p>
+              <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
+              
+              <p>または、以下のフォームで設定できます。</p>
+              
+              <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
+                <p>
+                  <b>サイトURL：</b>
+                  <input
+                    ref={urlRef}
+                    type="url"
+                    placeholder="https://example.com"
+                    style={{
+                      marginLeft: "10px",
+                      width: "60%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                </p>
+
+                <p>
+                  <b>オーナートークン：</b>
+                  <input
+                    ref={tokenRef}
+                    type="text"
+                    placeholder="8-16文字"
+                    style={{
+                      marginLeft: "10px",
+                      width: "30%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                </p>
+
+                <p>
+                  <b>設定値：</b>
+                  <input
+                    ref={valueRef}
+                    type="number"
+                    min="0"
+                    placeholder="0"
+                    style={{
+                      marginLeft: "10px",
+                      width: "30%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      marginLeft: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "2px outset #4CAF50",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                    onClick={() => setMode("set")}
+                  >
+                    値設定
+                  </button>
+                </p>
+              </form>
+
+              {response && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆APIレスポンス◆</b>
+                    </span>
+                  </p>
+                  <pre style={{ backgroundColor: "#000000", color: "#00ff00", padding: "10px", overflow: "auto", fontSize: "14px" }}>
+                    {response}
+                  </pre>
+                </div>
+              )}
             </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆カウンターを削除したいときは？◆</b>
+                </span>
+              </p>
+              <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
+              <p
+                style={{
+                  backgroundColor: "#f0f0f0",
+                  padding: "10px",
+                  fontFamily: "monospace",
+                  fontSize: "14px",
+                  wordBreak: "break-all",
+                }}
+              >
+                https://nostalgic.llll-ll.com/api/counter?action=delete&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                &token=<span style={{ color: "#008000" }}>オーナートークン</span>
+              </p>
+              <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
+              
+              <p>または、以下のフォームで削除できます。</p>
+              <p style={{ color: "#ff0000", fontWeight: "bold" }}>
+                ※削除すると復元できません。十分にご注意ください。
+              </p>
+              
+              <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
+                <p>
+                  <b>サイトURL：</b>
+                  <input
+                    ref={urlRef}
+                    type="url"
+                    placeholder="https://example.com"
+                    style={{
+                      marginLeft: "10px",
+                      width: "60%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                </p>
+
+                <p>
+                  <b>オーナートークン：</b>
+                  <input
+                    ref={tokenRef}
+                    type="text"
+                    placeholder="8-16文字"
+                    style={{
+                      marginLeft: "10px",
+                      width: "30%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      marginLeft: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#F44336",
+                      color: "white",
+                      border: "2px outset #F44336",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                    onClick={() => setMode("delete")}
+                  >
+                    削除
+                  </button>
+                </p>
+              </form>
+
+              {response && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆APIレスポンス◆</b>
+                    </span>
+                  </p>
+                  <pre style={{ backgroundColor: "#000000", color: "#00ff00", padding: "10px", overflow: "auto", fontSize: "14px" }}>
+                    {response}
+                  </pre>
+                </div>
+              )}
+            </div>
+
+
+            {publicId && (
+              <div className="nostalgic-counter-section">
+                <p>
+                  <span style={{ color: "#ff8c00" }}>
+                    <b>◆カウンター設置方法◆</b>
+                  </span>
+                </p>
+                <p>公開ID: <span style={{ backgroundColor: "#ffff00", padding: "2px 4px", fontFamily: "monospace" }}>{publicId}</span></p>
+                <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px", wordBreak: "break-all" }}>
+{`<script src="https://nostalgic.llll-ll.com/components/counter.js"></script>
+<nostalgic-counter id="${publicId}" type="total" theme="classic"></nostalgic-counter>`}
+                </p>
+                <p>表示URL:</p>
+                <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px", wordBreak: "break-all" }}>
+                  {`https://nostalgic.llll-ll.com/api/counter?action=display&id=${publicId}&type=total&theme=classic`}
+                </p>
+              </div>
+            )}
+
           </>
         );
+
 
       case "features":
         return (
           <>
             <div className="nostalgic-title-bar">★☆★ Counter - 機能一覧 ★☆★</div>
+
+            <div className="nostalgic-marquee-box">
+              <div className="nostalgic-marquee-text">
+                懐かしのアクセスカウンターがここに復活！累計・今日・昨日・週間・月間のカウントを表示できます！
+              </div>
+            </div>
 
             <div className="nostalgic-section">
               <p>
@@ -388,36 +612,6 @@ export default function CounterPage() {
               </p>
             </div>
 
-            <div className="nostalgic-counter-section">
-              <p>
-                <span style={{ color: "#ff8c00" }}>
-                  <b>◆デザインサンプル◆</b>
-                </span>
-              </p>
-              <div>
-                <div className="nostalgic-counter-item">
-                  <b>Classic</b>
-                  <br />
-                  <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?action=display&id=nostalgic-b89803bb&type=total&style=classic" alt="Classic" />
-                  </div>
-                </div>
-                <div className="nostalgic-counter-item">
-                  <b>Modern</b>
-                  <br />
-                  <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?action=display&id=nostalgic-b89803bb&type=total&style=modern" alt="Modern" />
-                  </div>
-                </div>
-                <div className="nostalgic-counter-item">
-                  <b>Retro</b>
-                  <br />
-                  <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?action=display&id=nostalgic-b89803bb&type=total&style=retro" alt="Retro" />
-                  </div>
-                </div>
-              </div>
-            </div>
           </>
         );
 
@@ -429,7 +623,7 @@ export default function CounterPage() {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆カウンター作成・カウントアップ◆</b>
+                  <b>◆カウンター作成◆</b>
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
@@ -437,12 +631,35 @@ export default function CounterPage() {
                 <span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <p style={{ lineHeight: "1.2" }}>
-                初回アクセスでカウンター作成、2回目以降はカウントアップ。
+                新しいカウンターを作成し、公開IDを取得します。
                 <br />
                 レスポンス:{" "}
                 <span
                   style={{ backgroundColor: "#000000", color: "#ffffff", padding: "2px 4px", fontFamily: "monospace" }}
-                >{`{ "id": "公開ID", "total": 数値 }`}</span>
+                >{`{ "id": "公開ID", "url": "サイトURL" }`}</span>
+              </p>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆カウントアップ◆</b>
+                </span>
+              </p>
+              <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
+                GET /api/counter?action=increment&id=<span style={{ color: "#008000" }}>公開ID</span>
+              </p>
+              <p style={{ lineHeight: "1.2" }}>
+                カウンターの値を1増加します。24時間重複防止機能付き。
+                <br />
+                <br />
+                ※Web Componentsを使用している場合は自動でカウントアップされるため、通常は直接呼ぶ必要はありません。
+                <br />
+                <br />
+                レスポンス:{" "}
+                <span
+                  style={{ backgroundColor: "#000000", color: "#ffffff", padding: "2px 4px", fontFamily: "monospace" }}
+                >{`{ "total": 数値, "today": 数値, "yesterday": 数値, ... }`}</span>
               </p>
             </div>
 
@@ -481,7 +698,7 @@ export default function CounterPage() {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆管理操作◆</b>
+                  <b>◆カウンター値設定◆</b>
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
@@ -492,11 +709,24 @@ export default function CounterPage() {
               <p>カウンター値を手動で設定します。オーナートークンが必要。</p>
             </div>
 
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆カウンター削除◆</b>
+                </span>
+              </p>
+              <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
+                GET /api/counter?action=delete&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                <span style={{ color: "#008000" }}>オーナートークン</span>
+              </p>
+              <p>カウンターを完全に削除します。オーナートークンが必要。</p>
+            </div>
+
             <hr />
 
             <p style={{ textAlign: "center" }}>
               これ以上の詳しい説明は{" "}
-              <a href="https://github.com/kako-jun/nostalgic-counter" className="nostalgic-old-link">
+              <a href="https://github.com/kako-jun/nostalgic/blob/main/README_ja.md" className="nostalgic-old-link">
                 【GitHub】
               </a>{" "}
               へ
