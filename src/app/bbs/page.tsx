@@ -5,7 +5,7 @@ import NostalgicLayout from "@/components/NostalgicLayout";
 import { ServiceStructuredData, BreadcrumbStructuredData } from "@/components/StructuredData";
 
 export default function BBSPage() {
-  const [currentPage, setCurrentPage] = useState("main");
+  const [currentPage, setCurrentPage] = useState("features");
   const [response, setResponse] = useState("");
   const [publicId, setPublicId] = useState("");
   const [mode, setMode] = useState("create");
@@ -24,7 +24,7 @@ export default function BBSPage() {
     if (hash) {
       setCurrentPage(hash);
     } else {
-      setCurrentPage("main");
+      setCurrentPage("features");
     }
     
     const handleHashChange = () => {
@@ -32,7 +32,7 @@ export default function BBSPage() {
       if (hash) {
         setCurrentPage(hash);
       } else {
-        setCurrentPage("main");
+        setCurrentPage("features");
       }
     };
     
@@ -40,7 +40,7 @@ export default function BBSPage() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     const url = urlRef.current?.value;
@@ -52,352 +52,48 @@ export default function BBSPage() {
     const perPage = perPageRef.current?.value;
     const icons = iconsRef.current?.value;
 
-    if (!url) return;
+    if (!url || !token) return;
 
-    let apiUrl = `/api/bbs?action=${mode}&url=${encodeURIComponent(url)}`;
+    let apiUrl = `/api/bbs?action=${mode}&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}`;
 
-    if (mode !== "get" && token) {
-      apiUrl += `&token=${encodeURIComponent(token)}`;
+    if (mode === "post" && author && message) {
+      apiUrl += `&author=${encodeURIComponent(author)}&message=${encodeURIComponent(message)}`;
     }
-
-    if (mode === "post" || mode === "update") {
-      if (!message) return;
-      apiUrl += `&message=${encodeURIComponent(message)}`;
-      if (author) {
-        apiUrl += `&author=${encodeURIComponent(author)}`;
-      }
+    if (mode === "update" && messageId && author && message) {
+      apiUrl += `&messageId=${messageId}&author=${encodeURIComponent(author)}&message=${encodeURIComponent(message)}`;
     }
-
-    if (mode === "remove" || mode === "update") {
-      if (!messageId) return;
-      apiUrl += `&messageId=${encodeURIComponent(messageId)}`;
+    if (mode === "remove" && messageId && author) {
+      apiUrl += `&messageId=${messageId}&author=${encodeURIComponent(author)}`;
     }
-
     if (mode === "create") {
       if (max) apiUrl += `&max=${max}`;
       if (perPage) apiUrl += `&perPage=${perPage}`;
       if (icons) apiUrl += `&icons=${encodeURIComponent(icons)}`;
     }
 
-    // 1990年代スタイル：ブラウザでAPIのURLに直接遷移
-    window.location.href = apiUrl;
+    try {
+      const res = await fetch(apiUrl, { method: 'GET' });
+      const data = await res.json();
+      setResponse(JSON.stringify(data, null, 2));
+
+      if (data.id) {
+        setPublicId(data.id);
+      }
+    } catch (error) {
+      setResponse(`Error: ${error}`);
+    }
   };
 
   const renderContent = () => {
     switch (currentPage) {
-      case "main":
+      case "usage":
         return (
           <>
             <div className="nostalgic-title-bar">
               ★☆★ Nostalgic BBS ★☆★
               <br />
-              掲示板システム
+              掲示板
             </div>
-
-            <div className="nostalgic-marquee-box">
-              <div className="nostalgic-marquee-text">
-                💬 懐かしの掲示板が復活！メッセージを投稿して交流しよう！編集・削除・アイコン選択機能付き！ 💬
-              </div>
-            </div>
-
-            <div className="nostalgic-section">
-              <p>
-                <span className="nostalgic-section-title">
-                  <b>◆BBSAPIテスト◆</b>
-                </span>
-              </p>
-              
-              <form onSubmit={handleSubmit}>
-                <p>
-                  <b>アクション選択：</b>
-                  <select
-                    value={mode}
-                    onChange={(e) => setMode(e.target.value)}
-                    style={{
-                      padding: "2px",
-                      border: "1px solid #666",
-                      fontFamily: "inherit",
-                      fontSize: "16px"
-                    }}
-                  >
-                    <option value="create">BBS作成</option>
-                    <option value="post">メッセージ投稿</option>
-                    <option value="update">メッセージ更新</option>
-                    <option value="remove">メッセージ削除</option>
-                    <option value="clear">全メッセージクリア（メッセージのみ）</option>
-                    <option value="delete">BBS削除（完全削除）</option>
-                    <option value="get">メッセージ取得</option>
-                  </select>
-                </p>
-
-                <p>
-                  <b>URL：</b>
-                  <br />
-                  <input
-                    ref={urlRef}
-                    type="url"
-                    placeholder="https://example.com"
-                    style={{
-                      width: "80%",
-                      padding: "4px",
-                      border: "1px solid #666",
-                      fontFamily: "inherit",
-                      fontSize: "16px"
-                    }}
-                    required
-                  />
-                </p>
-
-                {mode !== "get" && (
-                  <p>
-                    <b>オーナートークン（8-16文字）：</b>
-                    <br />
-                    <input
-                      ref={tokenRef}
-                      type="text"
-                      placeholder="8-16文字"
-                      style={{
-                        width: "50%",
-                        padding: "4px",
-                        border: "1px solid #666",
-                        fontFamily: "inherit",
-                        fontSize: "16px"
-                      }}
-                      minLength={8}
-                      maxLength={16}
-                      required
-                    />
-                  </p>
-                )}
-
-                {mode === "create" && (
-                  <>
-                    <p>
-                      <b>最大メッセージ数（省略可）：</b>
-                      <br />
-                      <input
-                        ref={maxRef}
-                        type="number"
-                        placeholder="1000"
-                        style={{
-                          width: "30%",
-                          padding: "4px",
-                          border: "1px solid #666",
-                          fontFamily: "inherit",
-                          fontSize: "16px"
-                        }}
-                        min="1"
-                        max="10000"
-                      />
-                    </p>
-                    <p>
-                      <b>1ページあたりのメッセージ数（省略可）：</b>
-                      <br />
-                      <input
-                        ref={perPageRef}
-                        type="number"
-                        placeholder="10"
-                        style={{
-                          width: "30%",
-                          padding: "4px",
-                          border: "1px solid #666",
-                          fontFamily: "inherit",
-                          fontSize: "16px"
-                        }}
-                        min="1"
-                        max="100"
-                      />
-                    </p>
-                    <p>
-                      <b>使用可能アイコン（カンマ区切り、省略可）：</b>
-                      <br />
-                      <input
-                        ref={iconsRef}
-                        type="text"
-                        placeholder="😀,😎,😍,🤔,😢"
-                        style={{
-                          width: "80%",
-                          padding: "4px",
-                          border: "1px solid #666",
-                          fontFamily: "inherit",
-                          fontSize: "16px"
-                        }}
-                      />
-                    </p>
-                  </>
-                )}
-
-                {(mode === "post" || mode === "update") && (
-                  <>
-                    <p>
-                      <b>投稿者名（省略可）：</b>
-                      <br />
-                      <input
-                        ref={authorRef}
-                        type="text"
-                        placeholder="名無しさん"
-                        style={{
-                          width: "60%",
-                          padding: "4px",
-                          border: "1px solid #666",
-                          fontFamily: "inherit",
-                          fontSize: "16px"
-                        }}
-                        maxLength={50}
-                      />
-                    </p>
-                    <p>
-                      <b>メッセージ（最大1000文字）：</b>
-                      <br />
-                      <textarea
-                        ref={messageRef}
-                        placeholder="メッセージを入力してください..."
-                        style={{
-                          width: "90%",
-                          height: "100px",
-                          padding: "4px",
-                          border: "1px solid #666",
-                          fontFamily: "inherit",
-                          fontSize: "16px",
-                          resize: "vertical"
-                        }}
-                        maxLength={1000}
-                        required
-                      />
-                    </p>
-                  </>
-                )}
-
-                {(mode === "remove" || mode === "update") && (
-                  <p>
-                    <b>メッセージID：</b>
-                    <br />
-                    <input
-                      ref={messageIdRef}
-                      type="text"
-                      placeholder="修正するメッセージのID"
-                      style={{
-                        width: "60%",
-                        padding: "4px",
-                        border: "1px solid #666",
-                        fontFamily: "inherit",
-                        fontSize: "16px"
-                      }}
-                      required
-                    />
-                  </p>
-                )}
-
-                <p>
-                  <button
-                    type="submit"
-                    style={{
-                      padding: "5px 20px",
-                      backgroundColor: "#32cd32",
-                      color: "white",
-                      border: "2px outset #90ee90",
-                      cursor: "pointer",
-                      fontFamily: "inherit",
-                      fontSize: "16px",
-                      fontWeight: "bold"
-                    }}
-                  >
-                    {mode === "create" ? "作成する" :
-                     mode === "post" ? "投稿する" :
-                     mode === "update" ? "更新する" :
-                     mode === "remove" ? "削除する" :
-                     mode === "clear" ? "全クリア" :
-                     mode === "delete" ? "完全削除" : "取得する"}
-                  </button>
-                </p>
-              </form>
-            </div>
-
-            {response && (
-              <div className="nostalgic-section">
-                <p>
-                  <span className="nostalgic-section-title">
-                    <b>◆APIレスポンス◆</b>
-                  </span>
-                </p>
-                <pre style={{ backgroundColor: "#000000", color: "#00ff00", padding: "10px", overflow: "auto", fontSize: "14px" }}>
-                  {response}
-                </pre>
-              </div>
-            )}
-
-            {publicId && (
-              <div className="nostalgic-counter-section">
-                <p>
-                  <span style={{ color: "#ff8c00" }}>
-                    <b>◆BBS表示方法◆</b>
-                  </span>
-                </p>
-                <p>公開ID: <span style={{ backgroundColor: "#ffff00", padding: "2px 4px", fontFamily: "monospace" }}>{publicId}</span></p>
-                <p>メッセージ取得URL:</p>
-                <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px", wordBreak: "break-all" }}>
-                  {`https://nostalgic.llll-ll.com/api/bbs?action=get&id=${publicId}&page=1`}
-                </p>
-              </div>
-            )}
-
-            <div className="nostalgic-counter-section">
-              <p>
-                <span style={{ color: "#ff8c00" }}>
-                  <b>◆BBS表示例◆</b>
-                </span>
-              </p>
-              <div style={{ backgroundColor: "#fff", border: "2px solid #ddd", padding: "15px", fontFamily: "monospace" }}>
-                <div style={{ textAlign: "center", fontSize: "18px", fontWeight: "bold", marginBottom: "15px", color: "#32cd32" }}>
-                  💬 懐かしBBS 💬
-                </div>
-                <div style={{ fontSize: "14px" }}>
-                  <div style={{ border: "1px solid #ccc", margin: "5px 0", padding: "8px", backgroundColor: "#f9f9f9" }}>
-                    <div style={{ fontSize: "12px", color: "#666", marginBottom: "4px" }}>
-                      1. 名無しさん 😀 2025/08/17 12:34:56
-                    </div>
-                    <div>こんにちは！懐かしいBBSですね！</div>
-                  </div>
-                  <div style={{ border: "1px solid #ccc", margin: "5px 0", padding: "8px", backgroundColor: "#f9f9f9" }}>
-                    <div style={{ fontSize: "12px", color: "#666", marginBottom: "4px" }}>
-                      2. 通りすがり 😎 2025/08/17 13:45:21
-                    </div>
-                    <div>1990年代を思い出しますね～</div>
-                  </div>
-                  <div style={{ border: "1px solid #ccc", margin: "5px 0", padding: "8px", backgroundColor: "#f9f9f9" }}>
-                    <div style={{ fontSize: "12px", color: "#666", marginBottom: "4px" }}>
-                      3. 老人ホーマー 🤔 2025/08/17 14:12:09
-                    </div>
-                    <div>昔はこういうBBSでよく議論したものじゃ</div>
-                  </div>
-                </div>
-                <div style={{ textAlign: "center", marginTop: "15px", fontSize: "12px", color: "#666" }}>
-                  ページ: [1] [2] [3] [次へ]
-                </div>
-              </div>
-            </div>
-
-            <div className="nostalgic-counter-section">
-              <p>
-                <span style={{ color: "#ff8c00" }}>
-                  <b>◆デモ用BBS◆</b>
-                </span>
-              </p>
-              <div style={{ textAlign: "center", margin: "20px 0" }}>
-                <p style={{ marginBottom: "10px" }}>このデモページのBBS（実際に動作します）：</p>
-                <nostalgic-bbs id="nostalgic-fb60d4e2" theme="classic" />
-              </div>
-              <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
-                ※実際にメッセージを投稿するには上記のAPIテストフォームをお使いください
-              </p>
-            </div>
-          </>
-        );
-
-      case "usage":
-        return (
-          <>
-            <div className="nostalgic-title-bar">★☆★ BBS - 使い方 ★☆★</div>
 
             <div className="nostalgic-section">
               <p>
@@ -405,7 +101,7 @@ export default function BBSPage() {
                   <b>◆STEP 1: BBS作成◆</b>
                 </span>
               </p>
-              <p>ブラウザのアドレスバーに以下のURLを入力してアクセス：</p>
+              <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
               <p
                 style={{
                   backgroundColor: "#f0f0f0",
@@ -419,62 +115,267 @@ export default function BBSPage() {
                 &token=<span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <p>
-                ※オプション：max（最大メッセージ数）、perPage（1ページあたりメッセージ数）、icons（使用可能アイコン）
+                ※サイトURLには、BBSを設置する予定のサイトを指定してください。「https://」から始まっている必要があります。
+                <br />
+                ※オーナートークンに、
+                <span style={{ color: "#ff0000" }}>ほかのサイトでのパスワードを使い回さないでください</span>
+                。（8-16文字）
               </p>
+              <p>上記URLにアクセスすると、JSONで公開IDが返されます。この公開IDをSTEP 2で使用してください。</p>
+              
+              <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
+              
+              <p style={{ marginTop: "20px" }}>
+                または、以下のフォームで簡単に作成できます。
+              </p>
+              
+              <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
+                <input type="hidden" name="mode" value="create" />
+                <p>
+                  <b>サイトURL：</b>
+                  <input
+                    ref={urlRef}
+                    type="url"
+                    placeholder="https://example.com"
+                    style={{
+                      marginLeft: "10px",
+                      width: "60%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                </p>
+
+                <p>
+                  <b>オーナートークン：</b>
+                  <input
+                    ref={tokenRef}
+                    type="text"
+                    placeholder="8-16文字"
+                    style={{
+                      marginLeft: "10px",
+                      width: "30%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                </p>
+
+                <p>
+                  <b>最大メッセージ数（オプション）：</b>
+                  <input
+                    ref={maxRef}
+                    type="number"
+                    min="1"
+                    max="1000"
+                    placeholder="100"
+                    style={{
+                      marginLeft: "10px",
+                      width: "20%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      marginLeft: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "2px outset #4CAF50",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                    onClick={() => setMode("create")}
+                  >
+                    作成
+                  </button>
+                </p>
+              </form>
+
+              {response && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆APIレスポンス◆</b>
+                    </span>
+                  </p>
+                  <pre style={{ backgroundColor: "#000000", color: "#00ff00", padding: "10px", overflow: "auto", fontSize: "14px" }}>
+                    {response}
+                  </pre>
+                </div>
+              )}
+              {publicId && (
+                <div
+                  style={{
+                    backgroundColor: "#ffffcc",
+                    border: "2px solid #ff0000",
+                    padding: "10px",
+                    marginTop: "10px",
+                    fontSize: "14px"
+                  }}
+                >
+                  <b style={{ color: "#ff0000" }}>✨ 作成成功！</b>
+                  <br />
+                  あなたの公開ID：<span style={{ color: "#008000", fontWeight: "bold", fontSize: "16px", fontFamily: "monospace" }}>{publicId}</span>
+                  <br />
+                  <small>※この公開IDをSTEP 2で使用してください</small>
+                </div>
+              )}
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆STEP 2: メッセージ投稿◆</b>
+                  <b>◆STEP 2: BBS表示◆</b>
                 </span>
               </p>
-              <p>メッセージを投稿するには：</p>
-              <p
-                style={{
-                  backgroundColor: "#f0f0f0",
-                  padding: "10px",
-                  fontFamily: "monospace",
-                  fontSize: "14px",
-                  wordBreak: "break-all",
-                }}
-              >
-                https://nostalgic.llll-ll.com/api/bbs?action=post&url=<span style={{ color: "#008000" }}>サイトURL</span>
-                &token=<span style={{ color: "#008000" }}>オーナートークン</span>&message=<span style={{ color: "#008000" }}>メッセージ</span>&author=<span style={{ color: "#008000" }}>投稿者名</span>
-              </p>
+              <p>あなたのサイトのHTMLに以下のコードを追加してください。</p>
+              <pre style={{ backgroundColor: "#f0f0f0", padding: "10px", overflow: "auto", fontSize: "14px", margin: "10px 0" }}>
+                {`<script src="https://nostalgic.llll-ll.com/components/bbs.js"></script>
+<nostalgic-bbs id="`}
+                <span style={{ color: "#008000" }}>公開ID</span>
+                {`"></nostalgic-bbs>`}
+              </pre>
+              
+              <div className="nostalgic-section">
+                <p>
+                  <span className="nostalgic-section-title">
+                    <b>◆動作仕様◆</b>
+                  </span>
+                </p>
+                <p>
+                  • 作者名とメッセージを入力して投稿
+                  <br />• アイコン選択機能（3つのドロップダウン）
+                  <br />• 投稿者による自分の投稿編集・削除
+                  <br />• ページネーション機能
+                </p>
+              </div>
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆STEP 3: メッセージ表示◆</b>
+                  <b>◆メッセージ投稿テスト◆</b>
                 </span>
               </p>
-              <p>公開IDを使ってメッセージを取得：</p>
-              <p
-                style={{
-                  backgroundColor: "#f0f0f0",
-                  padding: "10px",
-                  fontFamily: "monospace",
-                  fontSize: "14px",
-                  wordBreak: "break-all",
-                }}
-              >
-                https://nostalgic.llll-ll.com/api/bbs?action=get&id=<span style={{ color: "#008000" }}>公開ID</span>&page=<span style={{ color: "#008000" }}>ページ番号</span>
-              </p>
-            </div>
+              <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
+                <input type="hidden" name="mode" value="post" />
+                <p>
+                  <b>サイトURL：</b>
+                  <input
+                    ref={urlRef}
+                    type="url"
+                    placeholder="https://example.com"
+                    style={{
+                      marginLeft: "10px",
+                      width: "50%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                </p>
 
-            <div className="nostalgic-section">
-              <p>
-                <span className="nostalgic-section-title">
-                  <b>◆メッセージ管理◆</b>
-                </span>
-              </p>
-              <p>
-                • <span style={{ color: "#008000" }}>update</span> - 自分の投稿を更新（投稿者のみ）
-                <br />• <span style={{ color: "#008000" }}>remove</span> - メッセージ削除（投稿者またはオーナー）
-                <br />• <span style={{ color: "#008000" }}>clear</span> - 全メッセージ削除（オーナーのみ）
-              </p>
+                <p>
+                  <b>オーナートークン：</b>
+                  <input
+                    ref={tokenRef}
+                    type="text"
+                    placeholder="8-16文字"
+                    style={{
+                      marginLeft: "10px",
+                      width: "30%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                </p>
+
+                <p>
+                  <b>投稿者名：</b>
+                  <input
+                    ref={authorRef}
+                    type="text"
+                    placeholder="名無し"
+                    style={{
+                      marginLeft: "10px",
+                      width: "30%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                </p>
+
+                <p>
+                  <b>メッセージ：</b>
+                  <br />
+                  <textarea
+                    ref={messageRef}
+                    placeholder="メッセージを入力してください"
+                    style={{
+                      width: "80%",
+                      height: "100px",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px",
+                      marginTop: "5px"
+                    }}
+                    required
+                  />
+                  <br />
+                  <button
+                    type="submit"
+                    style={{
+                      marginTop: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "2px outset #4CAF50",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                    onClick={() => setMode("post")}
+                  >
+                    投稿
+                  </button>
+                </p>
+              </form>
+
+              {response && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆APIレスポンス◆</b>
+                    </span>
+                  </p>
+                  <pre style={{ backgroundColor: "#000000", color: "#00ff00", padding: "10px", overflow: "auto", fontSize: "14px" }}>
+                    {response}
+                  </pre>
+                </div>
+              )}
             </div>
           </>
         );
@@ -484,6 +385,12 @@ export default function BBSPage() {
           <>
             <div className="nostalgic-title-bar">★☆★ BBS - 機能一覧 ★☆★</div>
 
+            <div className="nostalgic-marquee-box">
+              <div className="nostalgic-marquee-text">
+                💬 懐かしの掲示板！メッセージ投稿・アイコン選択・編集削除・ページネーション！昔の掲示板がここに復活！ 💬
+              </div>
+            </div>
+
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
@@ -491,93 +398,62 @@ export default function BBSPage() {
                 </span>
               </p>
               <p>
-                <span>●</span> メッセージ投稿・取得・編集・削除
+                <span>●</span> メッセージ投稿・取得
                 <br />
                 <span>●</span> カスタマイズ可能なドロップダウン（3つ）
                 <br />
                 <span>●</span> アイコン選択機能
                 <br />
-                <span>●</span> ページネーション機能
+                <span>●</span> Web Componentsで簡単設置
               </p>
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆権限管理◆</b>
+                  <b>◆管理機能◆</b>
                 </span>
               </p>
               <p>
                 <span>●</span> 投稿者による自分の投稿編集・削除
                 <br />
-                <span>●</span> オーナーによる全投稿管理
+                <span>●</span> ページネーション
                 <br />
-                <span>●</span> IP+UserAgent+日付による投稿者識別
+                <span>●</span> 最大メッセージ数制限
                 <br />
-                <span>●</span> 匿名投稿対応（投稿者名省略可）
+                <span>●</span> 完全削除・クリア機能
               </p>
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆カスタマイズ機能◆</b>
+                  <b>◆技術仕様◆</b>
                 </span>
               </p>
               <p>
-                • 最大メッセージ数設定（1〜10000）
+                • Next.js + Vercel でホスティング
                 <br />
-                • 1ページあたりメッセージ数設定（1〜100）
+                • Redis List でメッセージ保存
                 <br />
-                • 使用可能アイコンのカスタマイズ
-                <br />• メッセージ長制限（最大1000文字）
+                • 純粋なGET、1990年代スタイル
+                <br />• 必要なすべての要素が無料プランの範囲で動作するため、完全無料・広告なしを実現
               </p>
             </div>
 
             <div className="nostalgic-counter-section">
               <p>
                 <span style={{ color: "#ff8c00" }}>
-                  <b>◆活用例◆</b>
+                  <b>◆デモ用BBS◆</b>
                 </span>
               </p>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", fontSize: "14px" }}>
-                <div style={{ backgroundColor: "#f0fff0", padding: "10px", border: "2px solid #32cd32" }}>
-                  <b>💬 コミュニティ</b>
-                  <br />
-                  ・ファンサイトの感想掲示板
-                  <br />
-                  ・趣味仲間の交流スペース
-                  <br />
-                  ・イベント参加者の情報交換
-                </div>
-                <div style={{ backgroundColor: "#f0f0ff", padding: "10px", border: "2px solid #6666ff" }}>
-                  <b>📝 フィードバック</b>
-                  <br />
-                  ・サイトへの感想・要望
-                  <br />
-                  ・商品レビューボード
-                  <br />
-                  ・サービス改善提案
-                </div>
-                <div style={{ backgroundColor: "#fff5f5", padding: "10px", border: "2px solid #ff6666" }}>
-                  <b>📢 お知らせ</b>
-                  <br />
-                  ・更新情報の共有
-                  <br />
-                  ・重要連絡事項
-                  <br />
-                  ・メンテナンス情報
-                </div>
-                <div style={{ backgroundColor: "#fffff0", padding: "10px", border: "2px solid #ffcc00" }}>
-                  <b>🎪 エンターテイメント</b>
-                  <br />
-                  ・キリ番報告BBS
-                  <br />
-                  ・一言メッセージボード
-                  <br />
-                  ・ゲストブック
-                </div>
+              <div style={{ textAlign: "center", margin: "20px 0" }}>
+                <p style={{ marginBottom: "10px" }}>このデモページのBBS（実際に動作します）：</p>
+                <nostalgic-bbs id="nostalgic-b89803bb" theme="classic" />
               </div>
+              <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
+                ※名前とメッセージを入力してお試しください！
+              </p>
             </div>
           </>
         );
@@ -595,15 +471,15 @@ export default function BBSPage() {
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
                 GET /api/bbs?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
-                <span style={{ color: "#008000" }}>オーナートークン</span>&max=<span style={{ color: "#008000" }}>最大メッセージ数</span>&perPage=<span style={{ color: "#008000" }}>1ページメッセージ数</span>&icons=<span style={{ color: "#008000" }}>使用可能アイコン</span>
+                <span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <p style={{ lineHeight: "1.2" }}>
-                BBSシステムを作成します。max、perPage、iconsは省略可能。
+                BBSを作成します。
                 <br />
                 レスポンス:{" "}
                 <span
                   style={{ backgroundColor: "#000000", color: "#ffffff", padding: "2px 4px", fontFamily: "monospace" }}
-                >{`{ "id": "公開ID", "max": 1000, "perPage": 10 }`}</span>
+                >{`{ "id": "公開ID", "url": "サイトURL" }`}</span>
               </p>
             </div>
 
@@ -615,10 +491,12 @@ export default function BBSPage() {
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
                 GET /api/bbs?action=post&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
-                <span style={{ color: "#008000" }}>オーナートークン</span>&message=<span style={{ color: "#008000" }}>メッセージ</span>&author=<span style={{ color: "#008000" }}>投稿者名</span>
+                <span style={{ color: "#008000" }}>オーナートークン</span>&author=
+                <span style={{ color: "#008000" }}>投稿者名</span>&message=
+                <span style={{ color: "#008000" }}>メッセージ</span>
               </p>
               <p>
-                新しいメッセージを投稿します。authorは省略可能（デフォルト：名無しさん）。
+                新しいメッセージを投稿します。（純粋なGET、1990年代スタイル）
               </p>
             </div>
 
@@ -629,56 +507,80 @@ export default function BBSPage() {
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/bbs?action=get&id=<span style={{ color: "#008000" }}>公開ID</span>&page=<span style={{ color: "#008000" }}>ページ番号</span>
+                GET /api/bbs?action=get&id=<span style={{ color: "#008000" }}>公開ID</span>
               </p>
               <p>
-                メッセージ一覧を取得します。pageは省略可能（デフォルト1）。
+                メッセージ一覧を取得します。
                 <br />
                 レスポンス:{" "}
                 <span
                   style={{ backgroundColor: "#000000", color: "#ffffff", padding: "2px 4px", fontFamily: "monospace" }}
-                >{`{ "messages": [...], "totalPages": 5, "currentPage": 1 }`}</span>
+                >{`{ "messages": [{"id": "1", "author": "名前", "message": "内容", ...}] }`}</span>
               </p>
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆メッセージ更新・削除◆</b>
+                  <b>◆メッセージ編集◆</b>
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/bbs?action=update&url=...&messageId=<span style={{ color: "#008000" }}>メッセージID</span>&message=<span style={{ color: "#008000" }}>新メッセージ</span>
-                <br />
-                GET /api/bbs?action=remove&url=...&messageId=<span style={{ color: "#008000" }}>メッセージID</span>
-                <br />
-                GET /api/bbs?action=clear&url=...（全削除）
+                GET /api/bbs?action=update&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                <span style={{ color: "#008000" }}>オーナートークン</span>&messageId=
+                <span style={{ color: "#008000" }}>メッセージID</span>&author=
+                <span style={{ color: "#008000" }}>投稿者名</span>&message=
+                <span style={{ color: "#008000" }}>新メッセージ</span>
               </p>
+              <p>投稿者確認によりメッセージを編集します。</p>
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆データ制限・権限◆</b>
+                  <b>◆メッセージ削除◆</b>
                 </span>
               </p>
-              <p>
-                • 投稿者名: 最大50文字（省略時：名無しさん）
-                <br />
-                • メッセージ: 最大1000文字
-                <br />
-                • 投稿者確認: IP+UserAgent+日付（24時間）
-                <br />
-                • 編集権限: 投稿者本人またはオーナー
-                <br />• 削除権限: 投稿者本人またはオーナー
+              <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
+                GET /api/bbs?action=remove&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                <span style={{ color: "#008000" }}>オーナートークン</span>&messageId=
+                <span style={{ color: "#008000" }}>メッセージID</span>&author=
+                <span style={{ color: "#008000" }}>投稿者名</span>
               </p>
+              <p>投稿者確認によりメッセージを削除します。</p>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆BBS全削除◆</b>
+                </span>
+              </p>
+              <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
+                GET /api/bbs?action=clear&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                <span style={{ color: "#008000" }}>オーナートークン</span>
+              </p>
+              <p>すべてのメッセージをクリアします。</p>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆BBS削除◆</b>
+                </span>
+              </p>
+              <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
+                GET /api/bbs?action=delete&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                <span style={{ color: "#008000" }}>オーナートークン</span>
+              </p>
+              <p>BBSを完全に削除します。</p>
             </div>
 
             <hr />
 
             <p style={{ textAlign: "center" }}>
               これ以上の詳しい説明は{" "}
-              <a href="https://github.com/kako-jun/nostalgic-counter" className="nostalgic-old-link">
+              <a href="https://github.com/kako-jun/nostalgic/blob/main/README_ja.md" className="nostalgic-old-link">
                 【GitHub】
               </a>{" "}
               へ
@@ -696,9 +598,9 @@ export default function BBSPage() {
       {/* 構造化データ */}
       <ServiceStructuredData 
         name="Nostalgic BBS"
-        description="懐かしい掲示板システムサービス。メッセージ投稿・編集・削除機能、アイコン選択、ページネーション対応。"
+        description="懐かしい掲示板サービス。メッセージ投稿・取得、アイコン選択、編集・削除機能付き。"
         url="https://nostalgic.llll-ll.com/bbs"
-        serviceType="BBS Forum Service"
+        serviceType="BBS Service"
       />
       <BreadcrumbStructuredData 
         items={[
