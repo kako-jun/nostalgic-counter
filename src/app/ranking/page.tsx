@@ -306,7 +306,7 @@ export default function RankingPage() {
               </p>
               <div style={{ textAlign: "center", margin: "20px 0" }}>
                 <p style={{ marginBottom: "10px" }}>このデモページのランキング（実際に動作します）：</p>
-                <nostalgic-ranking id="nostalgic-ranking-demo" theme="classic" limit="5" />
+                <nostalgic-ranking id="nostalgic-9c044ad0" theme="classic" limit="5" />
               </div>
               <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
                 ※実際にスコアを投稿するには上記のAPIテストフォームをお使いください

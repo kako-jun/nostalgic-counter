@@ -134,7 +134,7 @@ export default function HomePage() {
               </p>
               <div style={{ textAlign: "center", margin: "20px 0" }}>
                 <p style={{ marginBottom: "10px" }}>このサイトが気に入ったら、いいねを押してください！</p>
-                <nostalgic-like id="nostalgic-site-like" theme="classic" />
+                <nostalgic-like id="nostalgic-b89803bb" theme="classic" />
               </div>
             </div>
 
@@ -158,7 +158,7 @@ export default function HomePage() {
               </p>
               <div style={{ margin: "20px 0" }}>
                 <p style={{ marginBottom: "10px", textAlign: "center" }}>訪問の記念に、何かコメントを残していってください！</p>
-                <nostalgic-bbs id="nostalgic-guestbook" theme="classic" />
+                <nostalgic-bbs id="nostalgic-b89803bb" theme="classic" />
               </div>
             </div>
 

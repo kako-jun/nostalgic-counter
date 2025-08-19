@@ -391,7 +391,7 @@ export default function BBSPage() {
               </p>
               <div style={{ textAlign: "center", margin: "20px 0" }}>
                 <p style={{ marginBottom: "10px" }}>このデモページのBBS（実際に動作します）：</p>
-                <nostalgic-bbs id="nostalgic-bbs-demo" theme="classic" />
+                <nostalgic-bbs id="nostalgic-fb60d4e2" theme="classic" />
               </div>
               <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
                 ※実際にメッセージを投稿するには上記のAPIテストフォームをお使いください

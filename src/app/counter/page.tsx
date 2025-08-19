@@ -226,21 +226,21 @@ export default function CounterPage() {
                   <b>累計</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgic-b89803bb" type="total" theme="classic" />
+                    <nostalgic-counter id="nostalgic-0f74e503" type="total" theme="classic" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>今日</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgic-b89803bb" type="today" theme="modern" />
+                    <nostalgic-counter id="nostalgic-0f74e503" type="today" theme="modern" />
                   </div>
                 </div>
                 <div className="nostalgic-counter-item">
                   <b>昨日</b>
                   <br />
                   <div style={{ marginTop: "10px" }}>
-                    <nostalgic-counter id="nostalgic-b89803bb" type="yesterday" theme="retro" />
+                    <nostalgic-counter id="nostalgic-0f74e503" type="yesterday" theme="retro" />
                   </div>
                 </div>
               </div>

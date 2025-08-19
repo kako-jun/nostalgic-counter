@@ -208,7 +208,7 @@ export default function LikePage() {
               </p>
               <div style={{ textAlign: "center", margin: "20px 0" }}>
                 <p style={{ marginBottom: "10px" }}>このデモページのいいねボタン（実際に動作します）：</p>
-                <nostalgic-like id="nostalgic-like-demo" theme="classic" />
+                <nostalgic-like id="nostalgic-865b5349" theme="classic" />
               </div>
               <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
                 ※クリックしてお試しください！状態が即座に切り替わります
