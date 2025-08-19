@@ -115,17 +115,30 @@ const displayHandler = ApiHandler.createSpecialResponse(
     digits: z.coerce.number().int().min(1).max(10).default(6),
     format: z.enum(['json', 'text', 'image']).default('image')
   }),
-  async ({ id, type, format }) => {
+  async ({ id, type, format, digits }) => {
     if (format === 'json') {
       return await counterService.getCounterData(id)
     }
 
-    return await counterService.getDisplayData(id, type)
+    const displayDataResult = await counterService.getDisplayData(id, type)
+    if (!displayDataResult.success) {
+      return displayDataResult
+    }
+    
+    const displayData = displayDataResult.data
+    
+    // テキスト形式の場合は指定桁数でパディング
+    if (format === 'text' && typeof displayData === 'number') {
+      return Ok(String(displayData).padStart(digits, '0'))
+    }
+    
+    return Ok(displayData)
   },
   {
     schema: z.union([
       CounterDataSchema, // JSON format
-      z.number().int().min(0) // text/image format
+      z.number().int().min(0), // number format
+      z.string() // padded text format
     ]),
     formatter: (data) => {
       if (typeof data === 'object') {
@@ -150,7 +163,7 @@ const svgHandler = ApiHandler.createSpecialResponse(
     digits: z.coerce.number().int().min(1).max(10).default(6),
     format: z.literal('image')
   }),
-  async ({ id, type }) => {
+  async ({ id, type, theme, digits }) => {
     const displayResult = await counterService.getDisplayData(id, type)
     if (!displayResult.success) {
       return displayResult
@@ -159,8 +172,8 @@ const svgHandler = ApiHandler.createSpecialResponse(
     return Ok({
       value: displayResult.data,
       type: type,
-      theme: 'classic' as const,
-      digits: 6
+      theme: theme,
+      digits: digits
     })
   },
   {
