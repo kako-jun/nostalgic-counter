@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { ApiHandler } from '@/lib/core/api-handler'
 import { Ok, map } from '@/lib/core/result'
 import { rankingService } from '@/domain/ranking/ranking.service'
+import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
 import { RankingDataSchema } from '@/domain/ranking/ranking.entity'
 
 /**
@@ -171,6 +172,9 @@ const deleteHandler = ApiHandler.create({
  * ルーティング関数
  */
 async function routeRequest(request: NextRequest) {
+  // 1%の確率で自動クリーンアップを実行
+  await maybeRunAutoCleanup()
+  
   try {
     const { searchParams } = new URL(request.url)
     const action = searchParams.get('action')

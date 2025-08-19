@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { ApiHandler } from '@/lib/core/api-handler'
 import { Ok, map } from '@/lib/core/result'
 import { likeService } from '@/domain/like/like.service'
+import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
 import { getCacheSettings } from '@/lib/core/config'
 import { getClientIP, getUserAgent } from '@/lib/utils/api'
 import { LikeDataSchema } from '@/domain/like/like.entity'
@@ -102,6 +103,9 @@ const deleteHandler = ApiHandler.create({
  * ルーティング関数
  */
 async function routeRequest(request: NextRequest) {
+  // 1%の確率で自動クリーンアップを実行
+  await maybeRunAutoCleanup()
+  
   try {
     const { searchParams } = new URL(request.url)
     const action = searchParams.get('action')

@@ -8,6 +8,7 @@ import { z } from 'zod'
 import { ApiHandler } from '@/lib/core/api-handler'
 import { Ok, Err, ValidationError } from '@/lib/core/result'
 import { getRedis } from '@/lib/core/db'
+import { runAutoCleanup } from '@/lib/core/auto-cleanup'
 
 const OLD_INSTANCE_IDS = [
   'llll-ll-3f2d5e94',
@@ -89,6 +90,45 @@ const cleanupHandler = ApiHandler.create({
         deletedSoFar: deletedKeys
       }))
     }
+  }
+})
+
+/**
+ * 自動クリーンアップ（365日期限切れサービス削除）
+ */
+const autoCleanupHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    adminToken: z.string()
+  }),
+  resultSchema: z.object({
+    success: z.literal(true),
+    deletedServices: z.array(z.object({
+      id: z.string(),
+      type: z.string(),
+      url: z.string()
+    })),
+    errors: z.array(z.string()),
+    totalDeleted: z.number()
+  }),
+  handler: async ({ adminToken }) => {
+    // 管理者トークンの検証
+    const expectedToken = process.env.ADMIN_CLEANUP_TOKEN
+    if (!expectedToken || adminToken !== expectedToken) {
+      return Err(new ValidationError('Invalid admin token'))
+    }
+
+    const { deleted, errors } = await runAutoCleanup()
+    
+    return Ok({
+      success: true as const,
+      deletedServices: deleted.map(s => ({
+        id: s.id,
+        type: s.type,
+        url: s.url
+      })),
+      errors,
+      totalDeleted: deleted.length
+    })
   }
 })
 
@@ -175,6 +215,8 @@ export async function GET(request: NextRequest) {
   switch (action) {
     case 'cleanup':
       return await cleanupHandler(request)
+    case 'autoCleanup':
+      return await autoCleanupHandler(request)
     case 'cleanupByUrl':
       return await cleanupByUrlHandler(request)
     default:

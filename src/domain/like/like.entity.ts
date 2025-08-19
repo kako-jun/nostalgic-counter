@@ -3,6 +3,7 @@
  */
 
 import { z } from 'zod'
+import { CommonSchemas } from '@/lib/core/validation'
 
 /**
  * Likeエンティティの基本型
@@ -60,19 +61,19 @@ export interface LikeDisplayParams {
  * Zodスキーマ定義
  */
 export const LikeEntitySchema = z.object({
-  id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-  url: z.string().url(),
-  created: z.date(),
-  totalLikes: z.number().int().min(0),
-  lastLike: z.date().optional()
+  id: CommonSchemas.publicId,
+  url: CommonSchemas.url,
+  created: CommonSchemas.date,
+  totalLikes: CommonSchemas.nonNegativeInt,
+  lastLike: CommonSchemas.date.optional()
 })
 
 export const LikeDataSchema = z.object({
   id: z.string(),
-  url: z.string().url(),
-  total: z.number().int().min(0),
+  url: CommonSchemas.url,
+  total: CommonSchemas.nonNegativeInt,
   userLiked: z.boolean(),
-  lastLike: z.date().optional()
+  lastLike: CommonSchemas.date.optional()
 })
 
 export const LikeCreateParamsSchema = z.object({
@@ -89,7 +90,7 @@ export const LikeIncrementParamsSchema = z.object({
 })
 
 export const LikeDisplayParamsSchema = z.object({
-  id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
+  id: CommonSchemas.publicId,
   userHash: z.string().min(1).optional()
 })
 

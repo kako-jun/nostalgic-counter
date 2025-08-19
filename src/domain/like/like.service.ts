@@ -130,6 +130,7 @@ export class LikeService extends BaseNumericService<LikeEntity, LikeData, LikeCr
       await this.removeUserLikeStatus(id, userHash)
       
       entity.totalLikes = decrementResult.data
+      entity.lastLike = new Date() // 取り消しもアクセスとして記録
     } else {
       // いいねを追加
       const incrementResult = await this.incrementValue(`${id}:total`, 1)

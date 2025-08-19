@@ -3,6 +3,7 @@
  */
 
 import { z } from 'zod'
+import { CommonSchemas } from '@/lib/core/validation'
 
 /**
  * Rankingエンティティの基本型
@@ -77,25 +78,25 @@ export interface RankingDisplayParams {
  * Zodスキーマ定義
  */
 export const RankingEntitySchema = z.object({
-  id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-  url: z.string().url(),
-  created: z.date(),
-  totalEntries: z.number().int().min(0),
-  lastUpdate: z.date().optional()
+  id: CommonSchemas.publicId,
+  url: CommonSchemas.url,
+  created: CommonSchemas.date,
+  totalEntries: CommonSchemas.nonNegativeInt,
+  lastUpdate: CommonSchemas.date.optional()
 })
 
 export const RankingEntrySchema = z.object({
   name: z.string().min(1).max(50),
-  score: z.number().int().min(0),
-  timestamp: z.date()
+  score: CommonSchemas.nonNegativeInt,
+  timestamp: CommonSchemas.date
 })
 
 export const RankingDataSchema = z.object({
   id: z.string(),
-  url: z.string().url(),
+  url: CommonSchemas.url,
   entries: z.array(RankingEntrySchema),
-  totalEntries: z.number().int().min(0),
-  lastUpdate: z.date().optional()
+  totalEntries: CommonSchemas.nonNegativeInt,
+  lastUpdate: CommonSchemas.date.optional()
 })
 
 export const RankingCreateParamsSchema = z.object({
@@ -104,12 +105,12 @@ export const RankingCreateParamsSchema = z.object({
 
 export const RankingSubmitParamsSchema = z.object({
   name: z.string().min(1).max(50),
-  score: z.number().int().min(0)
+  score: CommonSchemas.nonNegativeInt
 })
 
 export const RankingUpdateParamsSchema = z.object({
   name: z.string().min(1).max(50),
-  score: z.number().int().min(0)
+  score: CommonSchemas.nonNegativeInt
 })
 
 export const RankingRemoveParamsSchema = z.object({
@@ -117,7 +118,7 @@ export const RankingRemoveParamsSchema = z.object({
 })
 
 export const RankingDisplayParamsSchema = z.object({
-  id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
+  id: CommonSchemas.publicId,
   limit: z.number().int().min(1).max(1000).default(10)
 })
 

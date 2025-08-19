@@ -8,6 +8,7 @@ import { ApiHandler, ApiHandlerFactory } from '@/lib/core/api-handler'
 import { Ok, map, ValidationError } from '@/lib/core/result'
 import { counterService } from '@/domain/counter/counter.service'
 import { generateCounterSVG } from '@/lib/image-generator'
+import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
 import { getCacheSettings } from '@/lib/core/config'
 import { getClientIP, getUserAgent } from '@/lib/utils/api'
 import {
@@ -208,6 +209,9 @@ const deleteHandler = ApiHandler.create({
  * ルーティング関数
  */
 async function routeRequest(request: NextRequest) {
+  // 1%の確率で自動クリーンアップを実行
+  await maybeRunAutoCleanup()
+  
   try {
     const { searchParams } = new URL(request.url)
     const action = searchParams.get('action')

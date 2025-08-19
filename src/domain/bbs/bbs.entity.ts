@@ -3,6 +3,7 @@
  */
 
 import { z } from 'zod'
+import { CommonSchemas } from '@/lib/core/validation'
 
 /**
  * BBSエンティティの基本型
@@ -126,11 +127,11 @@ export const BBSSettingsSchema = z.object({
 })
 
 export const BBSEntitySchema = z.object({
-  id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-  url: z.string().url(),
-  created: z.date(),
-  totalMessages: z.number().int().min(0),
-  lastMessage: z.date().optional(),
+  id: CommonSchemas.publicId,
+  url: CommonSchemas.url,
+  created: CommonSchemas.date,
+  totalMessages: CommonSchemas.nonNegativeInt,
+  lastMessage: CommonSchemas.date.optional(),
   settings: BBSSettingsSchema
 })
 
@@ -138,7 +139,7 @@ export const BBSMessageSchema = z.object({
   id: z.string(),
   author: z.string().min(1).max(50),
   message: z.string().min(1).max(1000),
-  timestamp: z.date(),
+  timestamp: CommonSchemas.date,
   icon: z.string().optional(),
   selects: z.array(z.string()).max(3).optional(),
   authorHash: z.string()
@@ -146,13 +147,13 @@ export const BBSMessageSchema = z.object({
 
 export const BBSDataSchema = z.object({
   id: z.string(),
-  url: z.string().url(),
+  url: CommonSchemas.url,
   messages: z.array(BBSMessageSchema),
-  totalMessages: z.number().int().min(0),
-  currentPage: z.number().int().min(1),
-  totalPages: z.number().int().min(0),
+  totalMessages: CommonSchemas.nonNegativeInt,
+  currentPage: CommonSchemas.positiveInt,
+  totalPages: CommonSchemas.nonNegativeInt,
   settings: BBSSettingsSchema,
-  lastMessage: z.date().optional()
+  lastMessage: CommonSchemas.date.optional()
 })
 
 export const BBSCreateParamsSchema = z.object({

@@ -135,7 +135,7 @@ async function showAllData() {
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
       
       daysIdle = String(diffDays);
-      daysToDel = String(Math.max(0, 90 - diffDays));
+      daysToDel = String(Math.max(0, 365 - diffDays));
     }
     
     totalCounterHits += data.total;
@@ -182,7 +182,7 @@ async function showAllData() {
     
     const lastAccess = data.total > 0 ? 'Unknown' : 'Never';
     const daysIdle = String(diffDays);
-    const daysToDel = String(Math.max(0, 90 - diffDays));
+    const daysToDel = String(Math.max(0, 365 - diffDays));
     
     totalLikes += data.total;
     console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.total).padStart(5)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
@@ -227,7 +227,7 @@ async function showAllData() {
     
     const lastAccess = data.entries > 0 ? 'Unknown' : 'Never';
     const daysIdle = String(diffDays);
-    const daysToDel = String(Math.max(0, 90 - diffDays));
+    const daysToDel = String(Math.max(0, 365 - diffDays));
     
     totalRankingEntries += data.entries;
     console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.entries).padStart(7)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
@@ -272,7 +272,7 @@ async function showAllData() {
     
     const lastAccess = data.messages > 0 ? 'Unknown' : 'Never';
     const daysIdle = String(diffDays);
-    const daysToDel = String(Math.max(0, 90 - diffDays));
+    const daysToDel = String(Math.max(0, 365 - diffDays));
     
     totalBbsMessages += data.messages;
     console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.messages).padStart(8)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
@@ -428,6 +428,7 @@ async function showAllData() {
   console.log('═'.repeat(50));
   console.log(`\nFree tier limit: 30 MB`);
   console.log(`Usage: ${((totalSize/1024/1024/30)*100).toFixed(1)}%`);
+  console.log(`\nAuto-deletion: Services with 365+ days of inactivity are automatically deleted`);
   
   redis.disconnect();
 }
