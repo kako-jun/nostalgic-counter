@@ -76,9 +76,9 @@ export default function RankingPage() {
         return (
           <>
             <div className="nostalgic-title-bar">
-              ★☆★ Nostalgic Ranking ★☆★
+              ★ Nostalgic Ranking ★
               <br />
-              ランキング
+              使い方
             </div>
 
             <div className="nostalgic-section">
@@ -368,7 +368,11 @@ export default function RankingPage() {
       case "features":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ Ranking - 機能一覧 ★☆★</div>
+            <div className="nostalgic-title-bar">
+              ★ Nostalgic Ranking ★
+              <br />
+              機能一覧
+            </div>
 
             <div className="nostalgic-marquee-box">
               <div className="nostalgic-marquee-text">
@@ -446,7 +450,11 @@ export default function RankingPage() {
       case "api":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ Ranking - API仕様 ★☆★</div>
+            <div className="nostalgic-title-bar">
+              ★ Nostalgic Ranking ★
+              <br />
+              API仕様
+            </div>
 
             <div className="nostalgic-section">
               <p>

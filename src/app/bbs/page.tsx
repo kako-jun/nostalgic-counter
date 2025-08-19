@@ -90,9 +90,9 @@ export default function BBSPage() {
         return (
           <>
             <div className="nostalgic-title-bar">
-              ★☆★ Nostalgic BBS ★☆★
+              ★ Nostalgic BBS ★
               <br />
-              掲示板
+              使い方
             </div>
 
             <div className="nostalgic-section">
@@ -383,7 +383,11 @@ export default function BBSPage() {
       case "features":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ BBS - 機能一覧 ★☆★</div>
+            <div className="nostalgic-title-bar">
+              ★ Nostalgic BBS ★
+              <br />
+              機能一覧
+            </div>
 
             <div className="nostalgic-marquee-box">
               <div className="nostalgic-marquee-text">
@@ -461,7 +465,11 @@ export default function BBSPage() {
       case "api":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ BBS - API仕様 ★☆★</div>
+            <div className="nostalgic-title-bar">
+              ★ Nostalgic BBS ★
+              <br />
+              API仕様
+            </div>
 
             <div className="nostalgic-section">
               <p>

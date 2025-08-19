@@ -32,7 +32,7 @@ export default function NostalgicSidebar({
 
   return (
     <div className={`nostalgic-sidebar-left ${isOpen ? 'mobile-open' : ''}`}>
-      <div className="nostalgic-mobile-menu-title" style={{ fontSize: "20px", margin: "0 -10px 10px -10px", height: "67px", background: "rgb(204, 255, 204)", color: "black", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", borderBottom: "3px double #808080" }}>MENU</div>
+      <div className="nostalgic-mobile-menu-title" style={{ fontSize: "20px", margin: "0 -10px 10px -10px", height: "67px", background: "rgb(204, 255, 204)", color: "black", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", borderBottom: "3px double #808080", cursor: "pointer" }} onClick={() => { window.location.href = '/'; }}>MENU</div>
       <p>
         {pathname === '/' && currentPage === "home" ? (
           <>

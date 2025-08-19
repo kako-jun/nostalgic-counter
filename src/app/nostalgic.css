@@ -270,7 +270,10 @@ p {
   }
   
   .nostalgic-mobile-menu-title {
-    padding-top: 30px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
   
   .nostalgic-sidebar-left.mobile-open {

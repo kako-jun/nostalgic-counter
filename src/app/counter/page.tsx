@@ -69,9 +69,9 @@ export default function CounterPage() {
         return (
           <>
             <div className="nostalgic-title-bar">
-              ★☆★ Nostalgic Counter ★☆★
+              ★ Nostalgic Counter ★
               <br />
-              アクセスカウンター
+              使い方
             </div>
 
 
@@ -555,7 +555,11 @@ export default function CounterPage() {
       case "features":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ Counter - 機能一覧 ★☆★</div>
+            <div className="nostalgic-title-bar">
+              ★ Nostalgic Counter ★
+              <br />
+              機能一覧
+            </div>
 
             <div className="nostalgic-marquee-box">
               <div className="nostalgic-marquee-text">
@@ -618,7 +622,11 @@ export default function CounterPage() {
       case "api":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ Counter - API仕様 ★☆★</div>
+            <div className="nostalgic-title-bar">
+              ★ Nostalgic Counter ★
+              <br />
+              API仕様
+            </div>
 
             <div className="nostalgic-section">
               <p>

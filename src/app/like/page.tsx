@@ -63,9 +63,9 @@ export default function LikePage() {
         return (
           <>
             <div className="nostalgic-title-bar">
-              ★☆★ Nostalgic Like ★☆★
+              ★ Nostalgic Like ★
               <br />
-              いいねボタン
+              使い方
             </div>
 
             <div className="nostalgic-section">
@@ -265,7 +265,11 @@ export default function LikePage() {
       case "features":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ Like - 機能一覧 ★☆★</div>
+            <div className="nostalgic-title-bar">
+              ★ Nostalgic Like ★
+              <br />
+              機能一覧
+            </div>
 
             <div className="nostalgic-marquee-box">
               <div className="nostalgic-marquee-text">
@@ -352,7 +356,11 @@ export default function LikePage() {
       case "api":
         return (
           <>
-            <div className="nostalgic-title-bar">★☆★ Like - API仕様 ★☆★</div>
+            <div className="nostalgic-title-bar">
+              ★ Nostalgic Like ★
+              <br />
+              API仕様
+            </div>
 
             <div className="nostalgic-section">
               <p>
