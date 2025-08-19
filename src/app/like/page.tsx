@@ -45,7 +45,7 @@ export default function LikePage() {
     const apiUrl = `/api/like?action=${mode}&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}`;
 
     try {
-      const res = await fetch(apiUrl);
+      const res = await fetch(apiUrl, { method: 'GET' });
       const data = await res.json();
       setResponse(JSON.stringify(data, null, 2));
 
@@ -96,6 +96,8 @@ export default function LikePage() {
                   >
                     <option value="create">いいねボタン作成</option>
                     <option value="toggle">いいねトグル</option>
+                    <option value="clear">いいねクリア（数値を0に）</option>
+                    <option value="delete">いいねボタン削除（完全削除）</option>
                   </select>
                 </p>
 
@@ -151,7 +153,7 @@ export default function LikePage() {
                       fontWeight: "bold"
                     }}
                   >
-                    {mode === "create" ? "作成する" : "いいね！"}
+                    {mode === "create" ? "作成する" : mode === "toggle" ? "いいね！" : mode === "clear" ? "クリアする" : "削除する"}
                   </button>
                 </p>
               </form>

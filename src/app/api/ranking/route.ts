@@ -144,6 +144,30 @@ const getHandler = ApiHandler.create({
 })
 
 /**
+ * DELETE アクション
+ */
+const deleteHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    action: z.literal('delete'),
+    url: z.string().url(),
+    token: z.string().min(8).max(16)
+  }),
+  resultSchema: z.object({
+    success: z.literal(true),
+    message: z.string()
+  }),
+  handler: async ({ url, token }) => {
+    const deleteResult = await rankingService.delete(url, token)
+    
+    if (!deleteResult.success) {
+      return deleteResult
+    }
+
+    return Ok({ success: true as const, message: 'Ranking deleted successfully' })
+  }
+})
+
+/**
  * ルーティング関数
  */
 async function routeRequest(request: NextRequest) {
@@ -169,6 +193,9 @@ async function routeRequest(request: NextRequest) {
       
       case 'get':
         return await getHandler(request)
+      
+      case 'delete':
+        return await deleteHandler(request)
       
       default:
         return ApiHandler.create({

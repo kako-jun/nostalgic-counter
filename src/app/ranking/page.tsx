@@ -37,7 +37,7 @@ export default function RankingPage() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const url = urlRef.current?.value;
@@ -60,17 +60,8 @@ export default function RankingPage() {
       apiUrl += `&max=${max}`;
     }
 
-    try {
-      const res = await fetch(apiUrl);
-      const data = await res.json();
-      setResponse(JSON.stringify(data, null, 2));
-
-      if (data.id) {
-        setPublicId(data.id);
-      }
-    } catch (error) {
-      setResponse(`Error: ${error}`);
-    }
+    // 1990年代スタイル：ブラウザでAPIのURLに直接遷移
+    window.location.href = apiUrl;
   };
 
   const renderContent = () => {
@@ -114,7 +105,8 @@ export default function RankingPage() {
                     <option value="submit">スコア送信</option>
                     <option value="update">スコア更新</option>
                     <option value="remove">スコア削除</option>
-                    <option value="clear">ランキングクリア</option>
+                    <option value="clear">ランキングクリア（スコアデータのみ）</option>
+                    <option value="delete">ランキング削除（完全削除）</option>
                   </select>
                 </p>
 
@@ -235,7 +227,8 @@ export default function RankingPage() {
                     {mode === "create" ? "作成する" :
                      mode === "submit" ? "スコア送信" :
                      mode === "update" ? "スコア更新" :
-                     mode === "remove" ? "スコア削除" : "ランキングクリア"}
+                     mode === "remove" ? "スコア削除" :
+                     mode === "clear" ? "ランキングクリア" : "完全削除"}
                   </button>
                 </p>
               </form>

@@ -40,7 +40,7 @@ export default function BBSPage() {
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     const url = urlRef.current?.value;
@@ -79,17 +79,8 @@ export default function BBSPage() {
       if (icons) apiUrl += `&icons=${encodeURIComponent(icons)}`;
     }
 
-    try {
-      const res = await fetch(apiUrl);
-      const data = await res.json();
-      setResponse(JSON.stringify(data, null, 2));
-
-      if (data.id) {
-        setPublicId(data.id);
-      }
-    } catch (error) {
-      setResponse(`Error: ${error}`);
-    }
+    // 1990年代スタイル：ブラウザでAPIのURLに直接遷移
+    window.location.href = apiUrl;
   };
 
   const renderContent = () => {
@@ -133,7 +124,8 @@ export default function BBSPage() {
                     <option value="post">メッセージ投稿</option>
                     <option value="update">メッセージ更新</option>
                     <option value="remove">メッセージ削除</option>
-                    <option value="clear">全メッセージ削除</option>
+                    <option value="clear">全メッセージクリア（メッセージのみ）</option>
+                    <option value="delete">BBS削除（完全削除）</option>
                     <option value="get">メッセージ取得</option>
                   </select>
                 </p>
@@ -314,7 +306,8 @@ export default function BBSPage() {
                      mode === "post" ? "投稿する" :
                      mode === "update" ? "更新する" :
                      mode === "remove" ? "削除する" :
-                     mode === "clear" ? "全削除" : "取得する"}
+                     mode === "clear" ? "全クリア" :
+                     mode === "delete" ? "完全削除" : "取得する"}
                   </button>
                 </p>
               </form>

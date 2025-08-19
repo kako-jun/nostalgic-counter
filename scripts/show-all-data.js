@@ -90,72 +90,199 @@ async function showAllData() {
   }
   
   // 1. カウンターテーブル
-  console.log('📊 COUNTERS');
-  console.log('═'.repeat(100));
-  console.log('| ID                  | URL                                    | Total | Created            |');
-  console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(40) + '|' + '-'.repeat(7) + '|' + '-'.repeat(20) + '|');
+  console.log('📊 Counters');
+  console.log('═'.repeat(160));
+  console.log('| ID                  | URL                                                      | Total | Last Access | Days Idle | Days to Del | Created            |');
+  console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(60) + '|' + '-'.repeat(7) + '|' + '-'.repeat(13) + '|' + '-'.repeat(11) + '|' + '-'.repeat(13) + '|' + '-'.repeat(20) + '|');
   
-  for (const [id, data] of counters) {
-    if (data.metadata) {
-      const url = data.metadata.url.substring(0, 38);
-      const created = new Date(data.metadata.created).toISOString().substring(0, 19);
-      console.log(`| ${id.padEnd(19)} | ${url.padEnd(38)} | ${String(data.total).padStart(5)} | ${created} |`);
+  // URL順にソート（浅い階層を上に、深い階層を下に）
+  const sortedCounters = Array.from(counters.entries())
+    .filter(([id, data]) => data.metadata)
+    .sort(([idA, dataA], [idB, dataB]) => {
+      const urlA = dataA.metadata.url;
+      const urlB = dataB.metadata.url;
+      
+      // パス深度で比較（浅い順）
+      const pathA = new URL(urlA).pathname;
+      const pathB = new URL(urlB).pathname;
+      const depthA = pathA.split('/').length;
+      const depthB = pathB.split('/').length;
+      
+      if (depthA !== depthB) return depthA - depthB;
+      
+      return urlA.localeCompare(urlB);
+    });
+  
+  let totalCounterHits = 0;
+  for (const [id, data] of sortedCounters) {
+    const url = data.metadata.url.length > 58 ? data.metadata.url.substring(0, 55) + '...' : data.metadata.url;
+    const created = new Date(data.metadata.created).toISOString().substring(0, 19);
+    
+    // 最終アクセス日の計算（最新の日別データから）
+    let lastAccess = 'Never';
+    let daysIdle = '-';
+    let daysToDel = '-';
+    
+    if (data.dailyData.size > 0) {
+      const dates = Array.from(data.dailyData.keys()).sort();
+      const lastDate = dates[dates.length - 1];
+      lastAccess = lastDate;
+      
+      const today = new Date().toISOString().substring(0, 10);
+      const lastAccessDate = new Date(lastDate);
+      const todayDate = new Date(today);
+      const diffTime = todayDate.getTime() - lastAccessDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      daysIdle = String(diffDays);
+      daysToDel = String(Math.max(0, 90 - diffDays));
     }
+    
+    totalCounterHits += data.total;
+    console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.total).padStart(5)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
   }
-  console.log('═'.repeat(100));
+  console.log('═'.repeat(160));
+  console.log(`Total counters: ${counters.size}, Total hits: ${totalCounterHits}\n`);
   console.log(`Total counters: ${counters.size}\n`);
   
   // 2. いいねテーブル
-  console.log('💖 LIKES');
-  console.log('═'.repeat(100));
-  console.log('| ID                  | URL                                    | Total | Created            |');
-  console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(40) + '|' + '-'.repeat(7) + '|' + '-'.repeat(20) + '|');
+  console.log('💖 Likes');
+  console.log('═'.repeat(160));
+  console.log('| ID                  | URL                                                      | Total | Last Access | Days Idle | Days to Del | Created            |');
+  console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(60) + '|' + '-'.repeat(7) + '|' + '-'.repeat(13) + '|' + '-'.repeat(11) + '|' + '-'.repeat(13) + '|' + '-'.repeat(20) + '|');
   
-  for (const [id, data] of likes) {
-    if (data.metadata) {
-      const url = data.metadata.url.substring(0, 38);
-      const created = new Date(data.metadata.created).toISOString().substring(0, 19);
-      console.log(`| ${id.padEnd(19)} | ${url.padEnd(38)} | ${String(data.total).padStart(5)} | ${created} |`);
-    }
+  // URL順にソート（浅い階層を上に、深い階層を下に）
+  const sortedLikes = Array.from(likes.entries())
+    .filter(([id, data]) => data.metadata)
+    .sort(([idA, dataA], [idB, dataB]) => {
+      const urlA = dataA.metadata.url;
+      const urlB = dataB.metadata.url;
+      
+      // パス深度で比較（浅い順）
+      const pathA = new URL(urlA).pathname;
+      const pathB = new URL(urlB).pathname;
+      const depthA = pathA.split('/').length;
+      const depthB = pathB.split('/').length;
+      
+      if (depthA !== depthB) return depthA - depthB;
+      
+      return urlA.localeCompare(urlB);
+    });
+    
+  let totalLikes = 0;
+  for (const [id, data] of sortedLikes) {
+    const url = data.metadata.url.length > 58 ? data.metadata.url.substring(0, 55) + '...' : data.metadata.url;
+    const created = new Date(data.metadata.created).toISOString().substring(0, 19);
+    
+    // いいねサービスは日別データがないので、作成日からの計算
+    const createdDate = new Date(data.metadata.created);
+    const today = new Date();
+    const diffTime = today.getTime() - createdDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    const lastAccess = data.total > 0 ? 'Unknown' : 'Never';
+    const daysIdle = String(diffDays);
+    const daysToDel = String(Math.max(0, 90 - diffDays));
+    
+    totalLikes += data.total;
+    console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.total).padStart(5)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
   }
-  console.log('═'.repeat(100));
-  console.log(`Total likes: ${likes.size}\n`);
+  console.log('═'.repeat(160));
+  console.log(`Total likes: ${likes.size}, Total hearts: ${totalLikes}\n`);
   
   // 3. ランキングテーブル
-  console.log('🏆 RANKINGS');
-  console.log('═'.repeat(100));
-  console.log('| ID                  | URL                                    | Entries | Created          |');
-  console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(40) + '|' + '-'.repeat(9) + '|' + '-'.repeat(18) + '|');
+  console.log('🏆 Rankings');
+  console.log('═'.repeat(160));
+  console.log('| ID                  | URL                                                      | Entries | Last Access | Days Idle | Days to Del | Created            |');
+  console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(60) + '|' + '-'.repeat(9) + '|' + '-'.repeat(13) + '|' + '-'.repeat(11) + '|' + '-'.repeat(13) + '|' + '-'.repeat(20) + '|');
   
-  for (const [id, data] of rankings) {
-    if (data.metadata) {
-      const url = data.metadata.url.substring(0, 38);
-      const created = new Date(data.metadata.created).toISOString().substring(0, 19);
-      console.log(`| ${id.padEnd(19)} | ${url.padEnd(38)} | ${String(data.entries).padStart(7)} | ${created} |`);
-    }
+  // URL順にソート（浅い階層を上に、深い階層を下に）
+  const sortedRankings = Array.from(rankings.entries())
+    .filter(([id, data]) => data.metadata)
+    .sort(([idA, dataA], [idB, dataB]) => {
+      const urlA = dataA.metadata.url;
+      const urlB = dataB.metadata.url;
+      
+      // パス深度で比較（浅い順）
+      const pathA = new URL(urlA).pathname;
+      const pathB = new URL(urlB).pathname;
+      const depthA = pathA.split('/').length;
+      const depthB = pathB.split('/').length;
+      
+      if (depthA !== depthB) return depthA - depthB;
+      
+      return urlA.localeCompare(urlB);
+    });
+    
+  let totalRankingEntries = 0;
+  for (const [id, data] of sortedRankings) {
+    const url = data.metadata.url.length > 58 ? data.metadata.url.substring(0, 55) + '...' : data.metadata.url;
+    const created = new Date(data.metadata.created).toISOString().substring(0, 19);
+    
+    // ランキングサービスも日別データがないので、作成日からの計算
+    const createdDate = new Date(data.metadata.created);
+    const today = new Date();
+    const diffTime = today.getTime() - createdDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    const lastAccess = data.entries > 0 ? 'Unknown' : 'Never';
+    const daysIdle = String(diffDays);
+    const daysToDel = String(Math.max(0, 90 - diffDays));
+    
+    totalRankingEntries += data.entries;
+    console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.entries).padStart(7)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
   }
-  console.log('═'.repeat(100));
-  console.log(`Total rankings: ${rankings.size}\n`);
+  console.log('═'.repeat(160));
+  console.log(`Total rankings: ${rankings.size}, Total entries: ${totalRankingEntries}\n`);
   
   // 4. BBSテーブル
   console.log('💬 BBS');
-  console.log('═'.repeat(100));
-  console.log('| ID                  | URL                                    | Messages | Created         |');
-  console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(40) + '|' + '-'.repeat(10) + '|' + '-'.repeat(17) + '|');
+  console.log('═'.repeat(160));
+  console.log('| ID                  | URL                                                      | Messages | Last Access | Days Idle | Days to Del | Created            |');
+  console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(60) + '|' + '-'.repeat(10) + '|' + '-'.repeat(13) + '|' + '-'.repeat(11) + '|' + '-'.repeat(13) + '|' + '-'.repeat(20) + '|');
   
-  for (const [id, data] of bbses) {
-    if (data.metadata) {
-      const url = data.metadata.url.substring(0, 38);
-      const created = new Date(data.metadata.created).toISOString().substring(0, 19);
-      console.log(`| ${id.padEnd(19)} | ${url.padEnd(38)} | ${String(data.messages).padStart(8)} | ${created} |`);
-    }
+  // URL順にソート（浅い階層を上に、深い階層を下に）
+  const sortedBbses = Array.from(bbses.entries())
+    .filter(([id, data]) => data.metadata)
+    .sort(([idA, dataA], [idB, dataB]) => {
+      const urlA = dataA.metadata.url;
+      const urlB = dataB.metadata.url;
+      
+      // パス深度で比較（浅い順）
+      const pathA = new URL(urlA).pathname;
+      const pathB = new URL(urlB).pathname;
+      const depthA = pathA.split('/').length;
+      const depthB = pathB.split('/').length;
+      
+      if (depthA !== depthB) return depthA - depthB;
+      
+      return urlA.localeCompare(urlB);
+    });
+    
+  let totalBbsMessages = 0;
+  for (const [id, data] of sortedBbses) {
+    const url = data.metadata.url.length > 58 ? data.metadata.url.substring(0, 55) + '...' : data.metadata.url;
+    const created = new Date(data.metadata.created).toISOString().substring(0, 19);
+    
+    // BBSも日別データがないので、作成日からの計算
+    const createdDate = new Date(data.metadata.created);
+    const today = new Date();
+    const diffTime = today.getTime() - createdDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    
+    const lastAccess = data.messages > 0 ? 'Unknown' : 'Never';
+    const daysIdle = String(diffDays);
+    const daysToDel = String(Math.max(0, 90 - diffDays));
+    
+    totalBbsMessages += data.messages;
+    console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.messages).padStart(8)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
   }
-  console.log('═'.repeat(100));
-  console.log(`Total BBS: ${bbses.size}\n`);
+  console.log('═'.repeat(160));
+  console.log(`Total BBS: ${bbses.size}, Total messages: ${totalBbsMessages}\n`);
   
   // 5. 日別データテーブル（カウンターのみ）
   if (counters.size > 0) {
-    console.log('📅 DAILY DATA (COUNTERS)');
+    console.log('📅 Daily Data (Counters)');
     console.log('═'.repeat(80));
     console.log('| Counter ID          | Date       | Count |');
     console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(12) + '|' + '-'.repeat(7) + '|');
@@ -180,31 +307,77 @@ async function showAllData() {
   }
   
   // 6. URLマッピングテーブル
-  console.log('🔗 URL MAPPINGS');
-  console.log('═'.repeat(80));
-  console.log('| URL                                              | Service ID          |');
-  console.log('|' + '-'.repeat(50) + '|' + '-'.repeat(21) + '|');
+  console.log('🔗 URL Mappings');
+  console.log('═'.repeat(100));
+  console.log('| URL                                                            | Service ID          |');
+  console.log('|' + '-'.repeat(64) + '|' + '-'.repeat(21) + '|');
   
-  for (const [url, id] of urls) {
-    const shortUrl = url.length > 48 ? url.substring(0, 45) + '...' : url;
-    console.log(`| ${shortUrl.padEnd(48)} | ${id.padEnd(19)} |`);
+  // サービス種別順（counter, like, ranking, bbs）、次にURL順でソート
+  const sortedUrls = Array.from(urls.entries()).sort(([urlA, idA], [urlB, idB]) => {
+    // URLからサービス種別を抽出
+    const serviceA = urlA.split(':')[0];
+    const serviceB = urlB.split(':')[0];
+    
+    // サービス種別の優先順位を定義
+    const serviceOrder = { 'counter': 1, 'like': 2, 'ranking': 3, 'bbs': 4 };
+    const orderA = serviceOrder[serviceA] || 5;
+    const orderB = serviceOrder[serviceB] || 5;
+    
+    // サービス種別で比較
+    if (orderA !== orderB) return orderA - orderB;
+    
+    // 同じサービス種別の場合は、実際のURL部分でソート（パス深度順）
+    const actualUrlA = urlA.substring(urlA.indexOf(':') + 1);
+    const actualUrlB = urlB.substring(urlB.indexOf(':') + 1);
+    
+    try {
+      const pathA = new URL(actualUrlA).pathname;
+      const pathB = new URL(actualUrlB).pathname;
+      const depthA = pathA.split('/').length;
+      const depthB = pathB.split('/').length;
+      
+      if (depthA !== depthB) return depthA - depthB;
+    } catch (e) {
+      // URL解析失敗時は文字列比較にフォールバック
+    }
+    
+    return actualUrlA.localeCompare(actualUrlB);
+  });
+  
+  for (const [url, id] of sortedUrls) {
+    const shortUrl = url.length > 62 ? url.substring(0, 59) + '...' : url;
+    console.log(`| ${shortUrl.padEnd(62)} | ${id.padEnd(19)} |`);
   }
-  console.log('═'.repeat(80));
+  console.log('═'.repeat(100));
   console.log();
   
   // 7. アクティブな訪問記録
-  console.log(`👥 ACTIVE SESSIONS (${visits.length} records with TTL)`);
+  console.log(`👥 Active Sessions (${visits.length} records with TTL)`);
   if (visits.length > 0) {
     console.log('═'.repeat(60));
     console.log('| Session Key                              | TTL         |');
     console.log('|' + '-'.repeat(42) + '|' + '-'.repeat(13) + '|');
     
-    visits.slice(0, 10).forEach(visit => {
+    // TTL降順でソート（長い時間残っているものから表示）
+    const sortedVisits = visits.sort((a, b) => {
+      // TTL文字列から秒数に変換して比較
+      const getTtlSeconds = (ttl) => {
+        if (ttl === 'No TTL') return -1;
+        const match = ttl.match(/(\d+)h (\d+)m/);
+        if (match) {
+          return parseInt(match[1]) * 3600 + parseInt(match[2]) * 60;
+        }
+        return 0;
+      };
+      return getTtlSeconds(b.ttl) - getTtlSeconds(a.ttl);
+    });
+    
+    sortedVisits.slice(0, 10).forEach(visit => {
       const shortKey = visit.key.length > 40 ? visit.key.substring(0, 37) + '...' : visit.key;
       console.log(`| ${shortKey.padEnd(40)} | ${visit.ttl.padEnd(11)} |`);
     });
     
-    if (visits.length > 10) {
+      if (visits.length > 10) {
       console.log(`| ... and ${visits.length - 10} more records                    |             |`);
     }
     console.log('═'.repeat(60));
@@ -212,20 +385,20 @@ async function showAllData() {
   }
   
   // 8. サービス統計
-  console.log('📈 SERVICE STATISTICS');
-  console.log('═'.repeat(50));
-  console.log(`| Service     | Count | Active      |`);
-  console.log(`|${'-'.repeat(13)}|${'-'.repeat(7)}|${'-'.repeat(13)}|`);
-  console.log(`| Counters    | ${String(counters.size).padStart(5)} | ${String(counters.size).padStart(11)} |`);
-  console.log(`| Likes       | ${String(likes.size).padStart(5)} | ${String(likes.size).padStart(11)} |`);
-  console.log(`| Rankings    | ${String(rankings.size).padStart(5)} | ${String(rankings.size).padStart(11)} |`);
-  console.log(`| BBS         | ${String(bbses.size).padStart(5)} | ${String(bbses.size).padStart(11)} |`);
-  console.log(`|${'-'.repeat(13)}|${'-'.repeat(7)}|${'-'.repeat(13)}|`);
-  console.log(`| TOTAL       | ${String(counters.size + likes.size + rankings.size + bbses.size).padStart(5)} | ${String(counters.size + likes.size + rankings.size + bbses.size).padStart(11)} |`);
-  console.log('═'.repeat(50));
+  console.log('📈 Service Statistics');
+  console.log('═'.repeat(35));
+  console.log(`| Service     | Count |`);
+  console.log(`|${'-'.repeat(13)}|${'-'.repeat(7)}|`);
+  console.log(`| Counters    | ${String(counters.size).padStart(5)} |`);
+  console.log(`| Likes       | ${String(likes.size).padStart(5)} |`);
+  console.log(`| Rankings    | ${String(rankings.size).padStart(5)} |`);
+  console.log(`| BBS         | ${String(bbses.size).padStart(5)} |`);
+  console.log(`|${'-'.repeat(13)}|${'-'.repeat(7)}|`);
+  console.log(`| TOTAL       | ${String(counters.size + likes.size + rankings.size + bbses.size).padStart(5)} |`);
+  console.log('═'.repeat(35));
   
   // 9. メモリ使用量の概算
-  console.log('\n💾 MEMORY USAGE ESTIMATE');
+  console.log('\n💾 Memory Usage Estimate');
   console.log('═'.repeat(50));
   const counterMetadata = counters.size * 300;
   const likeMetadata = likes.size * 200;

@@ -51,7 +51,7 @@ export default function CounterPage() {
     }
 
     try {
-      const res = await fetch(apiUrl);
+      const res = await fetch(apiUrl, { method: 'GET' });
       const data = await res.json();
       setResponse(JSON.stringify(data, null, 2));
 
@@ -103,6 +103,8 @@ export default function CounterPage() {
                     <option value="create">カウンター作成</option>
                     <option value="increment">カウントアップ</option>
                     <option value="set">カウント設定</option>
+                    <option value="clear">カウンタークリア（数値を0に）</option>
+                    <option value="delete">カウンター削除（完全削除）</option>
                   </select>
                 </p>
 
@@ -178,7 +180,7 @@ export default function CounterPage() {
                       fontWeight: "bold"
                     }}
                   >
-                    {mode === "create" ? "作成する" : mode === "increment" ? "カウントアップ" : "設定する"}
+                    {mode === "create" ? "作成する" : mode === "increment" ? "カウントアップ" : mode === "set" ? "設定する" : mode === "clear" ? "クリアする" : "削除する"}
                   </button>
                 </p>
               </form>
