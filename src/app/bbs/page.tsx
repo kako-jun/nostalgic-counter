@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import NostalgicLayout from "@/components/NostalgicLayout";
+import { ServiceStructuredData, BreadcrumbStructuredData } from "@/components/StructuredData";
 
 export default function BBSPage() {
   const [currentPage, setCurrentPage] = useState("main");
@@ -698,8 +699,24 @@ export default function BBSPage() {
   };
 
   return (
-    <NostalgicLayout serviceName="BBS" serviceIcon="💬">
-      {renderContent()}
-    </NostalgicLayout>
+    <>
+      {/* 構造化データ */}
+      <ServiceStructuredData 
+        name="Nostalgic BBS"
+        description="懐かしい掲示板システムサービス。メッセージ投稿・編集・削除機能、アイコン選択、ページネーション対応。"
+        url="https://nostalgic.llll-ll.com/bbs"
+        serviceType="BBS Forum Service"
+      />
+      <BreadcrumbStructuredData 
+        items={[
+          { name: "Nostalgic", url: "https://nostalgic.llll-ll.com" },
+          { name: "BBS", url: "https://nostalgic.llll-ll.com/bbs" }
+        ]}
+      />
+      
+      <NostalgicLayout serviceName="BBS" serviceIcon="💬">
+        {renderContent()}
+      </NostalgicLayout>
+    </>
   );
 }

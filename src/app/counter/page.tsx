@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import NostalgicLayout from "@/components/NostalgicLayout";
+import { ServiceStructuredData, BreadcrumbStructuredData } from "@/components/StructuredData";
 
 export default function CounterPage() {
   const [currentPage, setCurrentPage] = useState("main");
@@ -507,8 +508,24 @@ export default function CounterPage() {
   };
 
   return (
-    <NostalgicLayout serviceName="Counter" serviceIcon="📊">
-      {renderContent()}
-    </NostalgicLayout>
+    <>
+      {/* 構造化データ */}
+      <ServiceStructuredData 
+        name="Nostalgic Counter"
+        description="懐かしいアクセスカウンターサービス。24時間重複防止機能付き、累計・日別・週別・月別カウントに対応。"
+        url="https://nostalgic.llll-ll.com/counter"
+        serviceType="Web Counter Service"
+      />
+      <BreadcrumbStructuredData 
+        items={[
+          { name: "Nostalgic", url: "https://nostalgic.llll-ll.com" },
+          { name: "Counter", url: "https://nostalgic.llll-ll.com/counter" }
+        ]}
+      />
+      
+      <NostalgicLayout serviceName="Counter" serviceIcon="📊">
+        {renderContent()}
+      </NostalgicLayout>
+    </>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import NostalgicLayout from "@/components/NostalgicLayout";
+import { ServiceStructuredData, BreadcrumbStructuredData } from "@/components/StructuredData";
 
 export default function LikePage() {
   const [currentPage, setCurrentPage] = useState("main");
@@ -459,8 +460,24 @@ export default function LikePage() {
   };
 
   return (
-    <NostalgicLayout serviceName="Like" serviceIcon="💖">
-      {renderContent()}
-    </NostalgicLayout>
+    <>
+      {/* 構造化データ */}
+      <ServiceStructuredData 
+        name="Nostalgic Like"
+        description="懐かしいいいねボタンサービス。トグル型のいいね・取り消し機能付き、即座のフィードバック表示。"
+        url="https://nostalgic.llll-ll.com/like"
+        serviceType="Like Button Service"
+      />
+      <BreadcrumbStructuredData 
+        items={[
+          { name: "Nostalgic", url: "https://nostalgic.llll-ll.com" },
+          { name: "Like", url: "https://nostalgic.llll-ll.com/like" }
+        ]}
+      />
+      
+      <NostalgicLayout serviceName="Like" serviceIcon="💖">
+        {renderContent()}
+      </NostalgicLayout>
+    </>
   );
 }

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import NostalgicLayout from "@/components/NostalgicLayout";
+import { ServiceStructuredData, BreadcrumbStructuredData } from "@/components/StructuredData";
 
 export default function RankingPage() {
   const [currentPage, setCurrentPage] = useState("main");
@@ -613,8 +614,24 @@ export default function RankingPage() {
   };
 
   return (
-    <NostalgicLayout serviceName="Ranking" serviceIcon="🏆">
-      {renderContent()}
-    </NostalgicLayout>
+    <>
+      {/* 構造化データ */}
+      <ServiceStructuredData 
+        name="Nostalgic Ranking"
+        description="懐かしいランキングシステムサービス。スコア自動ソート機能、最大エントリー数制限対応。"
+        url="https://nostalgic.llll-ll.com/ranking"
+        serviceType="Ranking System Service"
+      />
+      <BreadcrumbStructuredData 
+        items={[
+          { name: "Nostalgic", url: "https://nostalgic.llll-ll.com" },
+          { name: "Ranking", url: "https://nostalgic.llll-ll.com/ranking" }
+        ]}
+      />
+      
+      <NostalgicLayout serviceName="Ranking" serviceIcon="🏆">
+        {renderContent()}
+      </NostalgicLayout>
+    </>
   );
 }

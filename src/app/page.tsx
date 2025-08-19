@@ -3,6 +3,12 @@
 import { useState, useEffect } from "react";
 import Script from "next/script";
 import NostalgicSidebar from "@/components/NostalgicSidebar";
+import { 
+  WebsiteStructuredData, 
+  OrganizationStructuredData, 
+  SoftwareApplicationStructuredData,
+  BreadcrumbStructuredData 
+} from "@/components/StructuredData";
 import "./nostalgic.css";
 
 export default function HomePage() {
@@ -490,6 +496,16 @@ export default function HomePage() {
 
   return (
     <>
+      {/* 構造化データ */}
+      <WebsiteStructuredData />
+      <OrganizationStructuredData />
+      <SoftwareApplicationStructuredData />
+      <BreadcrumbStructuredData 
+        items={[
+          { name: "Nostalgic", url: "https://nostalgic.llll-ll.com" }
+        ]}
+      />
+      
       <Script src="https://nostalgic.llll-ll.com/components/counter.js" strategy="beforeInteractive" />
       <Script src="https://nostalgic.llll-ll.com/components/like.js" strategy="beforeInteractive" />
       <Script src="https://nostalgic.llll-ll.com/components/ranking.js" strategy="beforeInteractive" />
