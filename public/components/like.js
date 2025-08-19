@@ -178,7 +178,7 @@ class NostalgicLike extends HTMLElement {
           color: ${style.textColor};
           border: ${style.border};
           border-radius: 6px;
-          cursor: ${isLoading ? 'not-allowed' : 'pointer'};
+          cursor: pointer;
           font-family: Arial, sans-serif;
           font-size: 14px;
           font-weight: bold;
@@ -208,7 +208,8 @@ class NostalgicLike extends HTMLElement {
         }
         
         .loading {
-          cursor: not-allowed;
+          cursor: pointer;
+          opacity: 0.7;
         }
       </style>
       

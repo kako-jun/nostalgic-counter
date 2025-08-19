@@ -234,7 +234,7 @@ class NostalgicBBS extends HTMLElement {
         }
         .pagination button:disabled {
           opacity: 0.5;
-          cursor: not-allowed;
+          cursor: default;
         }
         .pagination .current-page {
           font-weight: bold;
