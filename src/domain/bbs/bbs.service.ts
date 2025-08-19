@@ -91,6 +91,12 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
       totalMessages: entity.totalMessages,
       currentPage: 1,
       totalPages,
+      pagination: {
+        page: 1,
+        totalPages: totalPages,
+        hasPrev: false,
+        hasNext: totalPages > 1
+      }, // Web Components用のページネーション
       settings: entity.settings,
       lastMessage: entity.lastMessage
     }
@@ -441,6 +447,12 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
       totalMessages: entity.totalMessages,
       currentPage: page,
       totalPages,
+      pagination: {
+        page: page,
+        totalPages: totalPages,
+        hasPrev: page > 1,
+        hasNext: page < totalPages
+      }, // Web Components用のページネーション
       settings: entity.settings,
       lastMessage: entity.lastMessage
     }

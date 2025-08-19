@@ -22,6 +22,7 @@ export interface RankingEntity {
 export interface RankingEntry {
   name: string
   score: number
+  rank: number // Web Components用にランク番号を追加
   timestamp: Date
 }
 
@@ -88,6 +89,7 @@ export const RankingEntitySchema = z.object({
 export const RankingEntrySchema = z.object({
   name: z.string().min(1).max(50),
   score: CommonSchemas.nonNegativeInt,
+  rank: CommonSchemas.positiveInt, // Web Components用にランク番号を追加
   timestamp: CommonSchemas.date
 })
 

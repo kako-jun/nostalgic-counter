@@ -58,6 +58,12 @@ export interface BBSData {
   totalMessages: number
   currentPage: number
   totalPages: number
+  pagination: {
+    page: number
+    totalPages: number
+    hasPrev: boolean
+    hasNext: boolean
+  } // Web Components用のページネーション
   settings: BBSSettings
   lastMessage?: Date
 }
@@ -152,6 +158,12 @@ export const BBSDataSchema = z.object({
   totalMessages: CommonSchemas.nonNegativeInt,
   currentPage: CommonSchemas.positiveInt,
   totalPages: CommonSchemas.nonNegativeInt,
+  pagination: z.object({
+    page: CommonSchemas.positiveInt,
+    totalPages: CommonSchemas.nonNegativeInt,
+    hasPrev: z.boolean(),
+    hasNext: z.boolean()
+  }), // Web Components用のページネーション
   settings: BBSSettingsSchema,
   lastMessage: CommonSchemas.date.optional()
 })

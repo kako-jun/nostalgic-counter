@@ -270,9 +270,10 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
       return Ok([]) // エラーの場合は空配列を返す
     }
 
-    const entries: RankingEntry[] = entriesResult.data.map(entry => ({
+    const entries: RankingEntry[] = entriesResult.data.map((entry, index) => ({
       name: entry.member,
       score: entry.score,
+      rank: index + 1, // Web Components用にランク番号を追加（1から開始）
       timestamp: new Date() // 実際には保存時のタイムスタンプを使用
     }))
 

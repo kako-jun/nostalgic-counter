@@ -76,6 +76,25 @@ const getHandler = ApiHandler.create({
 })
 
 /**
+ * DISPLAY アクション (Web Components用)
+ */
+const displayHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    action: z.literal('display'),
+    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
+    format: z.enum(['json']).default('json')
+  }),
+  resultSchema: LikeDataSchema,
+  handler: async ({ id }, request) => {
+    const clientIP = getClientIP(request)
+    const userAgent = getUserAgent(request)
+    const userHash = likeService.generateUserHash(clientIP, userAgent)
+
+    return await likeService.getLikeData(id, userHash)
+  }
+})
+
+/**
  * DELETE アクション
  */
 const deleteHandler = ApiHandler.create({
@@ -119,6 +138,9 @@ async function routeRequest(request: NextRequest) {
       
       case 'get':
         return await getHandler(request)
+      
+      case 'display':
+        return await displayHandler(request)
       
       case 'delete':
         return await deleteHandler(request)

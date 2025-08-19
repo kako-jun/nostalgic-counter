@@ -217,6 +217,22 @@ const getHandler = ApiHandler.create({
 })
 
 /**
+ * DISPLAY アクション (Web Components用)
+ */
+const displayHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    action: z.literal('display'),
+    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
+    page: z.coerce.number().int().min(1).default(1),
+    format: z.enum(['json']).default('json')
+  }),
+  resultSchema: BBSDataSchema,
+  handler: async ({ id, page }) => {
+    return await bbsService.getBBSData(id, page)
+  }
+})
+
+/**
  * DELETE アクション
  */
 const deleteHandler = ApiHandler.create({
@@ -269,6 +285,9 @@ async function routeRequest(request: NextRequest) {
       
       case 'get':
         return await getHandler(request)
+      
+      case 'display':
+        return await displayHandler(request)
       
       case 'delete':
         return await deleteHandler(request)
