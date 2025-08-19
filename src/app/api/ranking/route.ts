@@ -17,17 +17,15 @@ const createHandler = ApiHandler.create({
     action: z.literal('create'),
     url: z.string().url(),
     token: z.string().min(8).max(16),
-    maxEntries: z.coerce.number().int().min(1).max(100).default(10),
-    orderBy: z.enum(['desc', 'asc']).default('desc')
+    maxEntries: z.coerce.number().int().min(1).max(1000).default(100)
   }),
   resultSchema: z.object({
     id: z.string(),
     url: z.string()
   }),
-  handler: async ({ url, token, maxEntries, orderBy }, request) => {
+  handler: async ({ url, token, maxEntries }, request) => {
     const createResult = await rankingService.create(url, token, {
-      maxEntries,
-      orderBy
+      maxEntries
     })
     
     if (!createResult.success) {
@@ -47,13 +45,14 @@ const createHandler = ApiHandler.create({
 const submitHandler = ApiHandler.create({
   paramsSchema: z.object({
     action: z.literal('submit'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
+    url: z.string().url(),
+    token: z.string().min(8).max(16),
     name: z.string().min(1).max(50),
     score: z.coerce.number().int()
   }),
   resultSchema: RankingDataSchema,
-  handler: async ({ id, name, score }) => {
-    return await rankingService.submitScore(id, name, score)
+  handler: async ({ url, token, name, score }) => {
+    return await rankingService.submitScore(url, token, { name, score })
   }
 })
 
@@ -72,7 +71,7 @@ const updateHandler = ApiHandler.create({
     success: z.literal(true)
   }),
   handler: async ({ url, token, name, score }) => {
-    const updateResult = await rankingService.updateScore(url, token, name, score)
+    const updateResult = await rankingService.updateScore(url, token, { name, score })
     
     if (!updateResult.success) {
       return updateResult
@@ -96,7 +95,7 @@ const removeHandler = ApiHandler.create({
     success: z.literal(true)
   }),
   handler: async ({ url, token, name }) => {
-    const removeResult = await rankingService.removeEntry(url, token, name)
+    const removeResult = await rankingService.removeEntry(url, token, { name })
     
     if (!removeResult.success) {
       return removeResult

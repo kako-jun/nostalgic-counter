@@ -8,7 +8,7 @@ import { ApiHandler } from '@/lib/core/api-handler'
 import { Ok, map } from '@/lib/core/result'
 import { bbsService } from '@/domain/bbs/bbs.service'
 import { getClientIP, getUserAgent } from '@/lib/utils/api'
-import { BBSDataSchema, BBSMessageDataSchema } from '@/domain/bbs/bbs.entity'
+import { BBSDataSchema, BBSMessageSchema } from '@/domain/bbs/bbs.entity'
 
 /**
  * CREATE アクション
@@ -28,19 +28,18 @@ const createHandler = ApiHandler.create({
     url: z.string()
   }),
   handler: async ({ url, token, messagesPerPage, maxMessages, enableIcons, enableSelects }, request) => {
+    const icons = enableIcons ? ['😀', '😉', '😎', '😠', '😢', '😮'] : []
+    const selects = enableSelects ? [
+      { label: '地域', options: ['東京', '大阪', '名古屋', '福岡', 'その他'] },
+      { label: '天気', options: ['晴れ', '曇り', '雨', '雪'] },
+      { label: '気分', options: ['楽しい', '普通', 'つまらない'] }
+    ] : []
+    
     const createResult = await bbsService.create(url, token, {
       messagesPerPage,
       maxMessages,
-      settings: {
-        enableIcons,
-        iconOptions: ['smile', 'wink', 'cool', 'angry', 'sad', 'surprised'],
-        enableSelects,
-        selectOptions: {
-          select1: { label: '地域', options: ['東京', '大阪', '名古屋', '福岡', 'その他'] },
-          select2: { label: '天気', options: ['晴れ', '曇り', '雨', '雪'] },
-          select3: { label: '気分', options: ['楽しい', '普通', 'つまらない'] }
-        }
-      }
+      icons,
+      selects
     })
     
     if (!createResult.success) {
@@ -60,32 +59,44 @@ const createHandler = ApiHandler.create({
 const postHandler = ApiHandler.create({
   paramsSchema: z.object({
     action: z.literal('post'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    author: z.string().min(1).max(50),
+    url: z.string().url(),
+    token: z.string().min(8).max(16),
+    author: z.string().min(1).max(50).default('名無しさん'),
     message: z.string().min(1).max(1000),
     icon: z.string().optional(),
     select1: z.string().optional(),
     select2: z.string().optional(),
     select3: z.string().optional()
   }),
-  resultSchema: BBSMessageDataSchema,
-  handler: async ({ id, author, message, icon, select1, select2, select3 }, request) => {
+  resultSchema: z.object({
+    success: z.literal(true),
+    messageId: z.string()
+  }),
+  handler: async ({ url, token, author, message, icon, select1, select2, select3 }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
 
-    const selects: Record<string, string> = {}
-    if (select1) selects.select1 = select1
-    if (select2) selects.select2 = select2
-    if (select3) selects.select3 = select3
+    const selects: string[] = []
+    if (select1) selects.push(select1)
+    if (select2) selects.push(select2)
+    if (select3) selects.push(select3)
 
-    return await bbsService.postMessage(id, {
+    const postResult = await bbsService.postMessage(url, token, {
       author,
       message,
       icon,
-      selects: Object.keys(selects).length > 0 ? selects : undefined,
-      ipHash: bbsService.generateUserHash(clientIP, userAgent),
-      userAgent
+      selects: selects.length > 0 ? selects : undefined,
+      authorHash: bbsService.generateUserHash(clientIP, userAgent)
     })
+    
+    if (!postResult.success) {
+      return postResult
+    }
+
+    return map(postResult, () => ({ 
+      success: true as const,
+      messageId: `msg_${Date.now()}`
+    }))
   }
 })
 
@@ -95,9 +106,11 @@ const postHandler = ApiHandler.create({
 const updateHandler = ApiHandler.create({
   paramsSchema: z.object({
     action: z.literal('update'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
+    url: z.string().url(),
+    token: z.string().min(8).max(16),
     messageId: z.string(),
-    message: z.string().min(1).max(1000).optional(),
+    author: z.string().min(1).max(50),
+    message: z.string().min(1).max(1000),
     icon: z.string().optional(),
     select1: z.string().optional(),
     select2: z.string().optional(),
@@ -106,22 +119,24 @@ const updateHandler = ApiHandler.create({
   resultSchema: z.object({
     success: z.literal(true)
   }),
-  handler: async ({ id, messageId, message, icon, select1, select2, select3 }, request) => {
+  handler: async ({ url, token, messageId, author, message, icon, select1, select2, select3 }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
-    const userHash = bbsService.generateUserHash(clientIP, userAgent)
-
-    const updates: Record<string, any> = {}
-    if (message !== undefined) updates.message = message
-    if (icon !== undefined) updates.icon = icon
+    const authorHash = bbsService.generateUserHash(clientIP, userAgent)
     
-    const selects: Record<string, string> = {}
-    if (select1) selects.select1 = select1
-    if (select2) selects.select2 = select2
-    if (select3) selects.select3 = select3
-    if (Object.keys(selects).length > 0) updates.selects = selects
+    const selects: string[] = []
+    if (select1) selects.push(select1)
+    if (select2) selects.push(select2)
+    if (select3) selects.push(select3)
 
-    const updateResult = await bbsService.updateMessage(id, messageId, updates, userHash)
+    const updateResult = await bbsService.updateMessage(url, token, {
+      messageId,
+      author,
+      message,
+      icon,
+      selects: selects.length > 0 ? selects : undefined,
+      authorHash
+    })
     
     if (!updateResult.success) {
       return updateResult
@@ -137,28 +152,22 @@ const updateHandler = ApiHandler.create({
 const removeHandler = ApiHandler.create({
   paramsSchema: z.object({
     action: z.literal('remove'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    messageId: z.string(),
-    url: z.string().url().optional(),
-    token: z.string().min(8).max(16).optional()
+    url: z.string().url(),
+    token: z.string().min(8).max(16),
+    messageId: z.string()
   }),
   resultSchema: z.object({
     success: z.literal(true)
   }),
-  handler: async ({ id, messageId, url, token }, request) => {
-    let removeResult
-
-    if (url && token) {
-      // オーナーによる削除
-      removeResult = await bbsService.removeMessage(id, messageId, url, token)
-    } else {
-      // 投稿者による削除
-      const clientIP = getClientIP(request)
-      const userAgent = getUserAgent(request)
-      const userHash = bbsService.generateUserHash(clientIP, userAgent)
-      
-      removeResult = await bbsService.removeMessage(id, messageId, undefined, undefined, userHash)
-    }
+  handler: async ({ url, token, messageId }, request) => {
+    const clientIP = getClientIP(request)
+    const userAgent = getUserAgent(request)
+    const authorHash = bbsService.generateUserHash(clientIP, userAgent)
+    
+    const removeResult = await bbsService.removeMessage(url, token, {
+      messageId,
+      authorHash
+    })
     
     if (!removeResult.success) {
       return removeResult
@@ -181,7 +190,7 @@ const clearHandler = ApiHandler.create({
     success: z.literal(true)
   }),
   handler: async ({ url, token }) => {
-    const clearResult = await bbsService.clearMessages(url, token)
+    const clearResult = await bbsService.clearBBS(url, token)
     
     if (!clearResult.success) {
       return clearResult
@@ -202,7 +211,7 @@ const getHandler = ApiHandler.create({
   }),
   resultSchema: BBSDataSchema,
   handler: async ({ id, page }) => {
-    return await bbsService.getMessages(id, page)
+    return await bbsService.getBBSData(id, page)
   }
 })
 

@@ -146,7 +146,7 @@ export default function HomePage() {
               </p>
               <div style={{ textAlign: "center", margin: "20px 0" }}>
                 <p style={{ marginBottom: "10px" }}>どのサービスが人気か見てみよう！</p>
-                <nostalgic-ranking id="nostalgic-services-ranking" limit="4" theme="classic" />
+                <nostalgic-ranking id="nostalgic-services-ranking" theme="classic" />
               </div>
             </div>
 
