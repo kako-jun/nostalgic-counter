@@ -14,11 +14,13 @@ const ServiceLimitsSchema = z.object({
   counter: z.object({
     maxValue: z.number().int().positive().default(999999999),
     maxDigits: z.number().int().min(1).max(15).default(10),
-    dailyRetentionDays: z.number().int().positive().default(365)
+    dailyRetentionDays: z.number().int().positive().default(365),
+    visitTTL: z.number().int().positive().default(86400)
   }).default({
     maxValue: 999999999,
     maxDigits: 10,
-    dailyRetentionDays: 365
+    dailyRetentionDays: 365,
+    visitTTL: 86400
   }),
   like: z.object({
     maxValue: z.number().int().positive().default(999999999),
@@ -33,12 +35,14 @@ const ServiceLimitsSchema = z.object({
     maxEntries: z.number().int().min(1).max(10000).default(1000),
     maxNameLength: z.number().int().min(1).max(100).default(50),
     minScore: z.number().int().min(0).default(0),
-    maxScore: z.number().int().positive().default(999999999)
+    maxScore: z.number().int().positive().default(999999999),
+    submitCooldown: z.number().int().positive().default(30)
   }).default({
     maxEntries: 1000,
     maxNameLength: 50,
     minScore: 0,
-    maxScore: 999999999
+    maxScore: 999999999,
+    submitCooldown: 30
   }),
   bbs: z.object({
     maxMessages: z.number().int().min(1).max(10000).default(1000),
@@ -47,7 +51,8 @@ const ServiceLimitsSchema = z.object({
     messagesPerPage: z.number().int().min(1).max(100).default(10),
     maxIcons: z.number().int().min(0).max(50).default(20),
     maxSelectOptions: z.number().int().min(0).max(100).default(50),
-    maxSelectLabelLength: z.number().int().min(1).max(100).default(50)
+    maxSelectLabelLength: z.number().int().min(1).max(100).default(50),
+    postCooldown: z.number().int().positive().default(10)
   }).default({
     maxMessages: 1000,
     maxMessageLength: 1000,
@@ -55,7 +60,8 @@ const ServiceLimitsSchema = z.object({
     messagesPerPage: 10,
     maxIcons: 20,
     maxSelectOptions: 50,
-    maxSelectLabelLength: 50
+    maxSelectLabelLength: 50,
+    postCooldown: 10
   })
 }).default({
   counter: {

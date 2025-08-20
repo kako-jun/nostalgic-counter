@@ -123,7 +123,8 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
   async postMessage(
     url: string,
     token: string,
-    params: BBSPostParams
+    params: BBSPostParams,
+    userHash?: string
   ): Promise<Result<BBSData, ValidationError | NotFoundError>> {
     // オーナーシップ検証
     const ownershipResult = await this.verifyOwnership(url, token)
@@ -137,6 +138,18 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
 
     const entity = ownershipResult.data.entity as BBSEntity
 
+    // 連投防止チェック（userHashが提供された場合）
+    if (userHash) {
+      const cooldownResult = await this.checkPostCooldown(entity.id, userHash)
+      if (!cooldownResult.success) {
+        return cooldownResult
+      }
+      
+      if (!cooldownResult.data) {
+        return Err(new ValidationError('Please wait before posting another message (10 seconds cooldown)'))
+      }
+    }
+
     // メッセージ長制限チェック
     const limits = getBBSLimits()
     if (params.message.length > limits.maxMessageLength) {
@@ -145,6 +158,14 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
 
     if (params.author.length > limits.maxAuthorLength) {
       return Err(new ValidationError(`Author name exceeds maximum length of ${limits.maxAuthorLength}`))
+    }
+
+    // 連投防止マーク（userHashが提供された場合）
+    if (userHash) {
+      const markResult = await this.markPostTime(entity.id, userHash)
+      if (!markResult.success) {
+        return Err(new ValidationError('Failed to mark post time', { error: markResult.error }))
+      }
     }
 
     // メッセージIDを生成
@@ -164,6 +185,10 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
     // メッセージをリストに追加
     const addResult = await this.listRepository.push(`${entity.id}:messages`, [message])
     if (!addResult.success) {
+      // ロールバック: 投稿マークを削除
+      if (userHash) {
+        await this.removePostMark(entity.id, userHash)
+      }
       return Err(new ValidationError('Failed to add message', { error: addResult.error }))
     }
 
@@ -176,6 +201,10 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
 
     const saveResult = await this.entityRepository.save(entity.id, entity)
     if (!saveResult.success) {
+      // ロールバック処理
+      if (userHash) {
+        await this.removePostMark(entity.id, userHash)
+      }
       return Err(new ValidationError('Failed to save entity', { error: saveResult.error }))
     }
 
@@ -458,6 +487,54 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
     }
 
     return ValidationFramework.output(BBSDataSchema, data)
+  }
+
+  /**
+   * 連投防止チェック
+   */
+  private async checkPostCooldown(id: string, userHash: string): Promise<Result<boolean, ValidationError>> {
+    const postKey = `post:${id}:${userHash}`
+    const postRepo = RepositoryFactory.createEntity(z.string(), 'bbs_post')
+    
+    const existsResult = await postRepo.exists(postKey)
+    if (!existsResult.success) {
+      return Err(new ValidationError('Failed to check post cooldown', { error: existsResult.error }))
+    }
+
+    // true = 投稿可能、false = クールダウン中
+    return Ok(!existsResult.data)
+  }
+
+  /**
+   * 投稿時刻をマーク
+   */
+  private async markPostTime(id: string, userHash: string): Promise<Result<void, ValidationError>> {
+    const postKey = `post:${id}:${userHash}`
+    const postRepo = RepositoryFactory.createEntity(z.string(), 'bbs_post')
+    const limits = getBBSLimits() as { postCooldown: number }
+    const ttl = limits.postCooldown // デフォルト10秒
+
+    const saveResult = await postRepo.saveWithTTL(postKey, new Date().toISOString(), ttl)
+    if (!saveResult.success) {
+      return Err(new ValidationError('Failed to mark post time', { error: saveResult.error }))
+    }
+
+    return Ok(undefined)
+  }
+
+  /**
+   * 投稿マークを削除（ロールバック用）
+   */
+  private async removePostMark(id: string, userHash: string): Promise<Result<void, ValidationError>> {
+    const postKey = `post:${id}:${userHash}`
+    const postRepo = RepositoryFactory.createEntity(z.string(), 'bbs_post')
+
+    const deleteResult = await postRepo.delete(postKey)
+    if (!deleteResult.success) {
+      return Err(new ValidationError('Failed to remove post mark', { error: deleteResult.error }))
+    }
+
+    return Ok(undefined)
   }
 }
 

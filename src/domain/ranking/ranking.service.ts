@@ -8,6 +8,7 @@ import { BaseService } from '@/lib/core/base-service'
 import { ValidationFramework } from '@/lib/core/validation'
 import { getRankingLimits } from '@/lib/core/config'
 import { RepositoryFactory, SortedSetRepository } from '@/lib/core/repository'
+import { createHash } from 'crypto'
 import {
   RankingEntity,
   RankingData,
@@ -99,7 +100,8 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
   async submitScore(
     url: string,
     token: string,
-    params: RankingSubmitParams
+    params: RankingSubmitParams,
+    userHash?: string
   ): Promise<Result<RankingData, ValidationError | NotFoundError>> {
     // オーナーシップ検証
     const ownershipResult = await this.verifyOwnership(url, token)
@@ -113,6 +115,18 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
 
     const entity = ownershipResult.data.entity as RankingEntity
 
+    // 連投防止チェック（userHashが提供された場合）
+    if (userHash) {
+      const cooldownResult = await this.checkSubmitCooldown(entity.id, userHash)
+      if (!cooldownResult.success) {
+        return cooldownResult
+      }
+      
+      if (!cooldownResult.data) {
+        return Err(new ValidationError('Please wait before submitting another score (30 seconds cooldown)'))
+      }
+    }
+
     // スコア制限チェック
     const limits = getRankingLimits()
     if (params.score > limits.maxScore) {
@@ -123,9 +137,21 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
       return Err(new ValidationError(`Name exceeds maximum length of ${limits.maxNameLength}`))
     }
 
+    // 連投防止マーク（userHashが提供された場合）
+    if (userHash) {
+      const markResult = await this.markSubmitTime(entity.id, userHash)
+      if (!markResult.success) {
+        return Err(new ValidationError('Failed to mark submit time', { error: markResult.error }))
+      }
+    }
+
     // スコアを追加
     const addResult = await this.sortedSetRepository.add(`${entity.id}:scores`, params.name, params.score)
     if (!addResult.success) {
+      // ロールバック: 連投防止マークを削除
+      if (userHash) {
+        await this.removeSubmitMark(entity.id, userHash)
+      }
       return Err(new ValidationError('Failed to add score', { error: addResult.error }))
     }
 
@@ -141,6 +167,10 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
 
     const saveResult = await this.entityRepository.save(entity.id, entity)
     if (!saveResult.success) {
+      // ロールバック処理
+      if (userHash) {
+        await this.removeSubmitMark(entity.id, userHash)
+      }
       return Err(new ValidationError('Failed to save entity', { error: saveResult.error }))
     }
 
@@ -325,6 +355,65 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
     }
 
     return ValidationFramework.output(RankingDataSchema, data)
+  }
+
+  /**
+   * 連投防止チェック
+   */
+  private async checkSubmitCooldown(id: string, userHash: string): Promise<Result<boolean, ValidationError>> {
+    const submitKey = `submit:${id}:${userHash}`
+    const submitRepo = RepositoryFactory.createEntity(z.string(), 'ranking_submit')
+    
+    const existsResult = await submitRepo.exists(submitKey)
+    if (!existsResult.success) {
+      return Err(new ValidationError('Failed to check submit cooldown', { error: existsResult.error }))
+    }
+
+    // true = 送信可能、false = クールダウン中
+    return Ok(!existsResult.data)
+  }
+
+  /**
+   * 送信時刻をマーク
+   */
+  private async markSubmitTime(id: string, userHash: string): Promise<Result<void, ValidationError>> {
+    const submitKey = `submit:${id}:${userHash}`
+    const submitRepo = RepositoryFactory.createEntity(z.string(), 'ranking_submit')
+    const limits = getRankingLimits() as { submitCooldown: number }
+    const ttl = limits.submitCooldown // デフォルト30秒
+
+    const saveResult = await submitRepo.saveWithTTL(submitKey, new Date().toISOString(), ttl)
+    if (!saveResult.success) {
+      return Err(new ValidationError('Failed to mark submit time', { error: saveResult.error }))
+    }
+
+    return Ok(undefined)
+  }
+
+  /**
+   * 送信マークを削除（ロールバック用）
+   */
+  private async removeSubmitMark(id: string, userHash: string): Promise<Result<void, ValidationError>> {
+    const submitKey = `submit:${id}:${userHash}`
+    const submitRepo = RepositoryFactory.createEntity(z.string(), 'ranking_submit')
+
+    const deleteResult = await submitRepo.delete(submitKey)
+    if (!deleteResult.success) {
+      return Err(new ValidationError('Failed to remove submit mark', { error: deleteResult.error }))
+    }
+
+    return Ok(undefined)
+  }
+
+  /**
+   * ユーザーハッシュの生成
+   */
+  generateUserHash(ip: string, userAgent: string): string {
+    const today = new Date().toISOString().split('T')[0]
+    return createHash('sha256')
+      .update(`${ip}:${userAgent}:${today}`)
+      .digest('hex')
+      .substring(0, 16)
   }
 }
 

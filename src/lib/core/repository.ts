@@ -101,6 +101,36 @@ export abstract class BaseRepository<TEntity, TId = string> {
   }
 
   /**
+   * アトミックな設定（キーが存在しない場合のみ）
+   */
+  async setIfNotExists(
+    id: TId, 
+    entity: TEntity, 
+    ttlSeconds: number
+  ): Promise<Result<boolean, StorageError | ValidationError>> {
+    const serializationResult = ValidationFramework.storage(this.entitySchema, entity)
+    
+    if (!serializationResult.success) {
+      return serializationResult
+    }
+
+    try {
+      // Redis SET key value NX EX ttl コマンド
+      const result = await this.redis.set(
+        this.buildKey(id), 
+        serializationResult.data, 
+        'NX', 
+        'EX', 
+        ttlSeconds
+      )
+      // 'OK' = 設定成功（新規）、null = キーが既に存在
+      return Ok(result === 'OK')
+    } catch (error) {
+      return Err(new StorageError('setIfNotExists', error instanceof Error ? error.message : String(error)))
+    }
+  }
+
+  /**
    * キーの構築（サブクラスでオーバーライド可能）
    */
   protected buildKey(id: TId): string {

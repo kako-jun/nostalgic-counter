@@ -120,26 +120,44 @@ export class LikeService extends BaseNumericService<LikeEntity, LikeData, LikeCr
     const currentlyLiked = userLikedResult.success ? userLikedResult.data : false
 
     if (currentlyLiked) {
-      // いいねを取り消し
-      const decrementResult = await this.incrementValue(`${id}:total`, -1)
-      if (!decrementResult.success) {
-        return decrementResult
+      // いいねを取り消し（アトミック操作）
+      const removeResult = await this.removeUserLikeStatus(id, userHash)
+      if (!removeResult.success) {
+        return Err(new ValidationError('Failed to remove user like status', { error: removeResult.error }))
       }
 
-      // ユーザー状態を削除
-      await this.removeUserLikeStatus(id, userHash)
+      const decrementResult = await this.incrementValue(`${id}:total`, -1)
+      if (!decrementResult.success) {
+        // ロールバック: ユーザー状態を復元
+        await this.setUserLikeStatus(id, userHash)
+        return decrementResult
+      }
       
       entity.totalLikes = decrementResult.data
       entity.lastLike = new Date() // 取り消しもアクセスとして記録
     } else {
-      // いいねを追加
-      const incrementResult = await this.incrementValue(`${id}:total`, 1)
-      if (!incrementResult.success) {
-        return incrementResult
+      // いいねを追加（アトミック操作）
+      const atomicSetResult = await this.atomicSetUserLikeStatus(id, userHash)
+      if (!atomicSetResult.success) {
+        return Err(new ValidationError('Failed to atomically set user status', { error: atomicSetResult.error }))
       }
 
-      // ユーザー状態を保存
-      await this.setUserLikeStatus(id, userHash)
+      if (!atomicSetResult.data) {
+        // 既にいいね済み（競合状態で他のリクエストが先に処理された）
+        // 現在の状態を再取得して返す
+        const updatedEntityResult = await this.getById(id)
+        if (!updatedEntityResult.success) {
+          return updatedEntityResult
+        }
+        return await this.transformEntityToDataWithUser(updatedEntityResult.data, userHash)
+      }
+
+      const incrementResult = await this.incrementValue(`${id}:total`, 1)
+      if (!incrementResult.success) {
+        // ロールバック: ユーザー状態を削除
+        await this.removeUserLikeStatus(id, userHash)
+        return incrementResult
+      }
       
       entity.totalLikes = incrementResult.data
       entity.lastLike = new Date()
@@ -148,6 +166,16 @@ export class LikeService extends BaseNumericService<LikeEntity, LikeData, LikeCr
     // エンティティ保存
     const saveResult = await this.entityRepository.save(id, entity)
     if (!saveResult.success) {
+      // ロールバック処理
+      if (currentlyLiked) {
+        // 取り消し処理の場合のロールバック
+        await this.incrementValue(`${id}:total`, 1)
+        await this.setUserLikeStatus(id, userHash)
+      } else {
+        // 追加処理の場合のロールバック
+        await this.incrementValue(`${id}:total`, -1)
+        await this.removeUserLikeStatus(id, userHash)
+      }
       return Err(new ValidationError('Failed to save entity', { error: saveResult.error }))
     }
 
@@ -271,6 +299,28 @@ export class LikeService extends BaseNumericService<LikeEntity, LikeData, LikeCr
     }
 
     return Ok(undefined)
+  }
+
+  /**
+   * アトミックなユーザー状態設定（競合状態を解決）
+   */
+  private async atomicSetUserLikeStatus(id: string, userHash: string): Promise<Result<boolean, ValidationError>> {
+    const userKey = `${id}:user:${userHash}`
+    const userRepo = RepositoryFactory.createEntity(z.string(), 'like_users')
+    const ttl = getLikeLimits().userStateTTL
+
+    try {
+      // Redis SET NX EX を使用してアトミックにチェック＆設定
+      const result = await userRepo.setIfNotExists(userKey, new Date().toISOString(), ttl)
+      if (!result.success) {
+        return Err(new ValidationError('Failed to atomically set user status', { error: result.error }))
+      }
+      
+      // true = 新規いいね、false = 既にいいね済み
+      return Ok(result.data)
+    } catch (error) {
+      return Err(new ValidationError('Redis operation failed', { error }))
+    }
   }
 
   /**

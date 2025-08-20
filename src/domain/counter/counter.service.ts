@@ -117,21 +117,27 @@ export class CounterService extends BaseNumericService<CounterEntity, CounterDat
     userHash: string,
     incrementBy: number = 1
   ): Promise<Result<CounterData, ValidationError | NotFoundError>> {
-    // 重複チェック
-    const isDuplicate = await this.checkDuplicateVisit(id, userHash)
-    if (isDuplicate.success && isDuplicate.data) {
+    // アトミックな訪問マーク（競合状態を解決）
+    const visitMarkResult = await this.atomicMarkVisit(id, userHash)
+    if (!visitMarkResult.success) {
+      return Err(new ValidationError('Failed to mark visit atomically', { error: visitMarkResult.error }))
+    }
+
+    if (!visitMarkResult.data) {
       // 重複の場合は現在値を返す
       const entityResult = await this.getById(id)
       if (!entityResult.success) {
         return entityResult
       }
-      
+
       return await this.transformEntityToData(entityResult.data)
     }
 
     // エンティティ取得
     const entityResult = await this.getById(id)
     if (!entityResult.success) {
+      // 訪問マークを削除（ロールバック）
+      await this.removeVisitMark(id, userHash)
       return entityResult
     }
 
@@ -140,12 +146,20 @@ export class CounterService extends BaseNumericService<CounterEntity, CounterDat
     // 総カウント増加
     const incrementResult = await this.incrementValue(`${id}:total`, incrementBy)
     if (!incrementResult.success) {
+      // 訪問マークを削除（ロールバック）
+      await this.removeVisitMark(id, userHash)
       return incrementResult
     }
 
     // 日別カウント増加
     const today = new Date().toISOString().split('T')[0]
     const dailyIncrementResult = await this.dailyRepository.increment(`${id}:${today}`, incrementBy)
+    if (!dailyIncrementResult.success) {
+      // ロールバック処理
+      await this.incrementValue(`${id}:total`, -incrementBy)
+      await this.removeVisitMark(id, userHash)
+      return dailyIncrementResult
+    }
     
     // 最終訪問時刻の更新
     entity.totalCount = incrementResult.data
@@ -154,11 +168,12 @@ export class CounterService extends BaseNumericService<CounterEntity, CounterDat
     // エンティティ保存
     const saveResult = await this.entityRepository.save(id, entity)
     if (!saveResult.success) {
+      // ロールバック処理
+      await this.incrementValue(`${id}:total`, -incrementBy)
+      await this.dailyRepository.increment(`${id}:${today}`, -incrementBy)
+      await this.removeVisitMark(id, userHash)
       return Err(new ValidationError('Failed to save entity', { error: saveResult.error }))
     }
-
-    // 重複防止マーク
-    await this.markVisit(id, userHash)
 
     return await this.transformEntityToData(entity)
   }
@@ -215,12 +230,51 @@ export class CounterService extends BaseNumericService<CounterEntity, CounterDat
   }
 
   /**
-   * 訪問をマーク
+   * アトミックな訪問マーク（競合状態を解決）
+   */
+  private async atomicMarkVisit(id: string, userHash: string): Promise<Result<boolean, ValidationError>> {
+    const visitKey = `visit:${id}:${userHash}`
+    const visitRepo = RepositoryFactory.createEntity(z.string(), 'visit_check')
+    const limits = getServiceLimits('counter') as { visitTTL: number }
+    const ttl = limits.visitTTL // 24時間
+
+    try {
+      // Redis SET NX EX を使用してアトミックにチェック＆設定
+      const result = await visitRepo.setIfNotExists(visitKey, new Date().toISOString(), ttl)
+      if (!result.success) {
+        return Err(new ValidationError('Failed to atomically mark visit', { error: result.error }))
+      }
+      
+      // true = 新規訪問、false = 重複訪問
+      return Ok(result.data)
+    } catch (error) {
+      return Err(new ValidationError('Redis operation failed', { error }))
+    }
+  }
+
+  /**
+   * 訪問マークを削除（ロールバック用）
+   */
+  private async removeVisitMark(id: string, userHash: string): Promise<Result<void, ValidationError>> {
+    const visitKey = `visit:${id}:${userHash}`
+    const visitRepo = RepositoryFactory.createEntity(z.string(), 'visit_check')
+
+    const deleteResult = await visitRepo.delete(visitKey)
+    if (!deleteResult.success) {
+      return Err(new ValidationError('Failed to remove visit mark', { error: deleteResult.error }))
+    }
+
+    return Ok(undefined)
+  }
+
+  /**
+   * 訪問をマーク（後方互換性のため保持）
    */
   private async markVisit(id: string, userHash: string): Promise<Result<void, ValidationError>> {
     const visitKey = `visit:${id}:${userHash}`
     const visitRepo = RepositoryFactory.createEntity(z.string(), 'visit_check')
-    const ttl = (getServiceLimits('like') as { userStateTTL: number }).userStateTTL // 24時間
+    const limits = getServiceLimits('counter') as { visitTTL: number }
+    const ttl = limits.visitTTL // 24時間
 
     const saveResult = await visitRepo.saveWithTTL(visitKey, new Date().toISOString(), ttl)
     if (!saveResult.success) {
