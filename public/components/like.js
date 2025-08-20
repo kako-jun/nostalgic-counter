@@ -33,7 +33,7 @@ class NostalgicLike extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['id', 'theme'];
+    return ['id', 'theme', 'icon'];
   }
 
   connectedCallback() {
@@ -127,6 +127,7 @@ class NostalgicLike extends HTMLElement {
 
   render() {
     const theme = this.getAttribute('theme') || 'classic';
+    const icon = this.getAttribute('icon') || 'heart';
     
     if (!this.getAttribute('id')) {
       this.renderError('Error: id attribute is required');
@@ -137,25 +138,32 @@ class NostalgicLike extends HTMLElement {
     const total = this.likeData ? this.likeData.total : 0;
     const userLiked = this.likeData ? this.likeData.userLiked : false;
     
+    // アイコンマッピング
+    const iconMapping = {
+      heart: { filled: '♥', empty: '♡' },
+      star: { filled: '★', empty: '☆' },
+      thumbup: { filled: '👍', empty: '👍' }
+    };
+    
+    const currentIcon = iconMapping[icon] || iconMapping.heart;
+    const displayIcon = userLiked ? currentIcon.filled : currentIcon.empty;
+    
     // テーマ別のスタイル
     const themeStyles = {
       classic: {
         bgColor: userLiked ? '#ff4757' : '#ddd',
         textColor: userLiked ? '#fff' : '#333',
-        border: '2px solid #333',
-        heartIcon: userLiked ? '♥' : '♡'
+        border: '2px solid #333'
       },
       modern: {
         bgColor: userLiked ? '#3742fa' : '#f1f2f6',
         textColor: userLiked ? '#fff' : '#2f3542',
-        border: '1px solid #ddd',
-        heartIcon: userLiked ? '♥' : '♡'
+        border: '1px solid #ddd'
       },
       retro: {
         bgColor: userLiked ? '#ff6b6b' : '#ffe066',
         textColor: '#2d3436',
-        border: '3px solid #2d3436',
-        heartIcon: userLiked ? '♥' : '♡'
+        border: '3px solid #2d3436'
       }
     };
     
@@ -216,7 +224,7 @@ class NostalgicLike extends HTMLElement {
       </style>
       
       <button class="like-button ${isLoading ? 'loading' : ''}" ${isLoading ? 'disabled' : ''}>
-        <span class="heart-icon">${style.heartIcon}</span>
+        <span class="heart-icon">${displayIcon}</span>
         <span class="like-count">${total}</span>
       </button>
     `;
@@ -237,5 +245,6 @@ if (!customElements.get('nostalgic-like')) {
 
 // コンソールに使用方法を表示
 console.log('❤️ Nostalgic Like loaded!');
-console.log('Usage: <nostalgic-like id="your-like-id" theme="classic"></nostalgic-like>');
+console.log('Usage: <nostalgic-like id="your-like-id" theme="classic" icon="heart"></nostalgic-like>');
+console.log('Icons: heart (♥), star (★), thumbup (👍)');
 console.log('Docs: https://nostalgic.llll-ll.com');

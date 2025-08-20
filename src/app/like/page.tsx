@@ -200,8 +200,11 @@ export default function LikePage() {
                 {`<script src="https://nostalgic.llll-ll.com/components/like.js"></script>
 <nostalgic-like id="`}
                 <span style={{ color: "#008000" }}>公開ID</span>
-                {`"></nostalgic-like>`}
+                {`" icon="heart"></nostalgic-like>`}
               </pre>
+              <p style={{ fontSize: "14px", color: "#666" }}>
+                ※ icon属性で表示を変更できます: "heart"（ハート）, "star"（スター）, "thumbup"（サムズアップ）
+              </p>
               
               <div className="nostalgic-section">
                 <p>
@@ -228,7 +231,7 @@ export default function LikePage() {
                 <p>公開ID: <span style={{ backgroundColor: "#ffff00", padding: "2px 4px", fontFamily: "monospace" }}>{publicId}</span></p>
                 <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px", wordBreak: "break-all" }}>
 {`<script src="https://nostalgic.llll-ll.com/components/like.js"></script>
-<nostalgic-like id="${publicId}"></nostalgic-like>`}
+<nostalgic-like id="${publicId}" icon="heart"></nostalgic-like>`}
                 </p>
                 
                 <div className="nostalgic-counter-section">
@@ -253,7 +256,20 @@ export default function LikePage() {
               </p>
               <div style={{ textAlign: "center", margin: "20px 0" }}>
                 <p style={{ marginBottom: "10px" }}>このデモページのいいねボタン（実際に動作します）：</p>
-                <nostalgic-like id="nostalgic-865b5349" theme="classic" />
+                <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
+                  <div style={{ textAlign: "center" }}>
+                    <p style={{ fontSize: "14px", marginBottom: "5px" }}>ハート</p>
+                    <nostalgic-like id="nostalgic-865b5349" theme="classic" icon="heart" />
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <p style={{ fontSize: "14px", marginBottom: "5px" }}>スター</p>
+                    <nostalgic-like id="nostalgic-865b5349" theme="classic" icon="star" />
+                  </div>
+                  <div style={{ textAlign: "center" }}>
+                    <p style={{ fontSize: "14px", marginBottom: "5px" }}>サムズアップ</p>
+                    <nostalgic-like id="nostalgic-865b5349" theme="classic" icon="thumbup" />
+                  </div>
+                </div>
               </div>
               <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
                 ※クリックしてお試しください！状態が即座に切り替わります
