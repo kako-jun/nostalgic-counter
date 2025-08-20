@@ -31,10 +31,11 @@ class NostalgicBBS extends HTMLElement {
     this.bbsData = null;
     this.loading = false;
     this.currentPage = 1;
+    this.posting = false;
   }
 
   static get observedAttributes() {
-    return ['id', 'page', 'theme', 'format'];
+    return ['id', 'page', 'theme', 'format', 'url', 'token'];
   }
 
   connectedCallback() {
@@ -247,6 +248,68 @@ class NostalgicBBS extends HTMLElement {
           color: #666;
           font-style: italic;
         }
+        .post-form {
+          border-top: 2px solid var(--bbs-border-color);
+          margin-top: 10px;
+          padding-top: 10px;
+        }
+        .form-header {
+          background: var(--bbs-header-bg);
+          color: var(--bbs-header-color);
+          padding: 6px 8px;
+          text-align: center;
+          font-weight: bold;
+          font-size: 12px;
+          margin-bottom: 8px;
+        }
+        .form-body {
+          padding: 0 5px;
+        }
+        .form-row {
+          margin-bottom: 6px;
+          display: flex;
+          gap: 6px;
+          align-items: flex-start;
+        }
+        .form-row input, .form-row select, .form-row textarea {
+          font-family: inherit;
+          font-size: 12px;
+          padding: 4px 6px;
+          border: 1px solid var(--bbs-border-color);
+          border-radius: 2px;
+          background: var(--bbs-message-bg);
+          color: var(--bbs-text-color);
+        }
+        .form-row input[type="text"] {
+          flex: 2;
+        }
+        .form-row select {
+          flex: 1;
+        }
+        .form-row textarea {
+          flex: 1;
+          width: 100%;
+          resize: vertical;
+          min-height: 60px;
+        }
+        .form-row button {
+          font-family: inherit;
+          font-size: 12px;
+          padding: 6px 12px;
+          background: var(--bbs-header-bg);
+          color: var(--bbs-header-color);
+          border: 1px solid var(--bbs-border-color);
+          border-radius: 2px;
+          cursor: pointer;
+          font-weight: bold;
+        }
+        .form-row button:hover:not(:disabled) {
+          opacity: 0.8;
+        }
+        .form-row button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
       </style>
       <div class="bbs-container">
         <div class="bbs-header">💬 BBS</div>
@@ -281,6 +344,31 @@ class NostalgicBBS extends HTMLElement {
             </button>
           </div>
         ` : ''}
+        ${this.getAttribute('url') && this.getAttribute('token') ? `
+          <div class="post-form">
+            <div class="form-header">Post Message</div>
+            <div class="form-body">
+              <div class="form-row">
+                <input type="text" id="message-author" placeholder="Name (optional)" maxlength="50">
+                <select id="message-icon">
+                  <option value="">No icon</option>
+                  <option value="😀">😀</option>
+                  <option value="😉">😉</option>
+                  <option value="😎">😎</option>
+                  <option value="😠">😠</option>
+                  <option value="😢">😢</option>
+                  <option value="😮">😮</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <textarea id="message-content" placeholder="Enter your message..." maxlength="1000" rows="3"></textarea>
+              </div>
+              <div class="form-row">
+                <button id="post-button" onclick="this.getRootNode().host.postMessage()">Post</button>
+              </div>
+            </div>
+          </div>
+        ` : ''}
       </div>
     `;
   }
@@ -311,6 +399,68 @@ class NostalgicBBS extends HTMLElement {
     return div.innerHTML;
   }
 
+  async postMessage() {
+    const url = this.getAttribute('url');
+    const token = this.getAttribute('token');
+    
+    if (!url || !token) {
+      alert('Error: url and token attributes are required for message posting');
+      return;
+    }
+
+    const authorInput = this.shadowRoot.querySelector('#message-author');
+    const messageInput = this.shadowRoot.querySelector('#message-content');
+    const iconSelect = this.shadowRoot.querySelector('#message-icon');
+    
+    const author = authorInput.value.trim() || '名無しさん';
+    const message = messageInput.value.trim();
+    const icon = iconSelect ? iconSelect.value : '';
+
+    if (!message) {
+      alert('Please enter a message');
+      return;
+    }
+
+    this.posting = true;
+    this.updatePostButton();
+
+    try {
+      const baseUrl = this.getAttribute('api-base') || NostalgicBBS.apiBaseUrl;
+      const postUrl = `${baseUrl}/api/bbs?action=post&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}&author=${encodeURIComponent(author)}&message=${encodeURIComponent(message)}${icon ? `&icon=${encodeURIComponent(icon)}` : ''}`;
+      
+      const response = await fetch(postUrl);
+      const data = await response.json();
+
+      if (data.success) {
+        // 成功: フォームをクリアして再読み込み
+        authorInput.value = '';
+        messageInput.value = '';
+        if (iconSelect) iconSelect.value = '';
+        
+        // 最新ページに移動して再読み込み
+        this.currentPage = 1;
+        this.setAttribute('page', '1');
+        await this.loadBBSData();
+      } else {
+        throw new Error(data.error || 'Failed to post message');
+      }
+    } catch (error) {
+      console.error('Post message failed:', error);
+      alert(`Failed to post message: ${error.message}`);
+    } finally {
+      this.posting = false;
+      this.updatePostButton();
+    }
+  }
+
+  updatePostButton() {
+    const button = this.shadowRoot.querySelector('#post-button');
+    if (button) {
+      button.disabled = this.posting;
+      button.textContent = this.posting ? 'Posting...' : 'Post';
+    }
+  }
+
   formatDate(dateString) {
     try {
       const date = new Date(dateString);
@@ -334,7 +484,8 @@ if (!customElements.get('nostalgic-bbs')) {
 
 // コンソールに使用方法を表示
 console.log('💬 Nostalgic BBS loaded!');
-console.log('Usage: <nostalgic-bbs id="your-bbs-id" page="1" theme="classic" format="interactive"></nostalgic-bbs>');
+console.log('Usage: <nostalgic-bbs id="your-bbs-id" page="1" theme="classic" url="https://example.com" token="your-token"></nostalgic-bbs>');
 console.log('Themes: classic, modern, retro');
 console.log('Formats: interactive (default)');
+console.log('Note: url and token attributes are required for message posting');
 console.log('Docs: https://nostalgic.llll-ll.com');

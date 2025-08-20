@@ -30,10 +30,11 @@ class NostalgicRanking extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.rankingData = null;
     this.loading = false;
+    this.submitting = false;
   }
 
   static get observedAttributes() {
-    return ['id', 'limit', 'theme', 'format'];
+    return ['id', 'limit', 'theme', 'format', 'url', 'token'];
   }
 
   connectedCallback() {
@@ -216,6 +217,58 @@ class NostalgicRanking extends HTMLElement {
           color: #666;
           font-style: italic;
         }
+        .submit-form {
+          border-top: 2px solid var(--ranking-border-color);
+          margin-top: 10px;
+          padding-top: 10px;
+        }
+        .form-header {
+          background: var(--ranking-header-bg);
+          color: var(--ranking-header-color);
+          padding: 6px 8px;
+          text-align: center;
+          font-weight: bold;
+          font-size: 12px;
+          margin-bottom: 8px;
+        }
+        .form-row {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+        }
+        .form-row input {
+          font-family: inherit;
+          font-size: 12px;
+          padding: 4px 6px;
+          border: 1px solid var(--ranking-border-color);
+          border-radius: 2px;
+          background: var(--ranking-bg-color);
+          color: var(--ranking-text-color);
+        }
+        .form-row input[type="text"] {
+          flex: 2;
+        }
+        .form-row input[type="number"] {
+          flex: 1;
+        }
+        .form-row button {
+          font-family: inherit;
+          font-size: 12px;
+          padding: 4px 8px;
+          background: var(--ranking-header-bg);
+          color: var(--ranking-header-color);
+          border: 1px solid var(--ranking-border-color);
+          border-radius: 2px;
+          cursor: pointer;
+          font-weight: bold;
+        }
+        .form-row button:hover:not(:disabled) {
+          opacity: 0.8;
+        }
+        .form-row button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
       </style>
       <div class="ranking-container">
         <div class="ranking-header">🏆 RANKING</div>
@@ -232,6 +285,16 @@ class NostalgicRanking extends HTMLElement {
         ` : `
           <div class="empty-message">No rankings yet</div>
         `}
+        ${this.getAttribute('url') && this.getAttribute('token') ? `
+          <div class="submit-form">
+            <div class="form-header">Submit Score</div>
+            <div class="form-row">
+              <input type="text" id="score-name" placeholder="Your name" maxlength="50">
+              <input type="number" id="score-value" placeholder="Score" min="0">
+              <button id="submit-button" onclick="this.getRootNode().host.submitScore()">Submit</button>
+            </div>
+          </div>
+        ` : ''}
       </div>
     `;
   }
@@ -256,6 +319,62 @@ class NostalgicRanking extends HTMLElement {
     `;
   }
 
+  async submitScore() {
+    const url = this.getAttribute('url');
+    const token = this.getAttribute('token');
+    
+    if (!url || !token) {
+      alert('Error: url and token attributes are required for score submission');
+      return;
+    }
+
+    const nameInput = this.shadowRoot.querySelector('#score-name');
+    const scoreInput = this.shadowRoot.querySelector('#score-value');
+    
+    const name = nameInput.value.trim();
+    const score = parseInt(scoreInput.value);
+
+    if (!name || isNaN(score)) {
+      alert('Please enter both name and score');
+      return;
+    }
+
+    this.submitting = true;
+    this.updateSubmitButton();
+
+    try {
+      const baseUrl = this.getAttribute('api-base') || NostalgicRanking.apiBaseUrl;
+      const submitUrl = `${baseUrl}/api/ranking?action=submit&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}&name=${encodeURIComponent(name)}&score=${encodeURIComponent(score)}`;
+      
+      const response = await fetch(submitUrl);
+      const data = await response.json();
+
+      if (data.success) {
+        // 成功: フォームをクリアして再読み込み
+        nameInput.value = '';
+        scoreInput.value = '';
+        await this.loadRankingData();
+        alert('Score submitted successfully!');
+      } else {
+        throw new Error(data.error || 'Failed to submit score');
+      }
+    } catch (error) {
+      console.error('Submit score failed:', error);
+      alert(`Failed to submit score: ${error.message}`);
+    } finally {
+      this.submitting = false;
+      this.updateSubmitButton();
+    }
+  }
+
+  updateSubmitButton() {
+    const button = this.shadowRoot.querySelector('#submit-button');
+    if (button) {
+      button.disabled = this.submitting;
+      button.textContent = this.submitting ? 'Submitting...' : 'Submit';
+    }
+  }
+
   escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
@@ -270,7 +389,8 @@ if (!customElements.get('nostalgic-ranking')) {
 
 // コンソールに使用方法を表示
 console.log('🏆 Nostalgic Ranking loaded!');
-console.log('Usage: <nostalgic-ranking id="your-ranking-id" limit="10" theme="classic" format="interactive"></nostalgic-ranking>');
+console.log('Usage: <nostalgic-ranking id="your-ranking-id" limit="10" theme="classic" url="https://example.com" token="your-token"></nostalgic-ranking>');
 console.log('Themes: classic, modern, retro');
 console.log('Formats: interactive (default)');
+console.log('Note: url and token attributes are required for score submission');
 console.log('Docs: https://nostalgic.llll-ll.com');
