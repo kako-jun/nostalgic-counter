@@ -12,6 +12,7 @@ export default function LikePage() {
 
   const urlRef = useRef<HTMLInputElement>(null);
   const tokenRef = useRef<HTMLInputElement>(null);
+  const valueRef = useRef<HTMLInputElement>(null);
   
   useEffect(() => {
     const hash = window.location.hash.slice(1);
@@ -39,10 +40,15 @@ export default function LikePage() {
 
     const url = urlRef.current?.value;
     const token = tokenRef.current?.value;
+    const value = valueRef.current?.value;
 
     if (!url || !token) return;
 
     let apiUrl = `/api/like?action=${mode}&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}`;
+    
+    if (mode === "set" && value) {
+      apiUrl += `&value=${encodeURIComponent(value)}`;
+    }
 
     try {
       const res = await fetch(apiUrl, { method: 'GET' });
@@ -138,6 +144,30 @@ export default function LikePage() {
                     }}
                     required
                   />
+                </p>
+
+                {mode === "set" && (
+                  <p>
+                    <b>いいね数：</b>
+                    <input
+                      ref={valueRef}
+                      type="number"
+                      min="0"
+                      placeholder="100"
+                      style={{
+                        marginLeft: "10px",
+                        width: "20%",
+                        padding: "4px",
+                        border: "1px solid #666",
+                        fontFamily: "inherit",
+                        fontSize: "16px"
+                      }}
+                      required
+                    />
+                  </p>
+                )}
+
+                <p>
                   <button
                     type="submit"
                     style={{
@@ -154,6 +184,40 @@ export default function LikePage() {
                     onClick={() => setMode("create")}
                   >
                     作成
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      marginLeft: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#2196F3",
+                      color: "white",
+                      border: "2px outset #2196F3",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                    onClick={() => setMode("set")}
+                  >
+                    値設定
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      marginLeft: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#f44336",
+                      color: "white",
+                      border: "2px outset #f44336",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                    onClick={() => setMode("delete")}
+                  >
+                    削除
                   </button>
                 </p>
               </form>
@@ -437,14 +501,15 @@ export default function LikePage() {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆いいねクリア◆</b>
+                  <b>◆いいね数設定◆</b>
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/like?action=clear&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
-                <span style={{ color: "#008000" }}>オーナートークン</span>
+                GET /api/like?action=set&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                <span style={{ color: "#008000" }}>オーナートークン</span>&value=
+                <span style={{ color: "#008000" }}>いいね数</span>
               </p>
-              <p>いいね数を0にリセットします。オーナートークンが必要。</p>
+              <p>いいね数を指定した値に設定します。オーナートークンが必要。</p>
             </div>
 
             <div className="nostalgic-section">

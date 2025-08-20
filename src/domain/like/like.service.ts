@@ -194,6 +194,55 @@ export class LikeService extends BaseNumericService<LikeEntity, LikeData, LikeCr
   }
 
   /**
+   * いいね数を設定（管理用）
+   */
+  async setLikeValue(
+    url: string,
+    token: string,
+    value: number,
+    userHash: string
+  ): Promise<Result<LikeData, ValidationError | NotFoundError>> {
+    // オーナーシップ検証
+    const ownershipResult = await this.verifyOwnership(url, token)
+    if (!ownershipResult.success) {
+      return Err(new ValidationError('Ownership verification failed', { error: ownershipResult.error }))
+    }
+
+    if (!ownershipResult.data.isOwner || !ownershipResult.data.entity) {
+      return Err(new ValidationError('Invalid token or entity not found'))
+    }
+
+    const entity = ownershipResult.data.entity as LikeEntity
+
+    // 値の検証
+    if (value < 0) {
+      return Err(new ValidationError('Like count cannot be negative'))
+    }
+
+    const limits = getLikeLimits()
+    if (value > limits.maxValue) {
+      return Err(new ValidationError(`Like count cannot exceed ${limits.maxValue}`))
+    }
+
+    // いいね数を設定
+    const setResult = await this.setValue(`${entity.id}:total`, value)
+    if (!setResult.success) {
+      return setResult
+    }
+
+    // エンティティ更新
+    entity.totalLikes = value
+    entity.lastLike = new Date()
+    
+    const saveResult = await this.entityRepository.save(entity.id, entity)
+    if (!saveResult.success) {
+      return Err(new ValidationError('Failed to save entity', { error: saveResult.error }))
+    }
+
+    return await this.transformEntityToDataWithUser(entity, userHash)
+  }
+
+  /**
    * ユーザーのいいね状態をチェック
    */
   private async checkUserLikeStatus(id: string, userHash: string): Promise<Result<boolean, ValidationError>> {

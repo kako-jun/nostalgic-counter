@@ -95,6 +95,32 @@ const displayHandler = ApiHandler.create({
 })
 
 /**
+ * SET アクション
+ */
+const setHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    action: z.literal('set'),
+    url: z.string().url(),
+    token: z.string().min(8).max(16),
+    value: z.coerce.number().min(0)
+  }),
+  resultSchema: LikeDataSchema,
+  handler: async ({ url, token, value }, request) => {
+    const ip = getClientIP(request)
+    const userAgent = getUserAgent(request)
+    const userHash = likeService.generateUserHash(ip, userAgent)
+    
+    const setResult = await likeService.setLikeValue(url, token, value, userHash)
+    
+    if (!setResult.success) {
+      return setResult
+    }
+
+    return setResult
+  }
+})
+
+/**
  * DELETE アクション
  */
 const deleteHandler = ApiHandler.create({
@@ -141,6 +167,9 @@ async function routeRequest(request: NextRequest) {
       
       case 'display':
         return await displayHandler(request)
+      
+      case 'set':
+        return await setHandler(request)
       
       case 'delete':
         return await deleteHandler(request)
