@@ -5,7 +5,7 @@
 import { NextRequest } from 'next/server'
 import { z } from 'zod'
 import { ApiHandler } from '@/lib/core/api-handler'
-import { Ok, map } from '@/lib/core/result'
+import { Ok, Err, map, ValidationError } from '@/lib/core/result'
 import { likeService } from '@/domain/like/like.service'
 import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
 import { getCacheSettings } from '@/lib/core/config'
@@ -76,16 +76,16 @@ const getHandler = ApiHandler.create({
 })
 
 /**
- * DISPLAY アクション
+ * DISPLAY アクション（text/json形式）
  */
 const displayHandler = ApiHandler.createSpecialResponse(
   z.object({
     action: z.literal('display'),
     id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
     theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
-    format: z.enum(['json', 'text', 'image']).default('json')
+    format: z.enum(['json', 'text']).default('json')
   }),
-  async ({ id, format, theme }, request) => {
+  async ({ id, format }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
     const userHash = likeService.generateUserHash(clientIP, userAgent)
@@ -97,26 +97,16 @@ const displayHandler = ApiHandler.createSpecialResponse(
 
     const likeData = likeDataResult.data
 
-    if (format === 'json') {
-      return Ok(likeData)
-    }
-
     if (format === 'text') {
       return Ok(likeData.total.toString())
     }
 
-    // format === 'image' の場合はSVG生成
-    const svgResult = await likeService.generateSVG(likeData, theme)
-    if (!svgResult.success) {
-      return svgResult
-    }
-
-    return Ok(svgResult.data)
+    return Ok(likeData)
   },
   {
     schema: z.union([
       LikeDataSchema, // JSON format
-      z.string() // text/SVG format
+      z.string() // text format
     ]),
     formatter: (data) => {
       if (typeof data === 'object') {
@@ -124,11 +114,98 @@ const displayHandler = ApiHandler.createSpecialResponse(
       }
       return data.toString()
     },
-    contentType: (params) => {
-      if (params.format === 'image') return 'image/svg+xml'
-      if (params.format === 'json') return 'application/json'
-      return 'text/plain'
+    contentType: 'text/plain',
+    cacheControl: `public, max-age=${getCacheSettings().displayMaxAge}`
+  }
+)
+
+/**
+ * SVG表示専用ハンドラー
+ */
+const svgHandler = ApiHandler.createSpecialResponse(
+  z.object({
+    action: z.literal('display'),
+    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
+    theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
+    format: z.literal('image')
+  }),
+  async ({ id, theme }, request) => {
+    const clientIP = getClientIP(request)
+    const userAgent = getUserAgent(request)
+    const userHash = likeService.generateUserHash(clientIP, userAgent)
+
+    const likeDataResult = await likeService.getLikeData(id, userHash)
+    if (!likeDataResult.success) {
+      return likeDataResult
+    }
+
+    const likeData = likeDataResult.data
+    const svgResult = await likeService.generateSVG(likeData, theme)
+    
+    if (!svgResult.success) {
+      return svgResult
+    }
+
+    return Ok({
+      total: likeData.total,
+      theme: theme
+    })
+  },
+  {
+    schema: z.object({
+      total: z.number().int().min(0),
+      theme: z.enum(['classic', 'modern', 'retro'])
+    }),
+    formatter: (data) => {
+      // SVG生成ロジック（Counterと同様）
+      const iconType = 'heart' // デフォルトはハート
+      const icon = iconType === 'heart' ? '❤️' : 
+                   iconType === 'star' ? '⭐' : '👍'
+      const count = data.total
+      
+      // テーマ別の色設定
+      const themes = {
+        classic: {
+          bg: '#ffffff',
+          text: '#333333',
+          border: '#cccccc',
+          icon: '#ff6b6b'
+        },
+        modern: {
+          bg: '#f8f9fa',
+          text: '#495057',
+          border: '#dee2e6',
+          icon: '#e91e63'
+        },
+        retro: {
+          bg: '#fdf6e3',
+          text: '#586e75',
+          border: '#93a1a1',
+          icon: '#dc322f'
+        }
+      }
+      
+      const themeColors = themes[data.theme]
+      
+      return `
+        <svg width="120" height="40" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="120" height="40" 
+                fill="${themeColors.bg}" 
+                stroke="${themeColors.border}" 
+                stroke-width="1" 
+                rx="5"/>
+          <text x="10" y="25" 
+                font-family="Arial, sans-serif" 
+                font-size="14" 
+                fill="${themeColors.icon}">${icon}</text>
+          <text x="30" y="25" 
+                font-family="Arial, sans-serif" 
+                font-size="14" 
+                fill="${themeColors.text}">${count}</text>
+        </svg>
+      `.replace(/\n\s+/g, ' ').trim()
     },
+    contentType: getCacheSettings().contentTypes.svg,
     cacheControl: `public, max-age=${getCacheSettings().displayMaxAge}`
   }
 )
@@ -205,7 +282,12 @@ async function routeRequest(request: NextRequest) {
         return await getHandler(request)
       
       case 'display':
-        return await displayHandler(request)
+        const format = searchParams.get('format') || 'json'
+        if (format === 'image') {
+          return await svgHandler(request)
+        } else {
+          return await displayHandler(request)
+        }
       
       case 'set':
         return await setHandler(request)

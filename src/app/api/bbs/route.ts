@@ -9,7 +9,7 @@ import { Ok, map } from '@/lib/core/result'
 import { bbsService } from '@/domain/bbs/bbs.service'
 import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
 import { getClientIP, getUserAgent } from '@/lib/utils/api'
-import { BBSDataSchema, BBSMessageSchema } from '@/domain/bbs/bbs.entity'
+import { BBSDataSchema, BBSMessageSchema, BBSUpdateSettingsParamsSchema } from '@/domain/bbs/bbs.entity'
 
 /**
  * CREATE アクション
@@ -19,6 +19,7 @@ const createHandler = ApiHandler.create({
     action: z.literal('create'),
     url: z.string().url(),
     token: z.string().min(8).max(16),
+    title: z.string().min(1).max(100).default('💬 BBS'),
     messagesPerPage: z.coerce.number().int().min(1).max(50).default(10),
     max: z.coerce.number().int().min(1).max(1000).default(100),
     enableIcons: z.coerce.boolean().default(true),
@@ -28,7 +29,7 @@ const createHandler = ApiHandler.create({
     id: z.string(),
     url: z.string()
   }),
-  handler: async ({ url, token, messagesPerPage, max, enableIcons, enableSelects }, request) => {
+  handler: async ({ url, token, title, messagesPerPage, max, enableIcons, enableSelects }, request) => {
     const icons = enableIcons ? ['😀', '😉', '😎', '😠', '😢', '😮'] : []
     const selects = enableSelects ? [
       { label: '地域', options: ['東京', '大阪', '名古屋', '福岡', 'その他'] },
@@ -37,6 +38,7 @@ const createHandler = ApiHandler.create({
     ] : []
     
     const createResult = await bbsService.create(url, token, {
+      title,
       messagesPerPage,
       maxMessages: max,
       icons,
@@ -233,6 +235,21 @@ const displayHandler = ApiHandler.create({
 })
 
 /**
+ * UPDATE_SETTINGS アクション（オーナー限定）
+ */
+const updateSettingsHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    action: z.literal('updateSettings'),
+    url: z.string().url(),
+    token: z.string().min(8).max(16)
+  }).and(BBSUpdateSettingsParamsSchema),
+  resultSchema: BBSDataSchema,
+  handler: async ({ url, token, ...params }) => {
+    return await bbsService.updateSettings(url, token, params)
+  }
+})
+
+/**
  * DELETE アクション
  */
 const deleteHandler = ApiHandler.create({
@@ -288,6 +305,9 @@ async function routeRequest(request: NextRequest) {
       
       case 'display':
         return await displayHandler(request)
+      
+      case 'updateSettings':
+        return await updateSettingsHandler(request)
       
       case 'delete':
         return await deleteHandler(request)

@@ -21,6 +21,7 @@ export interface BBSEntity {
  * BBS設定の型
  */
 export interface BBSSettings {
+  title: string
   maxMessages: number
   messagesPerPage: number
   icons: string[]
@@ -54,6 +55,7 @@ export interface BBSMessage {
 export interface BBSData {
   id: string
   url: string
+  title: string
   messages: BBSMessage[]
   totalMessages: number
   currentPage: number
@@ -72,6 +74,7 @@ export interface BBSData {
  * BBS作成時のパラメータ
  */
 export interface BBSCreateParams {
+  title?: string
   maxMessages?: number
   messagesPerPage?: number
   icons?: string[]
@@ -126,6 +129,7 @@ export const BBSSelectOptionSchema = z.object({
 })
 
 export const BBSSettingsSchema = z.object({
+  title: z.string().min(1).max(100).default('💬 BBS'),
   maxMessages: z.number().int().min(1).max(10000),
   messagesPerPage: z.number().int().min(1).max(100),
   icons: z.array(z.string()).max(20),
@@ -154,6 +158,7 @@ export const BBSMessageSchema = z.object({
 export const BBSDataSchema = z.object({
   id: z.string(),
   url: CommonSchemas.url,
+  title: z.string(),
   messages: z.array(BBSMessageSchema),
   totalMessages: CommonSchemas.nonNegativeInt,
   currentPage: CommonSchemas.positiveInt,
@@ -169,6 +174,7 @@ export const BBSDataSchema = z.object({
 })
 
 export const BBSCreateParamsSchema = z.object({
+  title: z.string().min(1).max(100).default('💬 BBS'),
   maxMessages: z.number().int().min(1).max(10000).default(1000),
   messagesPerPage: z.number().int().min(1).max(100).default(10),
   icons: z.array(z.string()).max(20).default([]),
@@ -203,6 +209,17 @@ export const BBSDisplayParamsSchema = z.object({
 })
 
 /**
+ * BBS設定更新用パラメータ
+ */
+export const BBSUpdateSettingsParamsSchema = z.object({
+  title: z.string().min(1).max(100).optional(),
+  messagesPerPage: z.number().int().min(1).max(100).optional(),
+  maxMessages: z.number().int().min(1).max(10000).optional(),
+  icons: z.array(z.string()).max(20).optional(),
+  selects: z.array(BBSSelectOptionSchema).max(3).optional()
+})
+
+/**
  * 型エクスポート
  */
 export type BBSEntityType = z.infer<typeof BBSEntitySchema>
@@ -215,3 +232,4 @@ export type BBSPostParamsType = z.infer<typeof BBSPostParamsSchema>
 export type BBSUpdateParamsType = z.infer<typeof BBSUpdateParamsSchema>
 export type BBSRemoveParamsType = z.infer<typeof BBSRemoveParamsSchema>
 export type BBSDisplayParamsType = z.infer<typeof BBSDisplayParamsSchema>
+export type BBSUpdateSettingsParamsType = z.infer<typeof BBSUpdateSettingsParamsSchema>

@@ -52,6 +52,7 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
     const limits = getBBSLimits()
     
     const settings: BBSSettings = {
+      title: params.title || '💬 BBS',
       maxMessages: params.maxMessages || limits.maxMessages,
       messagesPerPage: params.messagesPerPage || limits.messagesPerPage,
       icons: params.icons || [],
@@ -77,9 +78,9 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
   /**
    * エンティティをデータ形式に変換
    */
-  public async transformEntityToData(entity: BBSEntity): Promise<Result<BBSData, ValidationError>> {
-    // 最新メッセージを取得（1ページ目）
-    const messagesResult = await this.getMessages(entity.id, 1, entity.settings.messagesPerPage)
+  public async transformEntityToData(entity: BBSEntity, page: number = 1): Promise<Result<BBSData, ValidationError>> {
+    // 指定ページのメッセージを取得
+    const messagesResult = await this.getMessages(entity.id, page, entity.settings.messagesPerPage)
     const messages = messagesResult.success ? messagesResult.data : []
 
     const totalPages = Math.ceil(entity.totalMessages / entity.settings.messagesPerPage)
@@ -87,15 +88,16 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
     const data: BBSData = {
       id: entity.id,
       url: entity.url,
+      title: entity.settings.title,
       messages,
       totalMessages: entity.totalMessages,
-      currentPage: 1,
+      currentPage: page,
       totalPages,
       pagination: {
-        page: 1,
+        page: page,
         totalPages: totalPages,
-        hasPrev: false,
-        hasNext: totalPages > 1
+        hasPrev: page > 1,
+        hasNext: page < totalPages
       }, // Web Components用のページネーション
       settings: entity.settings,
       lastMessage: entity.lastMessage
@@ -439,6 +441,52 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
     const timestamp = Date.now().toString(36)
     const random = Math.random().toString(36).substring(2, 8)
     return `${bbsId}_${timestamp}_${random}`
+  }
+
+  /**
+   * BBS設定を更新（オーナー限定）
+   */
+  async updateSettings(
+    url: string,
+    token: string,
+    params: BBSUpdateSettingsParams
+  ): Promise<Result<BBSData, ValidationError | NotFoundError>> {
+    // オーナーシップ検証
+    const ownershipResult = await this.verifyOwnership(url, token)
+    if (!ownershipResult.success) {
+      return Err(new ValidationError('Ownership verification failed', { error: ownershipResult.error }))
+    }
+
+    if (!ownershipResult.data.isOwner || !ownershipResult.data.entity) {
+      return Err(new ValidationError('Invalid token or entity not found'))
+    }
+
+    const entity = ownershipResult.data.entity as BBSEntity
+
+    // 設定を更新
+    if (params.title !== undefined) {
+      entity.settings.title = params.title
+    }
+    if (params.messagesPerPage !== undefined) {
+      entity.settings.messagesPerPage = params.messagesPerPage
+    }
+    if (params.maxMessages !== undefined) {
+      entity.settings.maxMessages = params.maxMessages
+    }
+    if (params.icons !== undefined) {
+      entity.settings.icons = params.icons
+    }
+    if (params.selects !== undefined) {
+      entity.settings.selects = params.selects
+    }
+
+    // エンティティ保存
+    const saveResult = await this.entityRepository.save(entity.id, entity)
+    if (!saveResult.success) {
+      return Err(new ValidationError('Failed to save entity', { error: saveResult.error }))
+    }
+
+    return await this.transformEntityToData(entity, 1)
   }
 
   /**
