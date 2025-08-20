@@ -59,10 +59,10 @@ Nostalgicは90年代のインターネット文化から懐かしいWebツール
 ### カウンター
 ```bash
 # カウンター作成
-curl "https://nostalgic.llll-ll.com/api/counter?action=create&url=https://yoursite.com&token=your-secret"
+curl "https://nostalgic.llll-ll.com/api/visit?action=create&url=https://yoursite.com&token=your-secret"
 
 # カウンター表示
-curl "https://nostalgic.llll-ll.com/api/counter?action=display&id=yoursite-a7b9c3d4&type=total&theme=classic"
+curl "https://nostalgic.llll-ll.com/api/visit?action=display&id=yoursite-a7b9c3d4&type=total&theme=classic"
 ```
 
 ### いいね

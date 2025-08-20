@@ -191,7 +191,7 @@ export default function HomePage() {
                   wordBreak: "break-all",
                 }}
               >
-                https://nostalgic.llll-ll.com/api/counter?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                https://nostalgic.llll-ll.com/api/visit?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
                 &token=<span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <p>

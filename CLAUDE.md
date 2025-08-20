@@ -43,7 +43,7 @@
 - 共有可能なURL、シンプルな操作性
 
 ### サービス別エンドポイント
-- `/api/counter` - カウンター（create/increment/display/set）
+- `/api/visit` - カウンター（create/increment/display/set）
 - `/api/like` - いいね（create/toggle/get）
 - `/api/ranking` - ランキング（create/submit/update/remove/clear/get）
 - `/api/bbs` - BBS（create/post/update/remove/clear/get）
@@ -83,7 +83,7 @@ bbs:{id}                       → メタデータ
 
 ## ファイル構成
 ### API Routes
-- `src/app/api/counter/route.ts` - カウンターAPI
+- `src/app/api/visit/route.ts` - カウンターAPI
 - `src/app/api/like/route.ts` - いいねAPI  
 - `src/app/api/ranking/route.ts` - ランキングAPI
 - `src/app/api/bbs/route.ts` - BBS API
@@ -135,7 +135,7 @@ https://nostalgic.llll-ll.com/api/{service}?action=create&url=https://example.co
 ### 2. 操作
 ```
 # カウントアップ
-https://nostalgic.llll-ll.com/api/counter?action=increment&id=your-id
+https://nostalgic.llll-ll.com/api/visit?action=increment&id=your-id
 
 # いいねトグル  
 https://nostalgic.llll-ll.com/api/like?action=toggle&url=https://example.com&token=your-secret

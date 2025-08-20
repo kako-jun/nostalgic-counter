@@ -10,7 +10,7 @@
 新しいカウンターを作成または既存カウンターIDを取得。
 
 ```
-GET /api/counter?action=create&url={URL}&token={TOKEN}
+GET /api/visit?action=create&url={URL}&token={TOKEN}
 ```
 
 **パラメータ:**
@@ -35,7 +35,7 @@ GET /api/counter?action=create&url={URL}&token={TOKEN}
 カウンターをカウントアップ（自動重複防止）。
 
 ```
-GET /api/counter?action=increment&id={ID}
+GET /api/visit?action=increment&id={ID}
 ```
 
 **パラメータ:**
@@ -45,7 +45,7 @@ GET /api/counter?action=increment&id={ID}
 カウンターデータまたは画像を取得。
 
 ```
-GET /api/counter?action=display&id={ID}&type={TYPE}&theme={THEME}&format={FORMAT}
+GET /api/visit?action=display&id={ID}&type={TYPE}&theme={THEME}&format={FORMAT}
 ```
 
 **パラメータ:**
@@ -68,7 +68,7 @@ GET /api/counter?action=display&id={ID}&type={TYPE}&theme={THEME}&format={FORMAT
 カウンター値を設定（オーナーのみ）。
 
 ```
-GET /api/counter?action=set&url={URL}&token={TOKEN}&total={VALUE}
+GET /api/visit?action=set&url={URL}&token={TOKEN}&total={VALUE}
 ```
 
 ## Web Component 統合
@@ -87,7 +87,7 @@ GET /api/counter?action=set&url={URL}&token={TOKEN}&total={VALUE}
 ### 基本的なカウンター設置
 ```javascript
 // 1. カウンター作成
-const response = await fetch('/api/counter?action=create&url=https://myblog.com&token=my-secret')
+const response = await fetch('/api/visit?action=create&url=https://myblog.com&token=my-secret')
 const data = await response.json()
 console.log('カウンターID:', data.id)
 

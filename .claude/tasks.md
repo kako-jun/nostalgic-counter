@@ -37,7 +37,7 @@
   - [ ] エラーハンドリングの改善
   - [ ] ユーザビリティの向上
 - [ ] APIエンドポイントの正しいパス確認
-  - [ ] `/api/counter` （旧 `/api/v2/counter`）
+  - [ ] `/api/visit` （旧 `/api/v2/counter`）
   - [ ] `/api/like` （実装必要）
   - [ ] `/api/ranking` （実装必要）
   - [ ] `/api/bbs` （実装必要）

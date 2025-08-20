@@ -10,7 +10,7 @@ Traditional visitor counter that tracks visits across multiple time periods with
 Create a new counter or get existing counter ID.
 
 ```
-GET /api/counter?action=create&url={URL}&token={TOKEN}
+GET /api/visit?action=create&url={URL}&token={TOKEN}
 ```
 
 **Parameters:**
@@ -29,7 +29,7 @@ GET /api/counter?action=create&url={URL}&token={TOKEN}
 Count up the counter (automatic duplicate prevention).
 
 ```
-GET /api/counter?action=increment&id={ID}
+GET /api/visit?action=increment&id={ID}
 ```
 
 **Parameters:**
@@ -52,7 +52,7 @@ GET /api/counter?action=increment&id={ID}
 Get counter data or image.
 
 ```
-GET /api/counter?action=display&id={ID}&type={TYPE}&theme={THEME}&format={FORMAT}
+GET /api/visit?action=display&id={ID}&type={TYPE}&theme={THEME}&format={FORMAT}
 ```
 
 **Parameters:**
@@ -80,7 +80,7 @@ GET /api/counter?action=display&id={ID}&type={TYPE}&theme={THEME}&format={FORMAT
 Set counter value (owner only).
 
 ```
-GET /api/counter?action=set&url={URL}&token={TOKEN}&total={VALUE}
+GET /api/visit?action=set&url={URL}&token={TOKEN}&total={VALUE}
 ```
 
 **Parameters:**
@@ -118,7 +118,7 @@ GET /api/counter?action=set&url={URL}&token={TOKEN}&total={VALUE}
 ### Basic Counter Setup
 ```javascript
 // 1. Create counter
-const response = await fetch('/api/counter?action=create&url=https://myblog.com&token=my-secret')
+const response = await fetch('/api/visit?action=create&url=https://myblog.com&token=my-secret')
 const data = await response.json()
 console.log('Counter ID:', data.id)
 
@@ -140,12 +140,12 @@ document.body.innerHTML += `
 ### Manual Count Control
 ```javascript
 // Count manually (no automatic counting)
-const count = await fetch('/api/counter?action=increment&id=blog-a7b9c3d4')
+const count = await fetch('/api/visit?action=increment&id=blog-a7b9c3d4')
 const data = await count.json()
 
 // Display as image
 document.querySelector('#counter').src = 
-  `/api/counter?action=display&id=blog-a7b9c3d4&type=total&theme=classic`
+  `/api/visit?action=display&id=blog-a7b9c3d4&type=total&theme=classic`
 ```
 
 ## Security Notes

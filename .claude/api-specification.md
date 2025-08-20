@@ -54,7 +54,7 @@ https://nostalgic.llll-ll.com/api
 
 サイトのカウンターを新規作成します。
 
-**Endpoint**: `GET /api/counter?action=create`
+**Endpoint**: `GET /api/visit?action=create`
 
 **Parameters**:
 | Name | Type | Required | Description |
@@ -65,7 +65,7 @@ https://nostalgic.llll-ll.com/api
 
 **Example Request**:
 ```bash
-curl "https://nostalgic.llll-ll.com/api/counter?action=create&url=https://example.com&token=mysecret123"
+curl "https://nostalgic.llll-ll.com/api/visit?action=create&url=https://example.com&token=mysecret123"
 ```
 
 **Example Response**:
@@ -83,7 +83,7 @@ curl "https://nostalgic.llll-ll.com/api/counter?action=create&url=https://exampl
 
 カウンターを1増やします（24時間重複防止）。
 
-**Endpoint**: `GET /api/counter?action=increment`
+**Endpoint**: `GET /api/visit?action=increment`
 
 **Parameters**:
 | Name | Type | Required | Description |
@@ -93,7 +93,7 @@ curl "https://nostalgic.llll-ll.com/api/counter?action=create&url=https://exampl
 
 **Example Request**:
 ```bash
-curl "https://nostalgic.llll-ll.com/api/counter?action=increment&id=example-a7b9c3d4"
+curl "https://nostalgic.llll-ll.com/api/visit?action=increment&id=example-a7b9c3d4"
 ```
 
 **Example Response**:
@@ -118,7 +118,7 @@ curl "https://nostalgic.llll-ll.com/api/counter?action=increment&id=example-a7b9
 
 カウンターの値を取得します（SVG画像、JSON、テキスト形式）。
 
-**Endpoint**: `GET /api/counter?action=display`
+**Endpoint**: `GET /api/visit?action=display`
 
 **Parameters**:
 | Name | Type | Required | Default | Description |
@@ -134,19 +134,19 @@ curl "https://nostalgic.llll-ll.com/api/counter?action=increment&id=example-a7b9
 
 SVG画像取得:
 ```bash
-curl "https://nostalgic.llll-ll.com/api/counter?action=display&id=example-a7b9c3d4&format=image&theme=retro"
+curl "https://nostalgic.llll-ll.com/api/visit?action=display&id=example-a7b9c3d4&format=image&theme=retro"
 ```
 
 JSON取得:
 ```bash
-curl "https://nostalgic.llll-ll.com/api/counter?action=display&id=example-a7b9c3d4&format=json"
+curl "https://nostalgic.llll-ll.com/api/visit?action=display&id=example-a7b9c3d4&format=json"
 ```
 
 ### 4. カウンター値設定
 
 カウンターの値を指定値に設定します（オーナー権限必要）。
 
-**Endpoint**: `GET /api/counter?action=set`
+**Endpoint**: `GET /api/visit?action=set`
 
 **Parameters**:
 | Name | Type | Required | Description |
@@ -158,7 +158,7 @@ curl "https://nostalgic.llll-ll.com/api/counter?action=display&id=example-a7b9c3
 
 **Example Request**:
 ```bash
-curl "https://nostalgic.llll-ll.com/api/counter?action=set&url=https://example.com&token=mysecret123&total=1000"
+curl "https://nostalgic.llll-ll.com/api/visit?action=set&url=https://example.com&token=mysecret123&total=1000"
 ```
 
 ---
@@ -534,7 +534,7 @@ curl "https://nostalgic.llll-ll.com/api/counter?action=set&url=https://example.c
 
 ```javascript
 // カウンターをインクリメント
-fetch('https://nostalgic.llll-ll.com/api/counter?action=increment&id=blog-a7b9c3d4')
+fetch('https://nostalgic.llll-ll.com/api/visit?action=increment&id=blog-a7b9c3d4')
   .then(res => res.json())
   .then(data => {
     if (data.success) {

@@ -59,10 +59,10 @@ Message board with customizable options and author-based editing.
 ### Counter
 ```bash
 # Create counter
-curl "https://nostalgic.llll-ll.com/api/counter?action=create&url=https://yoursite.com&token=your-secret"
+curl "https://nostalgic.llll-ll.com/api/visit?action=create&url=https://yoursite.com&token=your-secret"
 
 # Display counter
-curl "https://nostalgic.llll-ll.com/api/counter?action=display&id=yoursite-a7b9c3d4&type=total&theme=classic"
+curl "https://nostalgic.llll-ll.com/api/visit?action=display&id=yoursite-a7b9c3d4&type=total&theme=classic"
 ```
 
 ### Like

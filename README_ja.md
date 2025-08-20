@@ -43,7 +43,7 @@
 
 1. **カウンター作成**:
 ```
-https://nostalgic.llll-ll.com/api/counter?action=create&url=https://yoursite.com&token=your-secret-token
+https://nostalgic.llll-ll.com/api/visit?action=create&url=https://yoursite.com&token=your-secret-token
 ```
 
 2. **サイトに埋め込み**:

@@ -44,7 +44,7 @@ export default function CounterPage() {
 
     if (!url || !token) return;
 
-    let apiUrl = `/api/counter?action=${mode}&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}`;
+    let apiUrl = `/api/visit?action=${mode}&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}`;
 
     if (mode === "set" && value) {
       apiUrl += `&total=${value}`;
@@ -91,7 +91,7 @@ export default function CounterPage() {
                   wordBreak: "break-all",
                 }}
               >
-                https://nostalgic.llll-ll.com/api/counter?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                https://nostalgic.llll-ll.com/api/visit?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
                 &token=<span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <p>
@@ -254,7 +254,7 @@ export default function CounterPage() {
                       <div style={{ textAlign: "center" }}>
                         <p style={{ fontSize: "14px", marginBottom: "10px" }}>Classic</p>
                         <img 
-                          src={`/api/counter?action=display&id=${publicId}&type=total&theme=classic`}
+                          src={`/api/visit?action=display&id=${publicId}&type=total&theme=classic`}
                           alt="Classic Counter"
                           style={{ border: "1px solid #ccc" }}
                         />
@@ -262,7 +262,7 @@ export default function CounterPage() {
                       <div style={{ textAlign: "center" }}>
                         <p style={{ fontSize: "14px", marginBottom: "10px" }}>Modern</p>
                         <img 
-                          src={`/api/counter?action=display&id=${publicId}&type=total&theme=modern`}
+                          src={`/api/visit?action=display&id=${publicId}&type=total&theme=modern`}
                           alt="Modern Counter"
                           style={{ border: "1px solid #ccc" }}
                         />
@@ -270,7 +270,7 @@ export default function CounterPage() {
                       <div style={{ textAlign: "center" }}>
                         <p style={{ fontSize: "14px", marginBottom: "10px" }}>Retro</p>
                         <img 
-                          src={`/api/counter?action=display&id=${publicId}&type=total&theme=retro`}
+                          src={`/api/visit?action=display&id=${publicId}&type=total&theme=retro`}
                           alt="Retro Counter"
                           style={{ border: "1px solid #ccc" }}
                         />
@@ -297,7 +297,7 @@ export default function CounterPage() {
                   wordBreak: "break-all",
                 }}
               >
-                https://nostalgic.llll-ll.com/api/counter?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                https://nostalgic.llll-ll.com/api/visit?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
                 &token=<span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
@@ -376,7 +376,7 @@ export default function CounterPage() {
                   wordBreak: "break-all",
                 }}
               >
-                https://nostalgic.llll-ll.com/api/counter?action=set&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                https://nostalgic.llll-ll.com/api/visit?action=set&url=<span style={{ color: "#008000" }}>サイトURL</span>
                 &token=<span style={{ color: "#008000" }}>オーナートークン</span>&total=<span style={{ color: "#008000" }}>数値</span>
               </p>
               <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
@@ -487,7 +487,7 @@ export default function CounterPage() {
                   wordBreak: "break-all",
                 }}
               >
-                https://nostalgic.llll-ll.com/api/counter?action=delete&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                https://nostalgic.llll-ll.com/api/visit?action=delete&url=<span style={{ color: "#008000" }}>サイトURL</span>
                 &token=<span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
@@ -581,7 +581,7 @@ export default function CounterPage() {
                 </p>
                 <p>表示URL:</p>
                 <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px", wordBreak: "break-all" }}>
-                  {`https://nostalgic.llll-ll.com/api/counter?action=display&id=${publicId}&type=total&theme=classic`}
+                  {`https://nostalgic.llll-ll.com/api/visit?action=display&id=${publicId}&type=total&theme=classic`}
                 </p>
               </div>
             )}
@@ -673,7 +673,7 @@ export default function CounterPage() {
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/counter?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                GET /api/visit?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
                 <span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <p style={{ lineHeight: "1.2" }}>
@@ -693,7 +693,7 @@ export default function CounterPage() {
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/counter?action=increment&id=<span style={{ color: "#008000" }}>公開ID</span>
+                GET /api/visit?action=increment&id=<span style={{ color: "#008000" }}>公開ID</span>
               </p>
               <p style={{ lineHeight: "1.2" }}>
                 カウンターの値を1増加します。24時間重複防止機能付き。
@@ -716,7 +716,7 @@ export default function CounterPage() {
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/counter?action=display&id=<span style={{ color: "#008000" }}>公開ID</span>&type=
+                GET /api/visit?action=display&id=<span style={{ color: "#008000" }}>公開ID</span>&type=
                 <span style={{ color: "#008000" }}>期間タイプ</span>&theme=
                 <span style={{ color: "#008000" }}>デザインテーマ</span>
               </p>
@@ -735,7 +735,7 @@ export default function CounterPage() {
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/counter?action=display&id=<span style={{ color: "#008000" }}>公開ID</span>&format=
+                GET /api/visit?action=display&id=<span style={{ color: "#008000" }}>公開ID</span>&format=
                 <span style={{ color: "#008000" }}>text</span>
               </p>
               <p>数値のみをテキスト形式で返します。JavaScriptでの処理に便利。</p>
@@ -748,7 +748,7 @@ export default function CounterPage() {
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/counter?action=set&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                GET /api/visit?action=set&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
                 <span style={{ color: "#008000" }}>オーナートークン</span>&total=
                 <span style={{ color: "#008000" }}>数値</span>
               </p>
@@ -762,7 +762,7 @@ export default function CounterPage() {
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/counter?action=delete&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                GET /api/visit?action=delete&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
                 <span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <p>カウンターを完全に削除します。オーナートークンが必要。</p>

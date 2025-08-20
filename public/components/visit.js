@@ -82,7 +82,7 @@ class NostalgicCounter extends HTMLElement {
     
     try {
       const baseUrl = this.getAttribute('api-base') || NostalgicCounter.apiBaseUrl;
-      const countUrl = `${baseUrl}/api/counter?action=increment&id=${encodeURIComponent(id)}`;
+      const countUrl = `${baseUrl}/api/visit?action=increment&id=${encodeURIComponent(id)}`;
       console.log('nostalgic-counter: Counting up:', countUrl);
       const response = await fetch(countUrl);
       if (!response.ok) {
@@ -122,7 +122,7 @@ class NostalgicCounter extends HTMLElement {
     }
     
     const baseUrl = this.getAttribute('api-base') || NostalgicCounter.apiBaseUrl;
-    const apiUrl = `${baseUrl}/api/counter?action=display&id=${encodeURIComponent(id)}&type=${type}&theme=${theme}&digits=${digits}&format=${format}`;
+    const apiUrl = `${baseUrl}/api/visit?action=display&id=${encodeURIComponent(id)}&type=${type}&theme=${theme}&digits=${digits}&format=${format}`;
     
     // カウントアップ後の最新データがあれば使用
     const latestData = NostalgicCounter.latestCounts.get(id);

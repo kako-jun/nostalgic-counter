@@ -431,7 +431,7 @@ sequenceDiagram
     participant Repository
     participant Redis
     
-    User->>API: POST /api/counter?action=create
+    User->>API: POST /api/visit?action=create
     Note right of User: url + token
     API->>Service: create(url, token)
     Service->>Service: hash(token)

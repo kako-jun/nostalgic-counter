@@ -231,7 +231,7 @@ A: `npm run redis:service {service}` で確認できます。
 ## 参考：既存APIの削除処理
 
 各サービスのAPIには削除機能が実装されています：
-- `/api/counter?action=delete` (未実装だが構造は同じ)
+- `/api/visit?action=delete` (未実装だが構造は同じ)
 - `/api/like?action=delete` (未実装だが構造は同じ)
 - `/api/ranking?action=clear` (エントリークリア)
 - `/api/bbs?action=clear` (メッセージクリア)
