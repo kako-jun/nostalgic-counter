@@ -46,8 +46,8 @@ const ServiceLimitsSchema = z.object({
   }),
   bbs: z.object({
     maxMessages: z.number().int().min(1).max(10000).default(1000),
-    maxMessageLength: z.number().int().min(1).max(5000).default(1000),
-    maxAuthorLength: z.number().int().min(1).max(100).default(50),
+    maxMessageLength: z.number().int().min(1).max(5000).default(200),
+    maxAuthorLength: z.number().int().min(1).max(100).default(20),
     messagesPerPage: z.number().int().min(1).max(100).default(10),
     maxIcons: z.number().int().min(0).max(50).default(20),
     maxSelectOptions: z.number().int().min(0).max(100).default(50),
@@ -55,8 +55,8 @@ const ServiceLimitsSchema = z.object({
     postCooldown: z.number().int().positive().default(10)
   }).default({
     maxMessages: 1000,
-    maxMessageLength: 1000,
-    maxAuthorLength: 50,
+    maxMessageLength: 200,
+    maxAuthorLength: 20,
     messagesPerPage: 10,
     maxIcons: 20,
     maxSelectOptions: 50,

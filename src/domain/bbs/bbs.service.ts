@@ -9,6 +9,7 @@ import { ValidationFramework } from '@/lib/core/validation'
 import { getBBSLimits } from '@/lib/core/config'
 import { RepositoryFactory, ListRepository } from '@/lib/core/repository'
 import { createHash } from 'crypto'
+import Filter from 'bad-words'
 import {
   BBSEntity,
   BBSData,
@@ -32,6 +33,7 @@ type BBSUpdateSettingsParams = BBSUpdateSettingsParamsType
  */
 export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams> {
   private readonly listRepository: ListRepository<BBSMessage>
+  private readonly contentFilter: Filter
 
   constructor() {
     const limits = getBBSLimits()
@@ -42,6 +44,9 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
     
     super(config, BBSEntitySchema, BBSDataSchema)
     this.listRepository = RepositoryFactory.createList(BBSMessageSchema, 'bbs_messages')
+    
+    // コンテンツフィルターを初期化
+    this.contentFilter = new Filter()
   }
 
   /**
@@ -543,6 +548,23 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
       return Err(new ValidationError(`Author name exceeds maximum length of ${limits.maxAuthorLength}`))
     }
 
+    // 不適切なコンテンツチェック
+    const content = `${params.author} ${params.message}`
+    
+    if (this.contentFilter.isProfane(content)) {
+      return Err(new ValidationError('Inappropriate content detected'))
+    }
+
+    // URL投稿禁止
+    if (/https?:\/\/|www\./i.test(content)) {
+      return Err(new ValidationError('URLs are not allowed'))
+    }
+
+    // 連続同じ文字制限（5文字以上連続）
+    if (/(.)\1{4,}/.test(content)) {
+      return Err(new ValidationError('Excessive repeated characters'))
+    }
+
     // 連投防止マーク
     const markResult = await this.markPostTime(entity.id, params.authorHash)
     if (!markResult.success) {
@@ -724,6 +746,23 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
     // editToken（投稿者ハッシュ）の照合
     if (targetMessage.authorHash !== editToken) {
       return Err(new ValidationError('Permission denied: You can only edit your own posts'))
+    }
+
+    // 不適切なコンテンツチェック
+    const content = `${params.author} ${params.message}`
+    
+    if (this.contentFilter.isProfane(content)) {
+      return Err(new ValidationError('Inappropriate content detected'))
+    }
+
+    // URL投稿禁止
+    if (/https?:\/\/|www\./i.test(content)) {
+      return Err(new ValidationError('URLs are not allowed'))
+    }
+
+    // 連続同じ文字制限（5文字以上連続）
+    if (/(.)\1{4,}/.test(content)) {
+      return Err(new ValidationError('Excessive repeated characters'))
     }
 
     // メッセージ更新
