@@ -3,7 +3,7 @@
  * 
  * 使用方法:
  * <script src="/components/ranking.js"></script>
- * <nostalgic-ranking id="your-ranking-id" limit="10" theme="classic"></nostalgic-ranking>
+ * <nostalgic-ranking id="your-ranking-id" limit="10" theme="classic" format="interactive"></nostalgic-ranking>
  */
 
 class NostalgicRanking extends HTMLElement {
@@ -33,7 +33,7 @@ class NostalgicRanking extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['id', 'limit', 'theme'];
+    return ['id', 'limit', 'theme', 'format'];
   }
 
   connectedCallback() {
@@ -57,7 +57,7 @@ class NostalgicRanking extends HTMLElement {
       this.loading = true;
       this.render();
 
-      const response = await fetch(`${NostalgicRanking.apiBaseUrl}/api/ranking?action=get&id=${encodeURIComponent(id)}&limit=${encodeURIComponent(limit)}`);
+      const response = await fetch(`${NostalgicRanking.apiBaseUrl}/api/ranking?action=display&id=${encodeURIComponent(id)}&limit=${encodeURIComponent(limit)}`);
       const data = await response.json();
 
       if (data.success) {
@@ -270,5 +270,7 @@ if (!customElements.get('nostalgic-ranking')) {
 
 // コンソールに使用方法を表示
 console.log('🏆 Nostalgic Ranking loaded!');
-console.log('Usage: <nostalgic-ranking id="your-ranking-id" limit="10" theme="classic"></nostalgic-ranking>');
+console.log('Usage: <nostalgic-ranking id="your-ranking-id" limit="10" theme="classic" format="interactive"></nostalgic-ranking>');
+console.log('Themes: classic, modern, retro');
+console.log('Formats: interactive (default)');
 console.log('Docs: https://nostalgic.llll-ll.com');

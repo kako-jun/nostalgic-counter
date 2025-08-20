@@ -3,7 +3,7 @@
  * 
  * 使用方法:
  * <script src="/components/like.js"></script>
- * <nostalgic-like id="your-like-id" theme="classic"></nostalgic-like>
+ * <nostalgic-like id="your-like-id" theme="classic" icon="heart" format="interactive"></nostalgic-like>
  */
 
 class NostalgicLike extends HTMLElement {
@@ -33,7 +33,7 @@ class NostalgicLike extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['id', 'theme', 'icon'];
+    return ['id', 'theme', 'icon', 'format'];
   }
 
   connectedCallback() {
@@ -128,9 +128,32 @@ class NostalgicLike extends HTMLElement {
   render() {
     const theme = this.getAttribute('theme') || 'classic';
     const icon = this.getAttribute('icon') || 'heart';
+    const format = this.getAttribute('format') || 'interactive';
     
     if (!this.getAttribute('id')) {
       this.renderError('Error: id attribute is required');
+      return;
+    }
+
+    // SVG画像形式の場合
+    if (format === 'image') {
+      const baseUrl = this.getAttribute('api-base') || NostalgicLike.apiBaseUrl;
+      const id = this.getAttribute('id');
+      const apiUrl = `${baseUrl}/api/like?action=display&id=${encodeURIComponent(id)}&theme=${theme}&format=image`;
+      
+      this.shadowRoot.innerHTML = `
+        <style>
+          :host {
+            display: inline-block;
+          }
+          img {
+            display: block;
+            max-width: 100%;
+            height: auto;
+          }
+        </style>
+        <img src="${apiUrl}" alt="like count" loading="lazy" />
+      `;
       return;
     }
     
@@ -140,9 +163,9 @@ class NostalgicLike extends HTMLElement {
     
     // アイコンマッピング
     const iconMapping = {
-      heart: { filled: '♥', empty: '♡' },
-      star: { filled: '★', empty: '☆' },
-      thumbup: { filled: '👍', empty: '👍' }
+      heart: { filled: '❤️', empty: '🤍' },
+      star: { filled: '⭐', empty: '☆' },
+      thumb: { filled: '👍', empty: '👍' }
     };
     
     const currentIcon = iconMapping[icon] || iconMapping.heart;
@@ -245,6 +268,8 @@ if (!customElements.get('nostalgic-like')) {
 
 // コンソールに使用方法を表示
 console.log('❤️ Nostalgic Like loaded!');
-console.log('Usage: <nostalgic-like id="your-like-id" theme="classic" icon="heart"></nostalgic-like>');
-console.log('Icons: heart (♥), star (★), thumbup (👍)');
+console.log('Usage: <nostalgic-like id="your-like-id" theme="classic" icon="heart" format="interactive"></nostalgic-like>');
+console.log('Icons: heart (❤️), star (⭐), thumb (👍)');
+console.log('Themes: classic, modern, retro');
+console.log('Formats: interactive (default), image');
 console.log('Docs: https://nostalgic.llll-ll.com');

@@ -3,7 +3,7 @@
  * 
  * 使用方法:
  * <script src="/components/bbs.js"></script>
- * <nostalgic-bbs id="your-bbs-id" page="1" theme="classic"></nostalgic-bbs>
+ * <nostalgic-bbs id="your-bbs-id" page="1" theme="classic" format="interactive"></nostalgic-bbs>
  */
 
 class NostalgicBBS extends HTMLElement {
@@ -34,7 +34,7 @@ class NostalgicBBS extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['id', 'page', 'theme'];
+    return ['id', 'page', 'theme', 'format'];
   }
 
   connectedCallback() {
@@ -58,7 +58,7 @@ class NostalgicBBS extends HTMLElement {
       this.loading = true;
       this.render();
 
-      const response = await fetch(`${NostalgicBBS.apiBaseUrl}/api/bbs?action=get&id=${encodeURIComponent(id)}&page=${this.currentPage}`);
+      const response = await fetch(`${NostalgicBBS.apiBaseUrl}/api/bbs?action=display&id=${encodeURIComponent(id)}&page=${this.currentPage}`);
       const data = await response.json();
 
       if (data.success) {
@@ -334,5 +334,7 @@ if (!customElements.get('nostalgic-bbs')) {
 
 // コンソールに使用方法を表示
 console.log('💬 Nostalgic BBS loaded!');
-console.log('Usage: <nostalgic-bbs id="your-bbs-id" page="1" theme="classic"></nostalgic-bbs>');
+console.log('Usage: <nostalgic-bbs id="your-bbs-id" page="1" theme="classic" format="interactive"></nostalgic-bbs>');
+console.log('Themes: classic, modern, retro');
+console.log('Formats: interactive (default)');
 console.log('Docs: https://nostalgic.llll-ll.com');
