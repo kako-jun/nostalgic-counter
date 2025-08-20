@@ -282,7 +282,7 @@ export default function BBSPage() {
                               const data = await response.json()
                               const messages = data.data?.messages || []
                               const messageText = messages.length > 0 
-                                ? messages.map(msg => `${msg.author}: ${msg.message}`).join('\n')
+                                ? messages.map((msg: any) => `${msg.author}: ${msg.message}`).join('\n')
                                 : 'まだメッセージがありません'
                               alert(`BBS メッセージ:\n${messageText}`)
                             } catch (error) {

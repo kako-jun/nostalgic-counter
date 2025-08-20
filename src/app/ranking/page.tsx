@@ -268,7 +268,7 @@ export default function RankingPage() {
                               const data = await response.json()
                               const entries = data.entries || []
                               const rankingText = entries.length > 0 
-                                ? entries.map((entry, index) => `${index + 1}位: ${entry.name} - ${entry.score}点`).join('\n')
+                                ? entries.map((entry: any, index: number) => `${index + 1}位: ${entry.name} - ${entry.score}点`).join('\n')
                                 : 'まだエントリーがありません'
                               alert(`ランキング（上位5位）:\n${rankingText}`)
                             } catch (error) {

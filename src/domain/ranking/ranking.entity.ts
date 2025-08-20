@@ -13,6 +13,7 @@ export interface RankingEntity {
   url: string
   created: Date
   totalEntries: number
+  maxEntries: number
   lastUpdate?: Date
 }
 
@@ -34,6 +35,7 @@ export interface RankingData {
   url: string
   entries: RankingEntry[]
   totalEntries: number
+  maxEntries: number
   lastUpdate?: Date
 }
 
@@ -83,6 +85,7 @@ export const RankingEntitySchema = z.object({
   url: CommonSchemas.url,
   created: CommonSchemas.date,
   totalEntries: CommonSchemas.nonNegativeInt,
+  maxEntries: CommonSchemas.nonNegativeInt,
   lastUpdate: CommonSchemas.date.optional()
 })
 
@@ -98,6 +101,7 @@ export const RankingDataSchema = z.object({
   url: CommonSchemas.url,
   entries: z.array(RankingEntrySchema),
   totalEntries: CommonSchemas.nonNegativeInt,
+  maxEntries: CommonSchemas.nonNegativeInt,
   lastUpdate: CommonSchemas.date.optional()
 })
 

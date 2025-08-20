@@ -51,7 +51,8 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
       id,
       url,
       created: new Date(),
-      totalEntries: 0
+      totalEntries: 0,
+      maxEntries: params.maxEntries || 100
     }
 
     const validationResult = ValidationFramework.output(RankingEntitySchema, entity)
@@ -75,6 +76,7 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
       url: entity.url,
       entries,
       totalEntries: entity.totalEntries,
+      maxEntries: entity.maxEntries,
       lastUpdate: entity.lastUpdate
     }
 
@@ -351,6 +353,7 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
       url: entity.url,
       entries,
       totalEntries: entity.totalEntries,
+      maxEntries: entity.maxEntries,
       lastUpdate: entity.lastUpdate
     }
 
