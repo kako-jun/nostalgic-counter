@@ -12,13 +12,15 @@ import { bbsService } from '@/domain/bbs/bbs.service'
 const CLEANUP_PROBABILITY = 0.01 // 1%の確率で実行
 const EXPIRY_DAYS = 365 // 365日で期限切れ
 
+type ServiceType = 'counter' | 'like' | 'ranking' | 'bbs'
+
 interface ServiceInfo {
   id: string
   url: string
   ownerToken: string
   lastActivity: Date
   created: Date
-  type: 'counter' | 'like' | 'ranking' | 'bbs'
+  type: ServiceType
 }
 
 /**
@@ -40,7 +42,7 @@ export async function runAutoCleanup(): Promise<{
   deleted: ServiceInfo[]
   errors: string[]
 }> {
-  const redis = getRedis() as any
+  const redis = getRedis()
   const deleted: ServiceInfo[] = []
   const errors: string[] = []
   
@@ -101,7 +103,7 @@ export async function runAutoCleanup(): Promise<{
  * 期限切れサービスを検出
  */
 async function findExpiredServices(): Promise<ServiceInfo[]> {
-  const redis = getRedis() as any
+  const redis = getRedis()
   const expiredServices: ServiceInfo[] = []
   const now = new Date()
   const cutoffDate = new Date(now.getTime() - (EXPIRY_DAYS * 24 * 60 * 60 * 1000))
@@ -119,7 +121,7 @@ async function findExpiredServices(): Promise<ServiceInfo[]> {
       
       if (['counter', 'like', 'ranking', 'bbs'].includes(serviceType)) {
         if (!serviceMap.has(serviceId)) {
-          serviceMap.set(serviceId, { id: serviceId, type: serviceType as any })
+          serviceMap.set(serviceId, { id: serviceId, type: serviceType as ServiceType })
         }
         
         const serviceInfo = serviceMap.get(serviceId)!
@@ -139,7 +141,10 @@ async function findExpiredServices(): Promise<ServiceInfo[]> {
         
         // オーナートークンを取得
         if (key === `${serviceType}:${serviceId}:owner`) {
-          serviceInfo.ownerToken = await redis.get(key)
+          const ownerToken = await redis.get(key)
+          if (ownerToken) {
+            serviceInfo.ownerToken = ownerToken
+          }
         }
         
         // カウンターの場合は最終アクティビティを日別データから取得

@@ -194,12 +194,13 @@ export const ConfigSchema = z.object({
   security: SecuritySettingsSchema,
   redis: RedisSettingsSchema,
   logging: LoggingSettingsSchema
-}).default({
+}).default(() => ({
   serviceLimits: {
     counter: {
       maxValue: 999999999,
       maxDigits: 10,
-      dailyRetentionDays: 365
+      dailyRetentionDays: 365,
+      visitTTL: 86400
     },
     like: {
       maxValue: 999999999,
@@ -210,7 +211,8 @@ export const ConfigSchema = z.object({
       maxEntries: 1000,
       maxNameLength: 50,
       minScore: 0,
-      maxScore: 999999999
+      maxScore: 999999999,
+      submitCooldown: 60
     },
     bbs: {
       maxMessages: 1000,
@@ -219,7 +221,8 @@ export const ConfigSchema = z.object({
       messagesPerPage: 10,
       maxIcons: 20,
       maxSelectOptions: 50,
-      maxSelectLabelLength: 50
+      maxSelectLabelLength: 50,
+      postCooldown: 10
     }
   },
   cache: {
@@ -260,7 +263,7 @@ export const ConfigSchema = z.object({
     enableValidationLogging: false,
     slowOperationThreshold: 1000
   }
-})
+}))
 
 export type Config = z.infer<typeof ConfigSchema>
 export type ServiceLimits = z.infer<typeof ServiceLimitsSchema>

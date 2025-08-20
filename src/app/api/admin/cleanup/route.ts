@@ -39,7 +39,7 @@ const cleanupHandler = ApiHandler.create({
       return Err(new ValidationError('Invalid admin token'))
     }
 
-    const redis = getRedis() as any
+    const redis = getRedis()
     const deletedKeys: string[] = []
     
     try {
@@ -153,7 +153,7 @@ const cleanupByUrlHandler = ApiHandler.create({
       return Err(new ValidationError('Invalid admin token'))
     }
 
-    const redis = getRedis() as any
+    const redis = getRedis()
     const deletedKeys: string[] = []
     const foundInstances: string[] = []
     

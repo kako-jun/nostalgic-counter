@@ -5,14 +5,15 @@ let redis: Redis | null = null
 // Redisインターフェース
 interface RedisLike {
   get(key: string): Promise<string | null>
-  set(key: string, value: string): Promise<any>
+  set(key: string, value: string, ...args: (string | number)[]): Promise<any>
   setex(key: string, seconds: number, value: string): Promise<any>
   incr(key: string): Promise<number>
   incrby(key: string, increment: number): Promise<number>
   decrby(key: string, decrement: number): Promise<number>
   exists(key: string): Promise<number>
   expire(key: string, seconds: number): Promise<any>
-  del(key: string): Promise<any>
+  del(...keys: string[]): Promise<any>
+  keys(pattern: string): Promise<string[]>
   // List operations
   lpush(key: string, ...values: string[]): Promise<number>
   lrange(key: string, start: number, end: number): Promise<string[]>
@@ -38,5 +39,5 @@ export function getRedis(): RedisLike {
     console.log('[DB] Redis connection established')
   }
   
-  return redis
+  return redis as unknown as RedisLike
 }

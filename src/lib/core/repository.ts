@@ -115,12 +115,12 @@ export abstract class BaseRepository<TEntity, TId = string> {
     }
 
     try {
-      // Redis SET key value NX EX ttl コマンド
+      // Redis SET key value NX EX ttl コマンド（ioredis形式）
       const result = await this.redis.set(
         this.buildKey(id), 
         serializationResult.data, 
-        'NX', 
-        'EX', 
+        'NX',
+        'EX',
         ttlSeconds
       )
       // 'OK' = 設定成功（新規）、null = キーが既に存在

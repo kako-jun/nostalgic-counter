@@ -91,7 +91,7 @@ async function showAllData() {
   
   // 1. カウンターテーブル
   console.log('📊 Counters');
-  console.log('═'.repeat(160));
+  console.log('═'.repeat(172));
   console.log('| ID                  | URL                                                      | Total | Last Access | Days Idle | Days to Del | Created            |');
   console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(60) + '|' + '-'.repeat(7) + '|' + '-'.repeat(13) + '|' + '-'.repeat(11) + '|' + '-'.repeat(13) + '|' + '-'.repeat(20) + '|');
   
@@ -141,13 +141,13 @@ async function showAllData() {
     totalCounterHits += data.total;
     console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.total).padStart(5)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
   }
-  console.log('═'.repeat(160));
+  console.log('═'.repeat(172));
   console.log(`Total counters: ${counters.size}, Total hits: ${totalCounterHits}\n`);
   console.log(`Total counters: ${counters.size}\n`);
   
   // 2. いいねテーブル
-  console.log('💖 Likes');
-  console.log('═'.repeat(160));
+  console.log('=== Likes ===');
+  console.log('═'.repeat(172));
   console.log('| ID                  | URL                                                      | Total | Last Access | Days Idle | Days to Del | Created            |');
   console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(60) + '|' + '-'.repeat(7) + '|' + '-'.repeat(13) + '|' + '-'.repeat(11) + '|' + '-'.repeat(13) + '|' + '-'.repeat(20) + '|');
   
@@ -187,14 +187,14 @@ async function showAllData() {
     totalLikes += data.total;
     console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.total).padStart(5)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
   }
-  console.log('═'.repeat(160));
+  console.log('═'.repeat(172));
   console.log(`Total likes: ${likes.size}, Total hearts: ${totalLikes}\n`);
   
   // 3. ランキングテーブル
-  console.log('🏆 Rankings');
-  console.log('═'.repeat(160));
-  console.log('| ID                  | URL                                                      | Entries | Last Access | Days Idle | Days to Del | Created            |');
-  console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(60) + '|' + '-'.repeat(9) + '|' + '-'.repeat(13) + '|' + '-'.repeat(11) + '|' + '-'.repeat(13) + '|' + '-'.repeat(20) + '|');
+  console.log('=== Rankings ===');
+  console.log('═'.repeat(172));
+  console.log('| ID                  | URL                                                      | Entries | Max Entries | Last Access | Days Idle | Days to Del | Created            |');
+  console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(60) + '|' + '-'.repeat(9) + '|' + '-'.repeat(13) + '|' + '-'.repeat(13) + '|' + '-'.repeat(11) + '|' + '-'.repeat(13) + '|' + '-'.repeat(20) + '|');
   
   // URL順にソート（浅い階層を上に、深い階層を下に）
   const sortedRankings = Array.from(rankings.entries())
@@ -230,16 +230,17 @@ async function showAllData() {
     const daysToDel = String(Math.max(0, 365 - diffDays));
     
     totalRankingEntries += data.entries;
-    console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.entries).padStart(7)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
+    const maxEntries = data.metadata?.settings?.maxEntries || 'N/A';
+    console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.entries).padStart(7)} | ${String(maxEntries).padStart(11)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
   }
-  console.log('═'.repeat(160));
+  console.log('═'.repeat(172));
   console.log(`Total rankings: ${rankings.size}, Total entries: ${totalRankingEntries}\n`);
   
   // 4. BBSテーブル
-  console.log('💬 BBS');
-  console.log('═'.repeat(160));
-  console.log('| ID                  | URL                                                      | Messages | Last Access | Days Idle | Days to Del | Created            |');
-  console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(60) + '|' + '-'.repeat(10) + '|' + '-'.repeat(13) + '|' + '-'.repeat(11) + '|' + '-'.repeat(13) + '|' + '-'.repeat(20) + '|');
+  console.log('=== BBS ===');
+  console.log('═'.repeat(172));
+  console.log('| ID                  | URL                                                      | Messages | Max Msgs | Title      | Last Access | Days Idle | Days to Del | Created            |');
+  console.log('|' + '-'.repeat(21) + '|' + '-'.repeat(60) + '|' + '-'.repeat(10) + '|' + '-'.repeat(10) + '|' + '-'.repeat(12) + '|' + '-'.repeat(13) + '|' + '-'.repeat(11) + '|' + '-'.repeat(13) + '|' + '-'.repeat(20) + '|');
   
   // URL順にソート（浅い階層を上に、深い階層を下に）
   const sortedBbses = Array.from(bbses.entries())
@@ -275,9 +276,11 @@ async function showAllData() {
     const daysToDel = String(Math.max(0, 365 - diffDays));
     
     totalBbsMessages += data.messages;
-    console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.messages).padStart(8)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
+    const maxMessages = data.metadata?.settings?.maxMessages || 'N/A';
+    const title = (data.metadata?.settings?.title || 'N/A').substring(0, 10);
+    console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.messages).padStart(8)} | ${String(maxMessages).padStart(8)} | ${title.padEnd(10)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
   }
-  console.log('═'.repeat(160));
+  console.log('═'.repeat(172));
   console.log(`Total BBS: ${bbses.size}, Total messages: ${totalBbsMessages}\n`);
   
   // 5. 日別データテーブル（カウンターのみ）

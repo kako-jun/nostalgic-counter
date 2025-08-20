@@ -55,7 +55,7 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
     const limits = getBBSLimits()
     
     const settings: BBSSettings = {
-      title: params.title || '💬 BBS',
+      title: params.title || 'BBS',
       maxMessages: params.maxMessages || limits.maxMessages,
       messagesPerPage: params.messagesPerPage || limits.messagesPerPage,
       icons: params.icons || [],
