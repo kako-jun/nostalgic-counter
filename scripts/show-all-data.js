@@ -230,7 +230,7 @@ async function showAllData() {
     const daysToDel = String(Math.max(0, 365 - diffDays));
     
     totalRankingEntries += data.entries;
-    const maxEntries = data.metadata?.settings?.maxEntries || 'N/A';
+    const maxEntries = data.metadata?.maxEntries || 'N/A';
     console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.entries).padStart(7)} | ${String(maxEntries).padStart(11)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
   }
   console.log('═'.repeat(172));

@@ -40,8 +40,7 @@ async function deleteCounter(id) {
     console.log(`  URL: ${url}`)
     
     // 2. URLマッピングを削除
-    const encodedUrl = encodeURIComponent(`counter:${url}`)
-    const mappingKey = `url:${encodedUrl}`
+    const mappingKey = `url:counter:${encodeURIComponent(url)}`
     const mappingDeleted = await redis.del(mappingKey)
     if (mappingDeleted > 0) {
       console.log(`  ✅ Deleted URL mapping: ${mappingKey}`)
@@ -97,8 +96,7 @@ async function deleteLike(id) {
     console.log(`  URL: ${url}`)
     
     // 2. URLマッピングを削除
-    const encodedUrl = encodeURIComponent(`like:${url}`)
-    const mappingKey = `url:${encodedUrl}`
+    const mappingKey = `url:like:${encodeURIComponent(url)}`
     const mappingDeleted = await redis.del(mappingKey)
     if (mappingDeleted > 0) {
       console.log(`  ✅ Deleted URL mapping: ${mappingKey}`)
@@ -161,8 +159,7 @@ async function deleteRanking(id) {
     console.log(`  URL: ${url}`)
     
     // 2. URLマッピングを削除
-    const encodedUrl = encodeURIComponent(`ranking:${url}`)
-    const mappingKey = `url:${encodedUrl}`
+    const mappingKey = `url:ranking:${encodeURIComponent(url)}`
     const mappingDeleted = await redis.del(mappingKey)
     if (mappingDeleted > 0) {
       console.log(`  ✅ Deleted URL mapping: ${mappingKey}`)
@@ -218,8 +215,7 @@ async function deleteBBS(id) {
     console.log(`  URL: ${url}`)
     
     // 2. URLマッピングを削除
-    const encodedUrl = encodeURIComponent(`bbs:${url}`)
-    const mappingKey = `url:${encodedUrl}`
+    const mappingKey = `url:bbs:${encodeURIComponent(url)}`
     const mappingDeleted = await redis.del(mappingKey)
     if (mappingDeleted > 0) {
       console.log(`  ✅ Deleted URL mapping: ${mappingKey}`)
