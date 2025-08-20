@@ -393,7 +393,7 @@ class NostalgicBBS extends HTMLElement {
             <div class="form-header">Post Message</div>
             <div class="form-body">
               <div class="form-row">
-                <input type="text" id="message-author" placeholder="Name (optional)" maxlength="50">
+                <input type="text" id="message-author" placeholder="Name (optional, max 20 chars)" maxlength="20">
                 <select id="message-icon">
                   <option value="">No icon</option>
                   <option value="😀">😀</option>
@@ -405,7 +405,7 @@ class NostalgicBBS extends HTMLElement {
                 </select>
               </div>
               <div class="form-row">
-                <textarea id="message-content" placeholder="Enter your message..." maxlength="1000" rows="3"></textarea>
+                <textarea id="message-content" placeholder="Enter your message (max 200 chars)..." maxlength="200" rows="3"></textarea>
               </div>
               <div class="message-area" id="form-message"></div>
               <div class="form-row">
