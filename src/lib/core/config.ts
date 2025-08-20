@@ -36,13 +36,13 @@ const ServiceLimitsSchema = z.object({
     maxNameLength: z.number().int().min(1).max(100).default(50),
     minScore: z.number().int().min(0).default(0),
     maxScore: z.number().int().positive().default(999999999),
-    submitCooldown: z.number().int().positive().default(30)
+    submitCooldown: z.number().int().positive().default(60)
   }).default({
     maxEntries: 1000,
     maxNameLength: 50,
     minScore: 0,
     maxScore: 999999999,
-    submitCooldown: 30
+    submitCooldown: 60
   }),
   bbs: z.object({
     maxMessages: z.number().int().min(1).max(10000).default(1000),

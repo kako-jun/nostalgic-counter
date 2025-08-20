@@ -123,7 +123,7 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
       }
       
       if (!cooldownResult.data) {
-        return Err(new ValidationError('Please wait before submitting another score (30 seconds cooldown)'))
+        return Err(new ValidationError('Please wait before submitting another score (60 seconds cooldown)'))
       }
     }
 
@@ -380,7 +380,7 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
     const submitKey = `submit:${id}:${userHash}`
     const submitRepo = RepositoryFactory.createEntity(z.string(), 'ranking_submit')
     const limits = getRankingLimits() as { submitCooldown: number }
-    const ttl = limits.submitCooldown // デフォルト30秒
+    const ttl = limits.submitCooldown // デフォルト60秒
 
     const saveResult = await submitRepo.saveWithTTL(submitKey, new Date().toISOString(), ttl)
     if (!saveResult.success) {

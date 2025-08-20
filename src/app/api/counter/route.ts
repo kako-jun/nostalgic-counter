@@ -119,7 +119,7 @@ const displayHandler = ApiHandler.createSpecialResponse(
     type: z.enum(['total', 'today', 'yesterday', 'week', 'month']).default('total'),
     theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
     digits: z.coerce.number().int().min(1).max(10).default(6),
-    format: z.enum(['json', 'text', 'image']).default('image')
+    format: z.enum(['json', 'text', 'image']).default('json')
   }),
   async ({ id, type, format, digits }) => {
     if (format === 'json') {

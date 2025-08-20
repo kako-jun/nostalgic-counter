@@ -76,23 +76,62 @@ const getHandler = ApiHandler.create({
 })
 
 /**
- * DISPLAY アクション (Web Components用)
+ * DISPLAY アクション
  */
-const displayHandler = ApiHandler.create({
-  paramsSchema: z.object({
+const displayHandler = ApiHandler.createSpecialResponse(
+  z.object({
     action: z.literal('display'),
     id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    format: z.enum(['json']).default('json')
+    theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
+    format: z.enum(['json', 'text', 'image']).default('json')
   }),
-  resultSchema: LikeDataSchema,
-  handler: async ({ id }, request) => {
+  async ({ id, format, theme }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
     const userHash = likeService.generateUserHash(clientIP, userAgent)
 
-    return await likeService.getLikeData(id, userHash)
+    const likeDataResult = await likeService.getLikeData(id, userHash)
+    if (!likeDataResult.success) {
+      return likeDataResult
+    }
+
+    const likeData = likeDataResult.data
+
+    if (format === 'json') {
+      return Ok(likeData)
+    }
+
+    if (format === 'text') {
+      return Ok(likeData.total.toString())
+    }
+
+    // format === 'image' の場合はSVG生成
+    const svgResult = await likeService.generateSVG(likeData, theme)
+    if (!svgResult.success) {
+      return svgResult
+    }
+
+    return Ok(svgResult.data)
+  },
+  {
+    schema: z.union([
+      LikeDataSchema, // JSON format
+      z.string() // text/SVG format
+    ]),
+    formatter: (data) => {
+      if (typeof data === 'object') {
+        return JSON.stringify(data, null, 2)
+      }
+      return data.toString()
+    },
+    contentType: (params) => {
+      if (params.format === 'image') return 'image/svg+xml'
+      if (params.format === 'json') return 'application/json'
+      return 'text/plain'
+    },
+    cacheControl: `public, max-age=${getCacheSettings().displayMaxAge}`
   }
-})
+)
 
 /**
  * SET アクション

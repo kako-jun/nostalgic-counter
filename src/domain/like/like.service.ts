@@ -364,6 +364,67 @@ export class LikeService extends BaseNumericService<LikeEntity, LikeData, LikeCr
       return await this.transformEntityToData(entityResult.data)
     }
   }
+
+  /**
+   * SVG画像を生成
+   */
+  async generateSVG(
+    likeData: LikeData,
+    theme: 'classic' | 'modern' | 'retro'
+  ): Promise<Result<string, ValidationError>> {
+    try {
+      const iconType = 'heart' // デフォルトはハート
+      const icon = iconType === 'heart' ? '❤️' : 
+                   iconType === 'star' ? '⭐' : '👍'
+      const count = likeData.total
+      
+      // テーマ別の色設定
+      const themes = {
+        classic: {
+          bg: '#ffffff',
+          text: '#333333',
+          border: '#cccccc',
+          icon: '#ff6b6b'
+        },
+        modern: {
+          bg: '#f8f9fa',
+          text: '#495057',
+          border: '#dee2e6',
+          icon: '#e91e63'
+        },
+        retro: {
+          bg: '#fdf6e3',
+          text: '#586e75',
+          border: '#93a1a1',
+          icon: '#dc322f'
+        }
+      }
+      
+      const themeColors = themes[theme]
+      
+      const svg = `
+        <svg width="120" height="40" xmlns="http://www.w3.org/2000/svg">
+          <rect x="0" y="0" width="120" height="40" 
+                fill="${themeColors.bg}" 
+                stroke="${themeColors.border}" 
+                stroke-width="1" 
+                rx="5"/>
+          <text x="10" y="25" 
+                font-family="Arial, sans-serif" 
+                font-size="14" 
+                fill="${themeColors.icon}">${icon}</text>
+          <text x="30" y="25" 
+                font-family="Arial, sans-serif" 
+                font-size="14" 
+                fill="${themeColors.text}">${count}</text>
+        </svg>
+      `.replace(/\n\s+/g, ' ').trim()
+      
+      return Ok(svg)
+    } catch (error) {
+      return Err(new ValidationError('Failed to generate SVG', { error }))
+    }
+  }
 }
 
 // シングルトンインスタンス
