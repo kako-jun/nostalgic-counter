@@ -66,7 +66,9 @@ class NostalgicBBS extends HTMLElement {
 
       if (data.success) {
         this.bbsData = data.data;
+        console.log('BBS Data loaded:', this.bbsData);
       } else {
+        console.error('BBS API Error:', data);
         this.renderError(data.error || 'Failed to load BBS data');
         return;
       }
@@ -681,9 +683,9 @@ if (!customElements.get('nostalgic-bbs')) {
 
 // コンソールに使用方法を表示
 console.log('💬 Nostalgic BBS loaded!');
-console.log('Usage: <nostalgic-bbs id="your-bbs-id" page="1" theme="classic" url="https://example.com" token="your-token"></nostalgic-bbs>');
+console.log('Usage: <nostalgic-bbs id="your-bbs-id" page="1" theme="classic"></nostalgic-bbs>');
 console.log('Themes: classic, modern, retro');
 console.log('Formats: interactive (default)');
 console.log('Note: Header title is set when creating BBS via API (title parameter)');
-console.log('Note: url and token attributes are required for message posting');
+console.log('Note: Posts can be made with ID only, editing requires editToken');
 console.log('Docs: https://nostalgic.llll-ll.com');
