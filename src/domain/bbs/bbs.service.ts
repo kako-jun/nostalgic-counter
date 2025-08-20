@@ -371,31 +371,16 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
 
   /**
    * ページネーション付きでメッセージを取得
-   * 新しいメッセージが下に表示されるよう逆順で取得
    */
   private async getMessages(id: string, page: number, limit: number): Promise<Result<BBSMessage[], ValidationError>> {
-    // 全メッセージ数を取得
-    const lengthResult = await this.listRepository.length(`${id}:messages`)
-    if (!lengthResult.success || lengthResult.data === 0) {
-      return Ok([])
-    }
+    const start = (page - 1) * limit
+    const end = start + limit - 1
 
-    const totalMessages = lengthResult.data
-    const totalPages = Math.ceil(totalMessages / limit)
-    
-    // ページ番号から実際のRedis range を計算（逆順）
-    const startIndex = totalMessages - (page * limit)
-    const endIndex = totalMessages - ((page - 1) * limit) - 1
-    
-    const actualStart = Math.max(0, startIndex)
-    const actualEnd = Math.min(totalMessages - 1, endIndex)
-
-    const messagesResult = await this.listRepository.range(`${id}:messages`, actualStart, actualEnd)
+    const messagesResult = await this.listRepository.range(`${id}:messages`, start, end)
     if (!messagesResult.success) {
       return Ok([]) // エラーの場合は空配列
     }
 
-    // 取得したメッセージを時系列順（古い順）にする
     return Ok(messagesResult.data)
   }
 

@@ -66,9 +66,7 @@ class NostalgicBBS extends HTMLElement {
 
       if (data.success) {
         this.bbsData = data.data;
-        console.log('BBS Data loaded:', this.bbsData);
       } else {
-        console.error('BBS API Error:', data);
         this.renderError(data.error || 'Failed to load BBS data');
         return;
       }
@@ -146,7 +144,8 @@ class NostalgicBBS extends HTMLElement {
     };
 
     const style = themeStyles[theme] || themeStyles.classic;
-    const messages = this.bbsData.messages || [];
+    // メッセージを逆順ソート（新しいものが下に表示される）
+    const messages = (this.bbsData.messages || []).slice().reverse();
     const pagination = this.bbsData.pagination || {};
 
     this.shadowRoot.innerHTML = `
