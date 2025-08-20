@@ -323,18 +323,21 @@ export default function LikePage() {
                 <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
                   <div style={{ textAlign: "center" }}>
                     <p style={{ fontSize: "14px", marginBottom: "5px" }}>ハート</p>
-                    {/* @ts-ignore */}
-                    <nostalgic-like id="nostalgic-865b5349" theme="classic" icon="heart" />
+                    <div dangerouslySetInnerHTML={{
+                      __html: '<nostalgic-like id="nostalgic-865b5349" theme="classic" icon="heart"></nostalgic-like>'
+                    }} />
                   </div>
                   <div style={{ textAlign: "center" }}>
                     <p style={{ fontSize: "14px", marginBottom: "5px" }}>スター</p>
-                    {/* @ts-ignore */}
-                    <nostalgic-like id="nostalgic-865b5349" theme="classic" icon="star" />
+                    <div dangerouslySetInnerHTML={{
+                      __html: '<nostalgic-like id="nostalgic-865b5349" theme="classic" icon="star"></nostalgic-like>'
+                    }} />
                   </div>
                   <div style={{ textAlign: "center" }}>
                     <p style={{ fontSize: "14px", marginBottom: "5px" }}>サムズアップ</p>
-                    {/* @ts-ignore */}
-                    <nostalgic-like id="nostalgic-865b5349" theme="classic" icon="thumbup" />
+                    <div dangerouslySetInnerHTML={{
+                      __html: '<nostalgic-like id="nostalgic-865b5349" theme="classic" icon="thumb"></nostalgic-like>'
+                    }} />
                   </div>
                 </div>
               </div>
