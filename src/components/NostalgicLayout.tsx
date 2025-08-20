@@ -64,7 +64,7 @@ export default function NostalgicLayout({ children, serviceName, serviceIcon }: 
 
   return (
     <>
-      <Script src="https://nostalgic.llll-ll.com/components/counter.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic.llll-ll.com/components/visit.js" strategy="beforeInteractive" />
       <Script src="https://nostalgic.llll-ll.com/components/like.js" strategy="beforeInteractive" />
       <Script src="https://nostalgic.llll-ll.com/components/ranking.js" strategy="beforeInteractive" />
       <Script src="https://nostalgic.llll-ll.com/components/bbs.js" strategy="beforeInteractive" />

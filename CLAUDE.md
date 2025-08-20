@@ -102,7 +102,7 @@ bbs:{id}                       → メタデータ
 - `src/app/ranking/page.tsx` - ランキングデモ
 - `src/app/bbs/page.tsx` - BBSデモ
 - `src/components/Layout.tsx` - 共通レイアウト
-- `public/components/counter.js` - カウンター Web Component
+- `public/components/visit.js` - カウンター Web Component
 
 ### Documentation
 - `docs/API.md` - 総合API仕様
@@ -149,7 +149,7 @@ https://nostalgic.llll-ll.com/api/bbs?action=post&url=https://example.com&token=
 
 ### 3. 埋め込み（Counter例）
 ```html
-<script src="/components/counter.js"></script>
+<script src="/components/visit.js"></script>
 <nostalgic-counter id="your-id" type="total" theme="classic"></nostalgic-counter>
 ```
 

@@ -204,7 +204,7 @@ export default function CounterPage() {
               </p>
               <p>あなたのサイトのHTMLに以下のコードを追加してください。</p>
               <pre style={{ backgroundColor: "#f0f0f0", padding: "10px", overflow: "auto", fontSize: "14px", margin: "10px 0" }}>
-                {`<script src="https://nostalgic.llll-ll.com/components/counter.js"></script>
+                {`<script src="https://nostalgic.llll-ll.com/components/visit.js"></script>
 <nostalgic-counter id="`}
                 <span style={{ color: "#008000" }}>公開ID</span>
                 {`" type="`}
@@ -576,7 +576,7 @@ export default function CounterPage() {
                 </p>
                 <p>公開ID: <span style={{ backgroundColor: "#ffff00", padding: "2px 4px", fontFamily: "monospace" }}>{publicId}</span></p>
                 <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px", wordBreak: "break-all" }}>
-{`<script src="https://nostalgic.llll-ll.com/components/counter.js"></script>
+{`<script src="https://nostalgic.llll-ll.com/components/visit.js"></script>
 <nostalgic-counter id="${publicId}" type="total" theme="classic"></nostalgic-counter>`}
                 </p>
                 <p>表示URL:</p>

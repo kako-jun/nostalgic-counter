@@ -99,7 +99,7 @@ GET /api/counter?action=set&url={URL}&token={TOKEN}&total={VALUE}
 ## Web Component Integration
 
 ```html
-<script src="https://nostalgic.llll-ll.com/components/counter.js"></script>
+<script src="https://nostalgic.llll-ll.com/components/visit.js"></script>
 <nostalgic-counter 
   id="yoursite-a7b9c3d4" 
   type="total" 

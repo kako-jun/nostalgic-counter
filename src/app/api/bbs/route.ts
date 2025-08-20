@@ -19,7 +19,7 @@ const createHandler = ApiHandler.create({
     action: z.literal('create'),
     url: z.string().url(),
     token: z.string().min(8).max(16),
-    title: z.string().min(1).max(100).default('💬 BBS'),
+    title: z.string().min(1).max(100).default('BBS'),
     messagesPerPage: z.coerce.number().int().min(1).max(50).default(10),
     max: z.coerce.number().int().min(1).max(1000).default(100),
     enableIcons: z.coerce.boolean().default(true),

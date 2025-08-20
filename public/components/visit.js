@@ -2,7 +2,7 @@
  * Nostalgic Counter Web Component
  * 
  * 使用方法:
- * <script src="' + window.location.origin + '/components/counter.js"></script>
+ * <script src="' + window.location.origin + '/components/visit.js"></script>
  * <nostalgic-counter id="your-counter-id" type="total" theme="classic"></nostalgic-counter>
  */
 
@@ -13,10 +13,10 @@ class NostalgicCounter extends HTMLElement {
   static latestCounts = new Map();
   // スクリプトが読み込まれたドメインを自動検出
   static apiBaseUrl = (() => {
-    const scripts = document.querySelectorAll('script[src*="counter.js"]');
+    const scripts = document.querySelectorAll('script[src*="visit.js"]');
     for (const script of scripts) {
       const src = script.getAttribute('src');
-      if (src && src.includes('counter.js')) {
+      if (src && src.includes('visit.js')) {
         try {
           const url = new URL(src, window.location.href);
           return url.origin;
