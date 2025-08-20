@@ -158,7 +158,7 @@ export class CounterService extends BaseNumericService<CounterEntity, CounterDat
       // ロールバック処理
       await this.incrementValue(`${id}:total`, -incrementBy)
       await this.removeVisitMark(id, userHash)
-      return dailyIncrementResult
+      return Err(new ValidationError('Failed to increment daily count', { error: dailyIncrementResult.error }))
     }
     
     // 最終訪問時刻の更新

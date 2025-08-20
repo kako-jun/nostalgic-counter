@@ -18,11 +18,14 @@ import {
   BBSPostParams,
   BBSUpdateParams,
   BBSRemoveParams,
+  BBSUpdateSettingsParamsType,
   BBSEntitySchema,
   BBSDataSchema,
   BBSMessageSchema,
   BBSSettingsSchema
 } from './bbs.entity'
+
+type BBSUpdateSettingsParams = BBSUpdateSettingsParamsType
 
 /**
  * BBSサービスクラス
@@ -520,6 +523,7 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
     const data: BBSData = {
       id: entity.id,
       url: entity.url,
+      title: entity.settings.title,
       messages,
       totalMessages: entity.totalMessages,
       currentPage: page,

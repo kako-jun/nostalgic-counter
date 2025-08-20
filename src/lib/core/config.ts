@@ -67,7 +67,8 @@ const ServiceLimitsSchema = z.object({
   counter: {
     maxValue: 999999999,
     maxDigits: 10,
-    dailyRetentionDays: 365
+    dailyRetentionDays: 365,
+    visitTTL: 86400
   },
   like: {
     maxValue: 999999999,
@@ -78,7 +79,8 @@ const ServiceLimitsSchema = z.object({
     maxEntries: 1000,
     maxNameLength: 50,
     minScore: 0,
-    maxScore: 999999999
+    maxScore: 999999999,
+    submitCooldown: 60
   },
   bbs: {
     maxMessages: 1000,
@@ -87,7 +89,8 @@ const ServiceLimitsSchema = z.object({
     messagesPerPage: 10,
     maxIcons: 20,
     maxSelectOptions: 50,
-    maxSelectLabelLength: 50
+    maxSelectLabelLength: 50,
+    postCooldown: 10
   }
 })
 
