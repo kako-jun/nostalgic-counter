@@ -375,27 +375,27 @@ class NostalgicBBS extends HTMLElement {
                 ` : ''}
               </div>
             `).join('') 
-            : `<div class="empty-message">No messages yet</div>`
+            : `<div class="empty-message">まだメッセージがありません</div>`
           }
         </div>
         ${pagination.totalPages > 1 ? `
           <div class="pagination">
             <button ${!pagination.hasPrev ? 'disabled' : ''} onclick="this.getRootNode().host.changePage(${pagination.page - 1})">
-              &lt; Prev
+              &lt; 前へ
             </button>
-            <span class="current-page">Page ${pagination.page} / ${pagination.totalPages}</span>
+            <span class="current-page">${pagination.page} / ${pagination.totalPages} ページ</span>
             <button ${!pagination.hasNext ? 'disabled' : ''} onclick="this.getRootNode().host.changePage(${pagination.page + 1})">
-              Next &gt;
+              次へ &gt;
             </button>
           </div>
         ` : ''}
         <div class="post-form">
-            <div class="form-header">Post Message</div>
+            <div class="form-header">コメントを投稿</div>
             <div class="form-body">
               <div class="form-row">
-                <input type="text" id="message-author" placeholder="Name (optional, max 20 chars)" maxlength="20">
+                <input type="text" id="message-author" placeholder="名前（省略可、最大20文字）" maxlength="20">
                 <select id="message-icon">
-                  <option value="">No icon</option>
+                  <option value="">アイコンなし</option>
                   <option value="😀">😀</option>
                   <option value="😉">😉</option>
                   <option value="😎">😎</option>
@@ -405,11 +405,11 @@ class NostalgicBBS extends HTMLElement {
                 </select>
               </div>
               <div class="form-row">
-                <textarea id="message-content" placeholder="Enter your message (max 200 chars)..." maxlength="200" rows="3"></textarea>
+                <textarea id="message-content" placeholder="メッセージを入力（最大200文字）..." maxlength="200" rows="3"></textarea>
               </div>
               <div class="message-area" id="form-message"></div>
               <div class="form-row">
-                <button id="post-button" onclick="this.getRootNode().host.postMessage()">Post</button>
+                <button id="post-button" onclick="this.getRootNode().host.postMessage()">投稿</button>
               </div>
             </div>
           </div>
@@ -474,7 +474,7 @@ class NostalgicBBS extends HTMLElement {
     const icon = iconSelect ? iconSelect.value : '';
 
     if (!message) {
-      this.showMessage('Please enter a message');
+      this.showMessage('メッセージを入力してください');
       return;
     }
 
@@ -552,9 +552,9 @@ class NostalgicBBS extends HTMLElement {
     if (button) {
       button.disabled = this.posting;
       if (this.posting) {
-        button.textContent = this.editMode ? 'Updating...' : 'Posting...';
+        button.textContent = this.editMode ? '更新中...' : '投稿中...';
       } else {
-        button.textContent = this.editMode ? '更新' : 'Post';
+        button.textContent = this.editMode ? '更新' : '投稿';
       }
     }
   }
@@ -580,7 +580,7 @@ class NostalgicBBS extends HTMLElement {
     this.editingMessageId = null;
     const postButton = this.shadowRoot.querySelector('#post-button');
     if (postButton) {
-      postButton.textContent = 'Post';
+      postButton.textContent = '投稿';
     }
   }
 

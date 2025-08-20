@@ -163,30 +163,42 @@ class NostalgicLike extends HTMLElement {
     
     // アイコンマッピング
     const iconMapping = {
-      heart: { filled: '❤️', empty: '🤍' },
-      star: { filled: '⭐', empty: '☆' },
+      heart: { filled: '♥', empty: '♡' },
+      star: { filled: '★', empty: '☆' },
       thumb: { filled: '👍', empty: '👍' }
     };
     
     const currentIcon = iconMapping[icon] || iconMapping.heart;
     const displayIcon = userLiked ? currentIcon.filled : currentIcon.empty;
     
+    // アイコンの色設定
+    const iconColor = {
+      heart: userLiked ? '#ff0000' : '#999999',  // 赤いハート / グレー
+      star: userLiked ? '#ffd700' : '#999999',   // 黄色い星 / グレー  
+      thumb: userLiked ? '#3742fa' : '#999999'   // 青い親指 / グレー
+    };
+    
+    const currentIconColor = iconColor[icon] || iconColor.heart;
+    
     // テーマ別のスタイル
     const themeStyles = {
       classic: {
-        bgColor: userLiked ? '#ff4757' : '#ddd',
-        textColor: userLiked ? '#fff' : '#333',
-        border: '2px solid #333'
+        bgColor: '#ffffff',
+        hoverBgColor: '#f5f5f5',
+        textColor: '#333',
+        border: userLiked ? '2px solid #666' : '2px solid #ccc'
       },
       modern: {
-        bgColor: userLiked ? '#3742fa' : '#f1f2f6',
-        textColor: userLiked ? '#fff' : '#2f3542',
-        border: '1px solid #ddd'
+        bgColor: '#ffffff',
+        hoverBgColor: '#f8f9fa',
+        textColor: '#2f3542',
+        border: userLiked ? '2px solid #3742fa' : '1px solid #ddd'
       },
       retro: {
-        bgColor: userLiked ? '#ff6b6b' : '#ffe066',
+        bgColor: '#ffffff',
+        hoverBgColor: '#fffef5',
         textColor: '#2d3436',
-        border: '3px solid #2d3436'
+        border: userLiked ? '3px solid #2d3436' : '3px solid #999'
       }
     };
     
@@ -217,6 +229,7 @@ class NostalgicLike extends HTMLElement {
         }
         
         .like-button:hover:not(.loading) {
+          background: ${style.hoverBgColor};
           transform: scale(1.05);
           box-shadow: 0 2px 8px rgba(0,0,0,0.2);
         }
@@ -228,6 +241,7 @@ class NostalgicLike extends HTMLElement {
         .heart-icon {
           font-size: 16px;
           line-height: 1;
+          color: ${currentIconColor};
         }
         
         .like-count {
@@ -269,7 +283,7 @@ if (!customElements.get('nostalgic-like')) {
 // コンソールに使用方法を表示
 console.log('❤️ Nostalgic Like loaded!');
 console.log('Usage: <nostalgic-like id="your-like-id" theme="classic" icon="heart" format="interactive"></nostalgic-like>');
-console.log('Icons: heart (❤️), star (⭐), thumb (👍)');
+console.log('Icons: heart (♥), star (★), thumb (👍)');
 console.log('Themes: classic, modern, retro');
 console.log('Formats: interactive (default), image');
 console.log('Docs: https://nostalgic.llll-ll.com');

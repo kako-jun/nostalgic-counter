@@ -136,6 +136,9 @@ class NostalgicRanking extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <style>
         :host {
+          display: block;
+          margin: 0 auto;
+          width: fit-content;
           /* CSS Variables for customization */
           --ranking-bg-color: ${style.bgColor};
           --ranking-border-color: ${style.borderColor};
@@ -156,7 +159,6 @@ class NostalgicRanking extends HTMLElement {
           box-shadow: 2px 2px 0px var(--ranking-border-color);
           min-width: var(--ranking-min-width);
           max-width: var(--ranking-max-width);
-          padding: var(--ranking-padding);
         }
         .ranking-header {
           background: var(--ranking-header-bg);
@@ -167,7 +169,7 @@ class NostalgicRanking extends HTMLElement {
           border-bottom: 2px solid var(--ranking-border-color);
         }
         .ranking-list {
-          padding: 0;
+          padding: 10px;
           margin: 0;
           list-style: none;
         }
