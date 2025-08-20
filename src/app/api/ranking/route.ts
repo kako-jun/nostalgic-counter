@@ -18,15 +18,15 @@ const createHandler = ApiHandler.create({
     action: z.literal('create'),
     url: z.string().url(),
     token: z.string().min(8).max(16),
-    maxEntries: z.coerce.number().int().min(1).max(1000).default(100)
+    max: z.coerce.number().int().min(1).max(1000).default(100)
   }),
   resultSchema: z.object({
     id: z.string(),
     url: z.string()
   }),
-  handler: async ({ url, token, maxEntries }, request) => {
+  handler: async ({ url, token, max }, request) => {
     const createResult = await rankingService.create(url, token, {
-      maxEntries
+      maxEntries: max
     })
     
     if (!createResult.success) {

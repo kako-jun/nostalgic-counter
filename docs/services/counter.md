@@ -21,13 +21,7 @@ GET /api/counter?action=create&url={URL}&token={TOKEN}
 ```json
 {
   "id": "yoursite-a7b9c3d4",
-  "url": "https://yoursite.com",
-  "total": 1,
-  "today": 1,
-  "yesterday": 0,
-  "week": 1,
-  "month": 1,
-  "message": "Counter created successfully"
+  "url": "https://yoursite.com"
 }
 ```
 
@@ -105,7 +99,7 @@ GET /api/counter?action=set&url={URL}&token={TOKEN}&total={VALUE}
 ## Web Component Integration
 
 ```html
-<script src="https://nostalgic.llll-ll.com/components/display.js"></script>
+<script src="https://nostalgic.llll-ll.com/components/counter.js"></script>
 <nostalgic-counter 
   id="yoursite-a7b9c3d4" 
   type="total" 
@@ -118,7 +112,6 @@ GET /api/counter?action=set&url={URL}&token={TOKEN}&total={VALUE}
 - `type`: Display type (total, today, yesterday, week, month)
 - `theme`: Visual style (classic, modern, retro)
 - `digits`: Number of digits to display
-- `scale`: Scale factor for size
 
 ## Usage Examples
 

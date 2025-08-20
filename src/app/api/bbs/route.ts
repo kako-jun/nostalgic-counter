@@ -20,7 +20,7 @@ const createHandler = ApiHandler.create({
     url: z.string().url(),
     token: z.string().min(8).max(16),
     messagesPerPage: z.coerce.number().int().min(1).max(50).default(10),
-    maxMessages: z.coerce.number().int().min(1).max(1000).default(100),
+    max: z.coerce.number().int().min(1).max(1000).default(100),
     enableIcons: z.coerce.boolean().default(true),
     enableSelects: z.coerce.boolean().default(false)
   }),
@@ -28,7 +28,7 @@ const createHandler = ApiHandler.create({
     id: z.string(),
     url: z.string()
   }),
-  handler: async ({ url, token, messagesPerPage, maxMessages, enableIcons, enableSelects }, request) => {
+  handler: async ({ url, token, messagesPerPage, max, enableIcons, enableSelects }, request) => {
     const icons = enableIcons ? ['😀', '😉', '😎', '😠', '😢', '😮'] : []
     const selects = enableSelects ? [
       { label: '地域', options: ['東京', '大阪', '名古屋', '福岡', 'その他'] },
@@ -38,7 +38,7 @@ const createHandler = ApiHandler.create({
     
     const createResult = await bbsService.create(url, token, {
       messagesPerPage,
-      maxMessages,
+      maxMessages: max,
       icons,
       selects
     })
