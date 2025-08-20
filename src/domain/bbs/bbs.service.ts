@@ -9,7 +9,7 @@ import { ValidationFramework } from '@/lib/core/validation'
 import { getBBSLimits } from '@/lib/core/config'
 import { RepositoryFactory, ListRepository } from '@/lib/core/repository'
 import { createHash } from 'crypto'
-import Filter from 'bad-words'
+import { ContentFilter } from '@/lib/filters/content-filter'
 import {
   BBSEntity,
   BBSData,
@@ -33,7 +33,6 @@ type BBSUpdateSettingsParams = BBSUpdateSettingsParamsType
  */
 export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams> {
   private readonly listRepository: ListRepository<BBSMessage>
-  private readonly contentFilter: Filter
 
   constructor() {
     const limits = getBBSLimits()
@@ -44,9 +43,6 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
     
     super(config, BBSEntitySchema, BBSDataSchema)
     this.listRepository = RepositoryFactory.createList(BBSMessageSchema, 'bbs_messages')
-    
-    // コンテンツフィルターを初期化
-    this.contentFilter = new Filter()
   }
 
   /**
@@ -551,7 +547,7 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
     // 不適切なコンテンツチェック
     const content = `${params.author} ${params.message}`
     
-    if (this.contentFilter.isProfane(content)) {
+    if (ContentFilter.isProfane(content)) {
       return Err(new ValidationError('Inappropriate content detected'))
     }
 
@@ -751,7 +747,7 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
     // 不適切なコンテンツチェック
     const content = `${params.author} ${params.message}`
     
-    if (this.contentFilter.isProfane(content)) {
+    if (ContentFilter.isProfane(content)) {
       return Err(new ValidationError('Inappropriate content detected'))
     }
 
