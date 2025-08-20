@@ -62,8 +62,7 @@ const createHandler = ApiHandler.create({
 const postHandler = ApiHandler.create({
   paramsSchema: z.object({
     action: z.literal('post'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16),
+    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
     author: z.string().min(1).max(50).default('名無しさん'),
     message: z.string().min(1).max(1000),
     icon: z.string().optional(),
@@ -73,9 +72,11 @@ const postHandler = ApiHandler.create({
   }),
   resultSchema: z.object({
     success: z.literal(true),
-    messageId: z.string()
+    data: BBSDataSchema,
+    messageId: z.string(),
+    editToken: z.string()
   }),
-  handler: async ({ url, token, author, message, icon, select1, select2, select3 }, request) => {
+  handler: async ({ id, author, message, icon, select1, select2, select3 }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
 
@@ -84,31 +85,36 @@ const postHandler = ApiHandler.create({
     if (select2) selects.push(select2)
     if (select3) selects.push(select3)
 
-    const postResult = await bbsService.postMessage(url, token, {
+    const authorHash = bbsService.generateUserHash(clientIP, userAgent)
+
+    const postResult = await bbsService.postMessageById(id, {
       author,
       message,
       icon,
       selects: selects.length > 0 ? selects : undefined,
-      authorHash: bbsService.generateUserHash(clientIP, userAgent)
+      authorHash
     })
     
     if (!postResult.success) {
       return postResult
     }
 
-    return map(postResult, () => ({ 
+    return Ok({ 
       success: true as const,
-      messageId: `msg_${Date.now()}`
-    }))
+      data: postResult.data.data,
+      messageId: postResult.data.messageId,
+      editToken: postResult.data.editToken
+    })
   }
 })
 
+
 /**
- * UPDATE アクション
+ * EDIT_MESSAGE アクション（オーナー権限）
  */
-const updateHandler = ApiHandler.create({
+const editMessageHandler = ApiHandler.create({
   paramsSchema: z.object({
-    action: z.literal('update'),
+    action: z.literal('editMessage'),
     url: z.string().url(),
     token: z.string().min(8).max(16),
     messageId: z.string(),
@@ -132,7 +138,7 @@ const updateHandler = ApiHandler.create({
     if (select2) selects.push(select2)
     if (select3) selects.push(select3)
 
-    const updateResult = await bbsService.updateMessage(url, token, {
+    const editResult = await bbsService.updateMessage(url, token, {
       messageId,
       author,
       message,
@@ -141,20 +147,84 @@ const updateHandler = ApiHandler.create({
       authorHash
     })
     
-    if (!updateResult.success) {
-      return updateResult
+    if (!editResult.success) {
+      return editResult
     }
 
-    return map(updateResult, () => ({ success: true as const }))
+    return map(editResult, () => ({ success: true as const }))
   }
 })
 
 /**
- * REMOVE アクション
+ * EDIT_MESSAGE_BY_ID アクション（投稿者権限）
  */
-const removeHandler = ApiHandler.create({
+const editMessageByIdHandler = ApiHandler.create({
   paramsSchema: z.object({
-    action: z.literal('remove'),
+    action: z.literal('editMessageById'),
+    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
+    messageId: z.string(),
+    editToken: z.string(),
+    author: z.string().min(1).max(50),
+    message: z.string().min(1).max(1000),
+    icon: z.string().optional(),
+    select1: z.string().optional(),
+    select2: z.string().optional(),
+    select3: z.string().optional()
+  }),
+  resultSchema: z.object({
+    success: z.literal(true)
+  }),
+  handler: async ({ id, messageId, editToken, author, message, icon, select1, select2, select3 }, request) => {
+    const selects: string[] = []
+    if (select1) selects.push(select1)
+    if (select2) selects.push(select2)
+    if (select3) selects.push(select3)
+
+    const editResult = await bbsService.editMessageByIdWithToken(id, messageId, editToken, {
+      author,
+      message,
+      icon,
+      selects: selects.length > 0 ? selects : undefined
+    })
+    
+    if (!editResult.success) {
+      return editResult
+    }
+
+    return map(editResult, () => ({ success: true as const }))
+  }
+})
+
+/**
+ * DELETE_MESSAGE_BY_ID アクション（投稿者権限）
+ */
+const deleteMessageByIdHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    action: z.literal('deleteMessageById'),
+    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
+    messageId: z.string(),
+    editToken: z.string()
+  }),
+  resultSchema: z.object({
+    success: z.literal(true)
+  }),
+  handler: async ({ id, messageId, editToken }, request) => {
+    const deleteResult = await bbsService.deleteMessageByIdWithToken(id, messageId, editToken)
+    
+    if (!deleteResult.success) {
+      return deleteResult
+    }
+
+    return map(deleteResult, () => ({ success: true as const }))
+  }
+})
+
+/**
+ * DELETE_MESSAGE アクション（オーナー権限）
+ */
+const deleteMessageHandler = ApiHandler.create({
+  paramsSchema: z.object({
+    action: z.literal('deleteMessage'),
     url: z.string().url(),
     token: z.string().min(8).max(16),
     messageId: z.string()
@@ -167,16 +237,16 @@ const removeHandler = ApiHandler.create({
     const userAgent = getUserAgent(request)
     const authorHash = bbsService.generateUserHash(clientIP, userAgent)
     
-    const removeResult = await bbsService.removeMessage(url, token, {
+    const deleteResult = await bbsService.removeMessage(url, token, {
       messageId,
       authorHash
     })
     
-    if (!removeResult.success) {
-      return removeResult
+    if (!deleteResult.success) {
+      return deleteResult
     }
 
-    return map(removeResult, () => ({ success: true as const }))
+    return map(deleteResult, () => ({ success: true as const }))
   }
 })
 
@@ -291,11 +361,17 @@ async function routeRequest(request: NextRequest) {
       case 'post':
         return await postHandler(request)
       
-      case 'update':
-        return await updateHandler(request)
+      case 'editMessage':
+        return await editMessageHandler(request)
       
-      case 'remove':
-        return await removeHandler(request)
+      case 'deleteMessage':
+        return await deleteMessageHandler(request)
+      
+      case 'editMessageById':
+        return await editMessageByIdHandler(request)
+      
+      case 'deleteMessageById':
+        return await deleteMessageByIdHandler(request)
       
       case 'clear':
         return await clearHandler(request)

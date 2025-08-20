@@ -32,6 +32,8 @@ class NostalgicBBS extends HTMLElement {
     this.loading = false;
     this.currentPage = 1;
     this.posting = false;
+    this.editMode = false;
+    this.editingMessageId = null;
   }
 
   static get observedAttributes() {
@@ -199,6 +201,22 @@ class NostalgicBBS extends HTMLElement {
           font-size: 12px;
           color: #666;
         }
+        .message-actions {
+          display: flex;
+          gap: 4px;
+        }
+        .edit-btn, .delete-btn {
+          font-size: 10px;
+          padding: 2px 6px;
+          border: 1px solid var(--bbs-border-color);
+          background: var(--bbs-bg-color);
+          color: var(--bbs-text-color);
+          cursor: pointer;
+          border-radius: 2px;
+        }
+        .edit-btn:hover, .delete-btn:hover {
+          opacity: 0.8;
+        }
         .message-author {
           font-weight: bold;
         }
@@ -313,6 +331,23 @@ class NostalgicBBS extends HTMLElement {
           opacity: 0.5;
           cursor: not-allowed;
         }
+        .message-area {
+          margin: 8px 0;
+          padding: 6px 8px;
+          border-radius: 2px;
+          font-size: 12px;
+          display: none;
+        }
+        .message-area.error {
+          background: #ffebee;
+          border: 1px solid #f44336;
+          color: #d32f2f;
+        }
+        .message-area.success {
+          background: #e8f5e8;
+          border: 1px solid #4caf50;
+          color: #2e7d32;
+        }
       </style>
       <div class="bbs-container">
         ${this.bbsData.title ? `
@@ -325,6 +360,10 @@ class NostalgicBBS extends HTMLElement {
                 <div class="message-header">
                   <span class="message-author">${this.escapeHtml(message.author || 'Anonymous')}</span>
                   <span class="message-time">${this.formatDate(message.timestamp)}</span>
+                  <div class="message-actions">
+                    <button class="edit-btn" onclick="this.getRootNode().host.editMessage('${message.id}')">編集</button>
+                    <button class="delete-btn" onclick="this.getRootNode().host.deleteMessage('${message.id}')">削除</button>
+                  </div>
                 </div>
                 <div class="message-content">${this.escapeHtml(message.message || '')}</div>
                 ${message.icon || message.selects ? `
@@ -349,8 +388,7 @@ class NostalgicBBS extends HTMLElement {
             </button>
           </div>
         ` : ''}
-        ${this.getAttribute('url') && this.getAttribute('token') ? `
-          <div class="post-form">
+        <div class="post-form">
             <div class="form-header">Post Message</div>
             <div class="form-body">
               <div class="form-row">
@@ -368,12 +406,12 @@ class NostalgicBBS extends HTMLElement {
               <div class="form-row">
                 <textarea id="message-content" placeholder="Enter your message..." maxlength="1000" rows="3"></textarea>
               </div>
+              <div class="message-area" id="form-message"></div>
               <div class="form-row">
                 <button id="post-button" onclick="this.getRootNode().host.postMessage()">Post</button>
               </div>
             </div>
           </div>
-        ` : ''}
       </div>
     `;
   }
@@ -404,12 +442,25 @@ class NostalgicBBS extends HTMLElement {
     return div.innerHTML;
   }
 
+  showMessage(text, type = 'error') {
+    const messageArea = this.shadowRoot.querySelector('#form-message');
+    if (messageArea) {
+      messageArea.textContent = text;
+      messageArea.className = `message-area ${type}`;
+      messageArea.style.display = 'block';
+      
+      // 3秒後に自動で消去
+      setTimeout(() => {
+        messageArea.style.display = 'none';
+      }, 3000);
+    }
+  }
+
   async postMessage() {
-    const url = this.getAttribute('url');
-    const token = this.getAttribute('token');
+    const id = this.getAttribute('id');
     
-    if (!url || !token) {
-      alert('Error: url and token attributes are required for message posting');
+    if (!id) {
+      this.showMessage('Error: id attribute is required for message posting');
       return;
     }
 
@@ -422,7 +473,7 @@ class NostalgicBBS extends HTMLElement {
     const icon = iconSelect ? iconSelect.value : '';
 
     if (!message) {
-      alert('Please enter a message');
+      this.showMessage('Please enter a message');
       return;
     }
 
@@ -431,27 +482,64 @@ class NostalgicBBS extends HTMLElement {
 
     try {
       const baseUrl = this.getAttribute('api-base') || NostalgicBBS.apiBaseUrl;
-      const postUrl = `${baseUrl}/api/bbs?action=post&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}&author=${encodeURIComponent(author)}&message=${encodeURIComponent(message)}${icon ? `&icon=${encodeURIComponent(icon)}` : ''}`;
+      let apiUrl;
       
-      const response = await fetch(postUrl);
+      if (this.editMode && this.editingMessageId) {
+        // 編集モード
+        const storageKey = `bbs_edit_${this.getAttribute('id')}`;
+        const tokens = JSON.parse(localStorage.getItem(storageKey) || '{}');
+        const editToken = tokens[this.editingMessageId];
+        
+        if (!editToken) {
+          this.showMessage('編集権限がありません');
+          return;
+        }
+        
+        apiUrl = `${baseUrl}/api/bbs?action=editMessageById&id=${encodeURIComponent(id)}&messageId=${encodeURIComponent(this.editingMessageId)}&editToken=${encodeURIComponent(editToken)}&author=${encodeURIComponent(author)}&message=${encodeURIComponent(message)}${icon ? `&icon=${encodeURIComponent(icon)}` : ''}`;
+      } else {
+        // 新規投稿モード
+        apiUrl = `${baseUrl}/api/bbs?action=post&id=${encodeURIComponent(id)}&author=${encodeURIComponent(author)}&message=${encodeURIComponent(message)}${icon ? `&icon=${encodeURIComponent(icon)}` : ''}`;
+      }
+      
+      const response = await fetch(apiUrl);
       const data = await response.json();
 
       if (data.success) {
+        // editTokenをlocalStorageに保存（新規投稿の場合のみ）
+        if (!this.editMode && data.data && data.data.editToken && data.data.messageId) {
+          const storageKey = `bbs_edit_${this.getAttribute('id')}`;
+          const existingTokens = JSON.parse(localStorage.getItem(storageKey) || '{}');
+          existingTokens[data.data.messageId] = data.data.editToken;
+          localStorage.setItem(storageKey, JSON.stringify(existingTokens));
+        }
+        
         // 成功: フォームをクリアして再読み込み
         authorInput.value = '';
         messageInput.value = '';
         if (iconSelect) iconSelect.value = '';
         
-        // 最新ページに移動して再読み込み
-        this.currentPage = 1;
-        this.setAttribute('page', '1');
+        // 編集モードをクリア
+        this.clearEditMode();
+        
+        // 新しい投稿が表示される最後のページに移動して再読み込み
         await this.loadBBSData();
+        const lastPage = this.bbsData.totalPages || 1;
+        this.currentPage = lastPage;
+        this.setAttribute('page', lastPage.toString());
+        await this.loadBBSData();
+        
+        // 成功メッセージ
+        if (this.editMode) {
+          this.showMessage('メッセージを更新しました', 'success');
+        } else {
+          this.showMessage('メッセージを投稿しました', 'success');
+        }
       } else {
         throw new Error(data.error || 'Failed to post message');
       }
     } catch (error) {
       console.error('Post message failed:', error);
-      alert(`Failed to post message: ${error.message}`);
+      this.showMessage(`Failed to post message: ${error.message}`);
     } finally {
       this.posting = false;
       this.updatePostButton();
@@ -462,7 +550,11 @@ class NostalgicBBS extends HTMLElement {
     const button = this.shadowRoot.querySelector('#post-button');
     if (button) {
       button.disabled = this.posting;
-      button.textContent = this.posting ? 'Posting...' : 'Post';
+      if (this.posting) {
+        button.textContent = this.editMode ? 'Updating...' : 'Posting...';
+      } else {
+        button.textContent = this.editMode ? '更新' : 'Post';
+      }
     }
   }
 
@@ -479,6 +571,106 @@ class NostalgicBBS extends HTMLElement {
     } catch (e) {
       return dateString;
     }
+  }
+
+  // 編集モードをクリア
+  clearEditMode() {
+    this.editMode = false;
+    this.editingMessageId = null;
+    const postButton = this.shadowRoot.querySelector('#post-button');
+    if (postButton) {
+      postButton.textContent = 'Post';
+    }
+  }
+
+  // メッセージ編集
+  editMessage(messageId) {
+    // localStorageからeditTokenを取得
+    const storageKey = `bbs_edit_${this.getAttribute('id')}`;
+    const tokens = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    
+    if (!tokens[messageId]) {
+      this.showMessage('このメッセージを編集する権限がありません');
+      return;
+    }
+
+    // メッセージデータを取得
+    const message = this.bbsData.messages.find(m => m.id === messageId);
+    if (!message) {
+      this.showMessage('メッセージが見つかりません');
+      return;
+    }
+
+    // フォームに内容を読み込み
+    const authorInput = this.shadowRoot.querySelector('#message-author');
+    const messageInput = this.shadowRoot.querySelector('#message-content');
+    const iconSelect = this.shadowRoot.querySelector('#message-icon');
+
+    authorInput.value = message.author || '';
+    messageInput.value = message.message || '';
+    if (iconSelect && message.icon) {
+      iconSelect.value = message.icon;
+    }
+
+    // 編集モードに変更
+    this.editMode = true;
+    this.editingMessageId = messageId;
+    
+    const postButton = this.shadowRoot.querySelector('#post-button');
+    if (postButton) {
+      postButton.textContent = '更新';
+    }
+
+    // フォームまでスクロール
+    const postForm = this.shadowRoot.querySelector('.post-form');
+    if (postForm) {
+      postForm.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
+
+  // メッセージ削除
+  async deleteMessage(messageId) {
+    // localStorageからeditTokenを取得
+    const storageKey = `bbs_edit_${this.getAttribute('id')}`;
+    const tokens = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    
+    if (!tokens[messageId]) {
+      this.showMessage('このメッセージを削除する権限がありません');
+      return;
+    }
+
+    if (!confirm('このメッセージを削除しますか？')) {
+      return;
+    }
+
+    try {
+      const baseUrl = this.getAttribute('api-base') || NostalgicBBS.apiBaseUrl;
+      const deleteUrl = `${baseUrl}/api/bbs?action=deleteMessageById&id=${encodeURIComponent(this.getAttribute('id'))}&messageId=${encodeURIComponent(messageId)}&editToken=${encodeURIComponent(tokens[messageId])}`;
+      
+      const response = await fetch(deleteUrl);
+      const data = await response.json();
+
+      if (data.success) {
+        // localStorageからトークンを削除
+        delete tokens[messageId];
+        localStorage.setItem(storageKey, JSON.stringify(tokens));
+        
+        // BBSデータを再読み込み
+        await this.loadBBSData();
+        this.showMessage('メッセージが削除されました', 'success');
+      } else {
+        throw new Error(data.error || 'Failed to delete message');
+      }
+    } catch (error) {
+      console.error('Delete message failed:', error);
+      this.showMessage(`メッセージの削除に失敗しました: ${error.message}`);
+    }
+  }
+
+  escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
   }
 }
 

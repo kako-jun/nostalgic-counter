@@ -371,16 +371,31 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
 
   /**
    * ページネーション付きでメッセージを取得
+   * 新しいメッセージが下に表示されるよう逆順で取得
    */
   private async getMessages(id: string, page: number, limit: number): Promise<Result<BBSMessage[], ValidationError>> {
-    const start = (page - 1) * limit
-    const end = start + limit - 1
+    // 全メッセージ数を取得
+    const lengthResult = await this.listRepository.length(`${id}:messages`)
+    if (!lengthResult.success || lengthResult.data === 0) {
+      return Ok([])
+    }
 
-    const messagesResult = await this.listRepository.range(`${id}:messages`, start, end)
+    const totalMessages = lengthResult.data
+    const totalPages = Math.ceil(totalMessages / limit)
+    
+    // ページ番号から実際のRedis range を計算（逆順）
+    const startIndex = totalMessages - (page * limit)
+    const endIndex = totalMessages - ((page - 1) * limit) - 1
+    
+    const actualStart = Math.max(0, startIndex)
+    const actualEnd = Math.min(totalMessages - 1, endIndex)
+
+    const messagesResult = await this.listRepository.range(`${id}:messages`, actualStart, actualEnd)
     if (!messagesResult.success) {
       return Ok([]) // エラーの場合は空配列
     }
 
+    // 取得したメッセージを時系列順（古い順）にする
     return Ok(messagesResult.data)
   }
 
@@ -496,11 +511,106 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
    * ユーザーハッシュの生成
    */
   generateUserHash(ip: string, userAgent: string): string {
-    const today = new Date().toISOString().split('T')[0]
     return createHash('sha256')
-      .update(`${ip}:${userAgent}:${today}`)
+      .update(`${ip}:${userAgent}`)
       .digest('hex')
       .substring(0, 16)
+  }
+
+  /**
+   * IDで投稿（投稿者権限、サーバーサイドでeditToken生成）
+   */
+  async postMessageById(
+    id: string, 
+    params: {
+      author: string
+      message: string
+      icon?: string
+      selects?: string[]
+      authorHash: string
+    }
+  ): Promise<Result<{ data: BBSData, messageId: string, editToken: string }, ValidationError | NotFoundError>> {
+    // エンティティ取得
+    const entityResult = await this.getById(id)
+    if (!entityResult.success) {
+      return entityResult
+    }
+
+    const entity = entityResult.data
+
+    // 連投防止チェック
+    const cooldownResult = await this.checkPostCooldown(entity.id, params.authorHash)
+    if (!cooldownResult.success) {
+      return cooldownResult
+    }
+    
+    if (!cooldownResult.data) {
+      return Err(new ValidationError('Please wait before posting another message (10 seconds cooldown)'))
+    }
+
+    // メッセージ長制限チェック
+    const limits = getBBSLimits()
+    if (params.message.length > limits.maxMessageLength) {
+      return Err(new ValidationError(`Message exceeds maximum length of ${limits.maxMessageLength}`))
+    }
+
+    if (params.author.length > limits.maxAuthorLength) {
+      return Err(new ValidationError(`Author name exceeds maximum length of ${limits.maxAuthorLength}`))
+    }
+
+    // 連投防止マーク
+    const markResult = await this.markPostTime(entity.id, params.authorHash)
+    if (!markResult.success) {
+      return Err(new ValidationError('Failed to mark post time', { error: markResult.error }))
+    }
+
+    // メッセージIDを生成
+    const messageId = this.generateMessageId(entity.id)
+
+    // メッセージオブジェクトを作成
+    const message: BBSMessage = {
+      id: messageId,
+      author: params.author,
+      message: params.message,
+      timestamp: new Date(),
+      icon: params.icon,
+      selects: params.selects,
+      authorHash: params.authorHash
+    }
+
+    // メッセージをリストに追加
+    const addResult = await this.listRepository.push(`${entity.id}:messages`, [message])
+    if (!addResult.success) {
+      // ロールバック: 投稿マークを削除
+      await this.removePostMark(entity.id, params.authorHash)
+      return Err(new ValidationError('Failed to add message', { error: addResult.error }))
+    }
+
+    // メッセージ数制限チェック
+    await this.enforceMaxMessages(entity.id, entity.settings.maxMessages)
+
+    // エンティティ更新
+    entity.totalMessages = Math.min(entity.totalMessages + 1, entity.settings.maxMessages)
+    entity.lastMessage = new Date()
+
+    const saveResult = await this.entityRepository.save(entity.id, entity)
+    if (!saveResult.success) {
+      // ロールバック処理
+      await this.removePostMark(entity.id, params.authorHash)
+      return Err(new ValidationError('Failed to save entity', { error: saveResult.error }))
+    }
+
+    const dataResult = await this.transformEntityToData(entity)
+    if (!dataResult.success) {
+      return dataResult
+    }
+
+    // editTokenとしてauthorHashを返す
+    return Ok({
+      data: dataResult.data,
+      messageId,
+      editToken: params.authorHash
+    })
   }
 
   /**
@@ -587,6 +697,130 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
     }
 
     return Ok(undefined)
+  }
+
+  /**
+   * IDで投稿を編集（投稿者権限、editToken使用）
+   */
+  async editMessageByIdWithToken(
+    id: string, 
+    messageId: string, 
+    editToken: string, 
+    params: {
+      author: string
+      message: string
+      icon?: string
+      selects?: string[]
+    }
+  ): Promise<Result<BBSData, ValidationError | NotFoundError>> {
+    // エンティティ取得
+    const entityResult = await this.getById(id)
+    if (!entityResult.success) {
+      return entityResult
+    }
+
+    const entity = entityResult.data
+
+    // メッセージ取得
+    const messagesResult = await this.getMessages(entity.id, 1, entity.totalMessages)
+    if (!messagesResult.success) {
+      return Err(new ValidationError('Failed to get messages', { error: messagesResult.error }))
+    }
+
+    const messages = messagesResult.data
+    const messageIndex = messages.findIndex(msg => msg.id === messageId)
+    
+    if (messageIndex === -1) {
+      return Err(new ValidationError('Message not found'))
+    }
+
+    const targetMessage = messages[messageIndex]
+    
+    // editToken（投稿者ハッシュ）の照合
+    if (targetMessage.authorHash !== editToken) {
+      return Err(new ValidationError('Permission denied: You can only edit your own posts'))
+    }
+
+    // メッセージ更新
+    messages[messageIndex] = {
+      ...targetMessage,
+      author: params.author,
+      message: params.message,
+      icon: params.icon,
+      selects: params.selects,
+      timestamp: new Date(), // 編集時刻で更新
+    }
+
+    // メッセージ全体を保存
+    const replaceResult = await this.replaceAllMessages(entity.id, messages)
+    if (!replaceResult.success) {
+      return replaceResult
+    }
+
+    // エンティティ更新
+    entity.lastMessage = new Date()
+    const saveResult = await this.entityRepository.save(entity.id, entity)
+    if (!saveResult.success) {
+      return Err(new ValidationError('Failed to save entity', { error: saveResult.error }))
+    }
+
+    return await this.transformEntityToData(entity)
+  }
+
+  /**
+   * IDで投稿を削除（投稿者権限、editToken使用）
+   */
+  async deleteMessageByIdWithToken(
+    id: string, 
+    messageId: string, 
+    editToken: string
+  ): Promise<Result<BBSData, ValidationError | NotFoundError>> {
+    // エンティティ取得
+    const entityResult = await this.getById(id)
+    if (!entityResult.success) {
+      return entityResult
+    }
+
+    const entity = entityResult.data
+
+    // メッセージ取得
+    const messagesResult = await this.getMessages(entity.id, 1, entity.totalMessages)
+    if (!messagesResult.success) {
+      return Err(new ValidationError('Failed to get messages', { error: messagesResult.error }))
+    }
+
+    const messages = messagesResult.data
+    const messageIndex = messages.findIndex(msg => msg.id === messageId)
+    
+    if (messageIndex === -1) {
+      return Err(new ValidationError('Message not found'))
+    }
+
+    const targetMessage = messages[messageIndex]
+    
+    // editToken（投稿者ハッシュ）の照合
+    if (targetMessage.authorHash !== editToken) {
+      return Err(new ValidationError('Permission denied: You can only delete your own posts'))
+    }
+
+    // メッセージを削除
+    messages.splice(messageIndex, 1)
+
+    // メッセージ全体を保存
+    const replaceResult = await this.replaceAllMessages(entity.id, messages)
+    if (!replaceResult.success) {
+      return replaceResult
+    }
+
+    // エンティティ更新
+    entity.totalMessages = messages.length
+    entity.lastMessage = messages.length > 0 ? new Date() : entity.lastMessage
+    const saveResult = await this.entityRepository.save(entity.id, entity)
+    if (!saveResult.success) {
+      return Err(new ValidationError('Failed to save entity', { error: saveResult.error }))
+    }
+
+    return await this.transformEntityToData(entity)
   }
 }
 
