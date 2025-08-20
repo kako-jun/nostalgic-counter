@@ -488,7 +488,7 @@ if (!customElements.get('nostalgic-bbs')) {
 }
 
 // コンソールに使用方法を表示
-console.log('Nostalgic BBS loaded!');
+console.log('💬 Nostalgic BBS loaded!');
 console.log('Usage: <nostalgic-bbs id="your-bbs-id" page="1" theme="classic" url="https://example.com" token="your-token"></nostalgic-bbs>');
 console.log('Themes: classic, modern, retro');
 console.log('Formats: interactive (default)');

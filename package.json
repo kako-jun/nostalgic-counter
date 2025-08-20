@@ -40,7 +40,9 @@
     "redis:info": "node scripts/redis-info.js",
     "redis:service": "node scripts/show-service-data.js",
     "redis:fix": "node scripts/fix-service.js",
-    "redis:migrate": "node scripts/migrate-legacy-services.js"
+    "redis:migrate": "node scripts/migrate-legacy-services.js",
+    "cleanup:counters": "node scripts/cleanup-invalid-counters.js",
+    "cleanup:service": "node scripts/cleanup-service.js"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4.1.8",

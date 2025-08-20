@@ -3,6 +3,9 @@
 ## プロジェクト概要
 昔のWebツールを最新技術で復活させた総合プラットフォーム。Next.js + Redis で実装。
 
+## 📚 重要ドキュメント
+- [**Redis Database Structure**](.claude/redis-database-structure.md) - DB構造の完全仕様書（削除時は必読）
+
 ## 実装済み機能（4サービス）
 
 ### 📊 Counter Service
@@ -104,6 +107,23 @@ bbs:{id}                       → メタデータ
 ### Documentation
 - `docs/API.md` - 総合API仕様
 - `docs/services/` - サービス別詳細文書（英語・日本語）
+
+## メンテナンス・管理
+
+### データ確認
+```bash
+npm run redis:show         # 全データ表示
+npm run redis:service {service}  # 特定サービスのデータ表示
+npm run redis:info         # Redis接続情報
+```
+
+### データ削除（完全削除）
+```bash
+npm run cleanup:service {service} {id}  # サービスの完全削除
+# 例: npm run cleanup:service counter nostalgic-a1b2c3d4
+```
+
+**⚠️ 削除時の注意**: 必ず[Redis Database Structure](.claude/redis-database-structure.md)を参照してください。
 
 ## 使用方法
 ### 1. サービス作成

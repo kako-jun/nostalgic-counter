@@ -388,7 +388,7 @@ if (!customElements.get('nostalgic-ranking')) {
 }
 
 // コンソールに使用方法を表示
-console.log('Nostalgic Ranking loaded!');
+console.log('🏆 Nostalgic Ranking loaded!');
 console.log('Usage: <nostalgic-ranking id="your-ranking-id" limit="10" theme="classic" url="https://example.com" token="your-token"></nostalgic-ranking>');
 console.log('Themes: classic, modern, retro');
 console.log('Formats: interactive (default)');
