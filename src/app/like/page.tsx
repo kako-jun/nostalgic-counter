@@ -413,29 +413,6 @@ export default function LikePage() {
               </p>
             </div>
 
-            <div className="nostalgic-counter-section">
-              <p>
-                <span style={{ color: "#ff8c00" }}>
-                  <b>◆状態表示の例◆</b>
-                </span>
-              </p>
-              <div style={{ display: "flex", justifyContent: "center", gap: "30px", flexWrap: "wrap" }}>
-                <div style={{ textAlign: "center" }}>
-                  <p><b>未いいね状態</b></p>
-                  <div style={{ display: "inline-block", padding: "10px 20px", backgroundColor: "#fff", border: "2px solid #ddd", borderRadius: "5px" }}>
-                    <span style={{ fontSize: "24px", marginRight: "10px", filter: "grayscale(100%)" }}>💖</span>
-                    <span style={{ fontSize: "20px", color: "#999" }}>いいね 123</span>
-                  </div>
-                </div>
-                <div style={{ textAlign: "center" }}>
-                  <p><b>いいね済み状態</b></p>
-                  <div style={{ display: "inline-block", padding: "10px 20px", backgroundColor: "#fff0f5", border: "2px solid #ff69b4", borderRadius: "5px" }}>
-                    <span style={{ fontSize: "24px", marginRight: "10px" }}>💖</span>
-                    <span style={{ fontSize: "20px", fontWeight: "bold", color: "#ff1493" }}>いいね！ 124</span>
-                  </div>
-                </div>
-              </div>
-            </div>
           </>
         );
 

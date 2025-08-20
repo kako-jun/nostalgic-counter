@@ -262,6 +262,23 @@ export default function BBSPage() {
                   <br />• ページネーション機能
                 </p>
               </div>
+
+              {publicId && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆このように表示されます◆</b>
+                    </span>
+                  </p>
+                  <div style={{ textAlign: "center", margin: "20px 0" }}>
+                    <p style={{ marginBottom: "10px" }}>作成されたBBS（実際に動作します）：</p>
+                    <nostalgic-bbs id={publicId} theme="classic" />
+                  </div>
+                  <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
+                    ※名前とメッセージを入力してお試しください！
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="nostalgic-section">
@@ -445,20 +462,6 @@ export default function BBSPage() {
               </p>
             </div>
 
-            <div className="nostalgic-counter-section">
-              <p>
-                <span style={{ color: "#ff8c00" }}>
-                  <b>◆デモ用BBS◆</b>
-                </span>
-              </p>
-              <div style={{ textAlign: "center", margin: "20px 0" }}>
-                <p style={{ marginBottom: "10px" }}>このデモページのBBS（実際に動作します）：</p>
-                <nostalgic-bbs id="nostalgic-b89803bb" theme="classic" />
-              </div>
-              <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
-                ※名前とメッセージを入力してお試しください！
-              </p>
-            </div>
           </>
         );
 

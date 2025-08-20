@@ -248,6 +248,23 @@ export default function RankingPage() {
                   <br />• リアルタイムでランキングが更新
                 </p>
               </div>
+
+              {publicId && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆このように表示されます◆</b>
+                    </span>
+                  </p>
+                  <div style={{ textAlign: "center", margin: "20px 0" }}>
+                    <p style={{ marginBottom: "10px" }}>作成されたランキング（実際に動作します）：</p>
+                    <nostalgic-ranking id={publicId} theme="classic" />
+                  </div>
+                  <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
+                    ※名前とスコアを入力してお試しください！
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="nostalgic-section">
@@ -430,20 +447,6 @@ export default function RankingPage() {
               </p>
             </div>
 
-            <div className="nostalgic-counter-section">
-              <p>
-                <span style={{ color: "#ff8c00" }}>
-                  <b>◆デモ用ランキング◆</b>
-                </span>
-              </p>
-              <div style={{ textAlign: "center", margin: "20px 0" }}>
-                <p style={{ marginBottom: "10px" }}>このデモページのランキング（実際に動作します）：</p>
-                <nostalgic-ranking id="nostalgic-b89803bb" theme="classic" />
-              </div>
-              <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
-                ※名前とスコアを入力してお試しください！
-              </p>
-            </div>
           </>
         );
 

@@ -296,36 +296,6 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="nostalgic-counter-section">
-              <p>
-                <span style={{ color: "#ff8c00" }}>
-                  <b>◆デザインサンプル◆</b>
-                </span>
-              </p>
-              <div>
-                <div className="nostalgic-counter-item">
-                  <b>Classic</b>
-                  <br />
-                  <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?action=display&id=nostalgi-5e343478&type=total&style=classic" alt="Classic" />
-                  </div>
-                </div>
-                <div className="nostalgic-counter-item">
-                  <b>Modern</b>
-                  <br />
-                  <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?action=display&id=nostalgi-5e343478&type=total&style=modern" alt="Modern" />
-                  </div>
-                </div>
-                <div className="nostalgic-counter-item">
-                  <b>Retro</b>
-                  <br />
-                  <div style={{ marginTop: "10px" }}>
-                    <img src="/api/counter?action=display&id=nostalgi-5e343478&type=total&style=retro" alt="Retro" />
-                  </div>
-                </div>
-              </div>
-            </div>
           </>
         );
 

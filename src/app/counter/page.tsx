@@ -241,6 +241,32 @@ export default function CounterPage() {
                   <br />• <span style={{ color: "#008000" }}>retro</span> - レトロ（赤のドット）
                 </p>
               </div>
+
+              {publicId && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆このように表示されます◆</b>
+                    </span>
+                  </p>
+                  <div style={{ textAlign: "center", margin: "20px 0" }}>
+                    <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
+                      <div style={{ textAlign: "center" }}>
+                        <p style={{ fontSize: "14px", marginBottom: "10px" }}>Classic</p>
+                        <nostalgic-counter id={publicId} type="total" theme="classic" />
+                      </div>
+                      <div style={{ textAlign: "center" }}>
+                        <p style={{ fontSize: "14px", marginBottom: "10px" }}>Modern</p>
+                        <nostalgic-counter id={publicId} type="total" theme="modern" />
+                      </div>
+                      <div style={{ textAlign: "center" }}>
+                        <p style={{ fontSize: "14px", marginBottom: "10px" }}>Retro</p>
+                        <nostalgic-counter id={publicId} type="total" theme="retro" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="nostalgic-section">
