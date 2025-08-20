@@ -283,6 +283,70 @@ export default function LikePage() {
                   <br />• リアルタイムで数値が更新されます
                 </p>
               </div>
+
+              {publicId && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆このように表示されます◆</b>
+                    </span>
+                  </p>
+                  <div style={{ textAlign: "center", margin: "20px 0" }}>
+                    <div style={{ backgroundColor: "#f0f0f0", border: "1px solid #ccc", padding: "15px", borderRadius: "4px" }}>
+                      <p style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "10px" }}>JavaScript APIデモ</p>
+                      <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "10px" }}>
+                        <button
+                          onClick={async () => {
+                            try {
+                              const response = await fetch(`/api/like?action=get&id=${publicId}`)
+                              const data = await response.json()
+                              alert(`現在のいいね数: ${data.total || 0}`)
+                            } catch (error) {
+                              alert('エラーが発生しました')
+                            }
+                          }}
+                          style={{
+                            padding: "6px 12px",
+                            backgroundColor: "#2196F3",
+                            color: "white",
+                            border: "1px solid #1976D2",
+                            borderRadius: "3px",
+                            cursor: "pointer",
+                            fontSize: "14px"
+                          }}
+                        >
+                          現在の数を取得
+                        </button>
+                        <button
+                          onClick={async () => {
+                            try {
+                              const response = await fetch(`/api/like?action=toggle&id=${publicId}`)
+                              const data = await response.json()
+                              alert(`いいね ${data.liked ? 'ON' : 'OFF'} - 総数: ${data.total}`)
+                            } catch (error) {
+                              alert('エラーが発生しました')
+                            }
+                          }}
+                          style={{
+                            padding: "6px 12px",
+                            backgroundColor: "#FF5722",
+                            color: "white",
+                            border: "1px solid #D84315",
+                            borderRadius: "3px",
+                            cursor: "pointer",
+                            fontSize: "14px"
+                          }}
+                        >
+                          いいね切り替え
+                        </button>
+                      </div>
+                      <p style={{ fontSize: "12px", color: "#666" }}>
+                        ※この例では、Web ComponentsではなくJavaScript fetch APIを直接使用しています
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {publicId && (

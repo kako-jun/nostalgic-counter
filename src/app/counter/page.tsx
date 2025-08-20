@@ -253,15 +253,27 @@ export default function CounterPage() {
                     <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
                       <div style={{ textAlign: "center" }}>
                         <p style={{ fontSize: "14px", marginBottom: "10px" }}>Classic</p>
-                        <nostalgic-counter id={publicId} type="total" theme="classic" />
+                        <img 
+                          src={`/api/counter?action=display&id=${publicId}&type=total&theme=classic`}
+                          alt="Classic Counter"
+                          style={{ border: "1px solid #ccc" }}
+                        />
                       </div>
                       <div style={{ textAlign: "center" }}>
                         <p style={{ fontSize: "14px", marginBottom: "10px" }}>Modern</p>
-                        <nostalgic-counter id={publicId} type="total" theme="modern" />
+                        <img 
+                          src={`/api/counter?action=display&id=${publicId}&type=total&theme=modern`}
+                          alt="Modern Counter"
+                          style={{ border: "1px solid #ccc" }}
+                        />
                       </div>
                       <div style={{ textAlign: "center" }}>
                         <p style={{ fontSize: "14px", marginBottom: "10px" }}>Retro</p>
-                        <nostalgic-counter id={publicId} type="total" theme="retro" />
+                        <img 
+                          src={`/api/counter?action=display&id=${publicId}&type=total&theme=retro`}
+                          alt="Retro Counter"
+                          style={{ border: "1px solid #ccc" }}
+                        />
                       </div>
                     </div>
                   </div>

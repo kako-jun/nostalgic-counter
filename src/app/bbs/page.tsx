@@ -271,12 +271,69 @@ export default function BBSPage() {
                     </span>
                   </p>
                   <div style={{ textAlign: "center", margin: "20px 0" }}>
-                    <p style={{ marginBottom: "10px" }}>作成されたBBS（実際に動作します）：</p>
-                    <nostalgic-bbs id={publicId} theme="classic" />
+                    <div style={{ backgroundColor: "#f0f0f0", border: "1px solid #ccc", padding: "15px", borderRadius: "4px" }}>
+                      <p style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "15px" }}>HTTPリクエストデモ</p>
+                      <div style={{ marginBottom: "15px" }}>
+                        <p style={{ fontSize: "14px", marginBottom: "10px" }}>BBSメッセージを取得：</p>
+                        <button
+                          onClick={async () => {
+                            try {
+                              const response = await fetch(`/api/bbs?action=get&id=${publicId}&page=1`)
+                              const data = await response.json()
+                              const messages = data.data?.messages || []
+                              const messageText = messages.length > 0 
+                                ? messages.map(msg => `${msg.author}: ${msg.message}`).join('\n')
+                                : 'まだメッセージがありません'
+                              alert(`BBS メッセージ:\n${messageText}`)
+                            } catch (error) {
+                              alert('エラーが発生しました')
+                            }
+                          }}
+                          style={{
+                            padding: "8px 16px",
+                            backgroundColor: "#9C27B0",
+                            color: "white",
+                            border: "1px solid #7B1FA2",
+                            borderRadius: "3px",
+                            cursor: "pointer",
+                            fontSize: "14px",
+                            marginRight: "10px"
+                          }}
+                        >
+                          メッセージ取得
+                        </button>
+                        <button
+                          onClick={async () => {
+                            const author = prompt('お名前を入力してください:') || '匿名'
+                            const message = prompt('メッセージを入力してください:')
+                            if (!message) return
+                            
+                            try {
+                              const response = await fetch(`/api/bbs?action=post&id=${publicId}&author=${encodeURIComponent(author)}&message=${encodeURIComponent(message)}`)
+                              const data = await response.json()
+                              alert(data.success ? 'メッセージを投稿しました！' : 'エラーが発生しました')
+                            } catch (error) {
+                              alert('エラーが発生しました')
+                            }
+                          }}
+                          style={{
+                            padding: "8px 16px",
+                            backgroundColor: "#FF5722",
+                            color: "white",
+                            border: "1px solid #D84315",
+                            borderRadius: "3px",
+                            cursor: "pointer",
+                            fontSize: "14px"
+                          }}
+                        >
+                          テスト投稿
+                        </button>
+                      </div>
+                      <p style={{ fontSize: "12px", color: "#666" }}>
+                        ※この例では、Web ComponentsではなくHTTPリクエストを直接送信してBBSと連携しています
+                      </p>
+                    </div>
                   </div>
-                  <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
-                    ※名前とメッセージを入力してお試しください！
-                  </p>
                 </div>
               )}
             </div>

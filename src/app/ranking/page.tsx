@@ -257,12 +257,42 @@ export default function RankingPage() {
                     </span>
                   </p>
                   <div style={{ textAlign: "center", margin: "20px 0" }}>
-                    <p style={{ marginBottom: "10px" }}>作成されたランキング（実際に動作します）：</p>
-                    <nostalgic-ranking id={publicId} theme="classic" />
+                    <div style={{ backgroundColor: "#f0f0f0", border: "1px solid #ccc", padding: "15px", borderRadius: "4px" }}>
+                      <p style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "15px" }}>REST APIデモ</p>
+                      <div style={{ marginBottom: "15px" }}>
+                        <p style={{ fontSize: "14px", marginBottom: "10px" }}>現在のランキングデータを取得：</p>
+                        <button
+                          onClick={async () => {
+                            try {
+                              const response = await fetch(`/api/ranking?action=get&id=${publicId}&limit=5`)
+                              const data = await response.json()
+                              const entries = data.entries || []
+                              const rankingText = entries.length > 0 
+                                ? entries.map((entry, index) => `${index + 1}位: ${entry.name} - ${entry.score}点`).join('\n')
+                                : 'まだエントリーがありません'
+                              alert(`ランキング（上位5位）:\n${rankingText}`)
+                            } catch (error) {
+                              alert('エラーが発生しました')
+                            }
+                          }}
+                          style={{
+                            padding: "8px 16px",
+                            backgroundColor: "#4CAF50",
+                            color: "white",
+                            border: "1px solid #45a049",
+                            borderRadius: "3px",
+                            cursor: "pointer",
+                            fontSize: "14px"
+                          }}
+                        >
+                          ランキング取得（API直接呼び出し）
+                        </button>
+                      </div>
+                      <p style={{ fontSize: "12px", color: "#666" }}>
+                        ※この例では、Web ComponentsではなくREST APIを直接使用してランキングデータを取得しています
+                      </p>
+                    </div>
                   </div>
-                  <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
-                    ※名前とスコアを入力してお試しください！
-                  </p>
                 </div>
               )}
             </div>
