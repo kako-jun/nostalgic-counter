@@ -80,7 +80,7 @@ const setHandler = ApiHandler.create({
  */
 const displayHandler = ApiHandler.createSpecialResponse(
   CounterSchemas.display.extend({
-    format: z.enum(['json', 'text', 'image']).default('json')
+    format: BaseSchemas.counterFormat.default('json')
   }),
   async ({ id, type, format, digits }) => {
     if (format === 'json') {
@@ -124,7 +124,7 @@ const displayHandler = ApiHandler.createSpecialResponse(
  */
 const svgHandler = ApiHandler.createSpecialResponse(
   CounterSchemas.display.extend({
-    format: z.literal('image')
+    format: BaseSchemas.counterFormat.refine(val => val === 'image')
   }),
   async ({ id, type, theme, digits }) => {
     const displayResult = await counterService.getDisplayData(id, type)
@@ -142,9 +142,9 @@ const svgHandler = ApiHandler.createSpecialResponse(
   {
     schema: z.object({
       value: z.number().int().min(0),
-      type: z.enum(['total', 'today', 'yesterday', 'week', 'month']),
-      theme: z.enum(['classic', 'modern', 'retro']),
-      digits: z.number().int().min(1).max(10).optional()
+      type: BaseSchemas.counterType,
+      theme: BaseSchemas.theme,
+      digits: BaseSchemas.counterDigits
     }),
     formatter: (data) => generateCounterSVG({
       value: data.value,

@@ -139,7 +139,7 @@ const svgHandler = ApiHandler.createSpecialResponse(
   {
     schema: z.object({
       total: z.number().int().min(0),
-      theme: z.enum(['classic', 'modern', 'retro'])
+      theme: BaseSchemas.theme
     }),
     formatter: (data) => {
       // SVG生成ロジック（Counterと同様）
