@@ -160,7 +160,7 @@ class NostalgicLike extends HTMLElement {
       const total = this.likeData ? this.likeData.total : 0;
       const userLiked = this.likeData ? this.likeData.userLiked : false;
       
-      // テーマ別スタイル
+      // テーマ別デフォルト色（CSS変数のフォールバック）
       const textThemes = {
         classic: {
           color: userLiked ? '#0000ff' : '#0066cc',
@@ -177,14 +177,19 @@ class NostalgicLike extends HTMLElement {
       };
       
       const textStyle = textThemes[theme] || textThemes.classic;
+      const likedClass = userLiked ? 'liked' : 'unliked';
       
       this.shadowRoot.innerHTML = `
         <style>
           :host {
             display: inline;
+            /* CSS Custom Properties for external customization */
+            --like-text-color-unliked: ${textStyle.color};
+            --like-text-color-liked: ${userLiked ? textStyle.color : textThemes[theme].color};
+            --like-text-hover-color-unliked: ${textStyle.hoverColor};
+            --like-text-hover-color-liked: ${userLiked ? textStyle.hoverColor : textThemes[theme].hoverColor};
           }
           .like-text {
-            color: ${textStyle.color};
             cursor: pointer;
             text-decoration: underline;
             font-family: inherit;
@@ -192,11 +197,20 @@ class NostalgicLike extends HTMLElement {
             opacity: ${isLoading ? '0.6' : '1'};
             transition: color 0.2s ease;
           }
-          .like-text:hover:not(.loading) {
-            color: ${textStyle.hoverColor};
+          .like-text.unliked {
+            color: var(--like-text-color-unliked, ${textStyle.color});
+          }
+          .like-text.liked {
+            color: var(--like-text-color-liked, ${userLiked ? textStyle.color : textThemes[theme].color});
+          }
+          .like-text.unliked:hover:not(.loading) {
+            color: var(--like-text-hover-color-unliked, ${textStyle.hoverColor});
+          }
+          .like-text.liked:hover:not(.loading) {
+            color: var(--like-text-hover-color-liked, ${userLiked ? textStyle.hoverColor : textThemes[theme].hoverColor});
           }
         </style>
-        <span class="like-text ${isLoading ? 'loading' : ''}" onclick="this.getRootNode().host.toggleLike()">${total}</span>
+        <span class="like-text ${likedClass} ${isLoading ? 'loading' : ''}" onclick="this.getRootNode().host.toggleLike()">${total}</span>
       `;
       return;
     }
