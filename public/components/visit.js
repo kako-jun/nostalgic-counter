@@ -134,11 +134,6 @@ class NostalgicCounter extends HTMLElement {
     const digits = this.getAttribute('digits');
     const format = this.getAttribute('format') || DEFAULTS.FORMAT;
     
-    // デバッグログ（本番では削除予定）
-    if (id === 'nostalgic-b89803bb' && type === 'total') {
-      console.log('DEBUG homepage total counter:', { id, type, format, digits, formatAttr: this.getAttribute('format') });
-    }
-    
     if (!id) {
       // IDが無い場合は0を表示
       const digits = this.getAttribute('digits');
