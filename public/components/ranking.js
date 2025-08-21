@@ -389,10 +389,3 @@ if (!customElements.get('nostalgic-ranking')) {
   customElements.define('nostalgic-ranking', NostalgicRanking);
 }
 
-// コンソールに使用方法を表示
-console.log('🏆 Nostalgic Ranking loaded!');
-console.log('Usage: <nostalgic-ranking id="your-ranking-id" limit="10" theme="classic" url="https://example.com" token="your-token"></nostalgic-ranking>');
-console.log('Themes: classic, modern, retro');
-console.log('Formats: interactive (default)');
-console.log('Note: url and token attributes are required for score submission');
-console.log('Docs: https://nostalgic.llll-ll.com');

@@ -83,7 +83,6 @@ class NostalgicCounter extends HTMLElement {
     try {
       const baseUrl = this.getAttribute('api-base') || NostalgicCounter.apiBaseUrl;
       const countUrl = `${baseUrl}/api/visit?action=increment&id=${encodeURIComponent(id)}`;
-      console.log('nostalgic-counter: Counting up:', countUrl);
       const response = await fetch(countUrl);
       if (!response.ok) {
         console.error('nostalgic-counter: Count failed with status:', response.status, response.statusText);
@@ -91,7 +90,6 @@ class NostalgicCounter extends HTMLElement {
         console.error('nostalgic-counter: Error response:', errorData);
       } else {
         const result = await response.json();
-        console.log('nostalgic-counter: Count successful:', result);
         // カウントアップ後の値で表示を更新
         NostalgicCounter.latestCounts.set(id, result);
       }
@@ -235,7 +233,3 @@ if (!customElements.get('nostalgic-counter')) {
   customElements.define('nostalgic-counter', NostalgicCounter);
 }
 
-// コンソールに使用方法を表示
-console.log('🎯 Nostalgic Counter loaded!');
-console.log('Usage: <nostalgic-counter id="your-counter-id" type="total" theme="classic"></nostalgic-counter>');
-console.log('Docs: https://nostalgic.llll-ll.com');

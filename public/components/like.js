@@ -67,7 +67,6 @@ class NostalgicLike extends HTMLElement {
       const responseData = await response.json();
       if (responseData.success) {
         this.likeData = responseData.data;
-        console.log('nostalgic-like: Data loaded:', this.likeData);
       } else {
         throw new Error(responseData.error || 'API returned error');
       }
@@ -90,7 +89,6 @@ class NostalgicLike extends HTMLElement {
       const baseUrl = this.getAttribute('api-base') || NostalgicLike.apiBaseUrl;
       const toggleUrl = `${baseUrl}/api/like?action=toggle&id=${encodeURIComponent(id)}`;
       
-      console.log('nostalgic-like: Toggling like:', toggleUrl);
       const response = await fetch(toggleUrl);
       
       if (!response.ok) {
@@ -100,7 +98,6 @@ class NostalgicLike extends HTMLElement {
       const responseData = await response.json();
       if (responseData.success) {
         this.likeData = responseData.data;
-        console.log('nostalgic-like: Toggle successful:', this.likeData);
       } else {
         throw new Error(responseData.error || 'API returned error');
       }
@@ -327,10 +324,3 @@ if (!customElements.get('nostalgic-like')) {
   customElements.define('nostalgic-like', NostalgicLike);
 }
 
-// コンソールに使用方法を表示
-console.log('❤️ Nostalgic Like loaded!');
-console.log('Usage: <nostalgic-like id="your-like-id" theme="classic" icon="heart" format="interactive"></nostalgic-like>');
-console.log('Icons: heart (♥), star (★), thumb (👍)');
-console.log('Themes: classic, modern, retro');
-console.log('Formats: interactive (default), image');
-console.log('Docs: https://nostalgic.llll-ll.com');

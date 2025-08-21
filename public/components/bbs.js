@@ -680,11 +680,3 @@ if (!customElements.get('nostalgic-bbs')) {
   customElements.define('nostalgic-bbs', NostalgicBBS);
 }
 
-// コンソールに使用方法を表示
-console.log('💬 Nostalgic BBS loaded!');
-console.log('Usage: <nostalgic-bbs id="your-bbs-id" page="1" theme="classic"></nostalgic-bbs>');
-console.log('Themes: classic, modern, retro');
-console.log('Formats: interactive (default)');
-console.log('Note: Header title is set when creating BBS via API (title parameter)');
-console.log('Note: Posts can be made with ID only, editing requires editToken');
-console.log('Docs: https://nostalgic.llll-ll.com');
