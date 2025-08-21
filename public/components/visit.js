@@ -102,7 +102,7 @@ class NostalgicCounter extends HTMLElement {
     const id = this.getAttribute('id');
     const type = this.getAttribute('type') || 'total';
     const theme = this.getAttribute('theme') || 'classic';
-    const digits = this.getAttribute('digits') || '6';
+    const digits = this.getAttribute('digits');
     const format = this.getAttribute('format') || 'image';
     
     if (!id) {
@@ -120,90 +120,39 @@ class NostalgicCounter extends HTMLElement {
     }
     
     const baseUrl = this.getAttribute('api-base') || NostalgicCounter.apiBaseUrl;
-    const apiUrl = `${baseUrl}/api/visit?action=display&id=${encodeURIComponent(id)}&type=${type}&theme=${theme}&digits=${digits}&format=${format}`;
+    const apiUrl = `${baseUrl}/api/visit?action=display&id=${encodeURIComponent(id)}&type=${type}&theme=${theme}${digits ? `&digits=${digits}` : ''}&format=${format}`;
     
     // カウントアップ後の最新データがあれば使用
     const latestData = NostalgicCounter.latestCounts.get(id);
     const hasLatestData = latestData && latestData[type] !== undefined;
     
     if (format === 'text') {
-      // テキスト形式の場合
-      this.shadowRoot.innerHTML = `
-        <style>
-          :host {
-            display: inline-block;
-            font-family: monospace;
-            font-weight: bold;
-          }
-          .loading {
-            color: #666;
-          }
-          .classic {
-            color: #00ff00;
-            background: #000;
-            padding: 2px 4px;
-          }
-          .modern {
-            color: #fff;
-            background: #1a1a1a;
-            padding: 2px 4px;
-          }
-          .retro {
-            color: #ffff00;
-            background: #800080;
-            padding: 2px 4px;
-          }
-        </style>
-        <span class="loading ${theme}">Loading...</span>
-      `;
+      // プレーンテキスト形式の場合
+      const formatValue = (value) => {
+        if (digits && !isNaN(digits) && digits > 0) {
+          return String(value).padStart(parseInt(digits), '0');
+        }
+        return String(value);
+      };
       
       // 最新データがあれば即座に表示
       if (hasLatestData) {
         const value = latestData[type];
-        this.shadowRoot.querySelector('span').textContent = value;
-        this.shadowRoot.querySelector('span').className = theme;
+        this.shadowRoot.innerHTML = formatValue(value);
       } else {
-        // テキストを非同期で取得
-        fetch(apiUrl)
-        .then(response => response.text())
-        .then(text => {
-          this.shadowRoot.innerHTML = `
-            <style>
-              :host {
-                display: inline-block;
-                font-family: monospace;
-                font-weight: bold;
-              }
-              .classic {
-                color: #00ff00;
-                background: #000;
-                padding: 2px 4px;
-              }
-              .modern {
-                color: #fff;
-                background: #1a1a1a;
-                padding: 2px 4px;
-              }
-              .retro {
-                color: #ffff00;
-                background: #800080;
-                padding: 2px 4px;
-              }
-            </style>
-            <span class="${theme}">${text}</span>
-          `;
+        // ローディング中は何も表示しない（または "0" を表示）
+        this.shadowRoot.innerHTML = digits ? formatValue(0) : '0';
+        
+        // 値を非同期で取得
+        fetch(`${baseUrl}/api/visit?action=get&id=${encodeURIComponent(id)}`)
+        .then(response => response.json())
+        .then(data => {
+          if (data.success && data.data && data.data[type] !== undefined) {
+            this.shadowRoot.innerHTML = formatValue(data.data[type]);
+          }
         })
         .catch(error => {
-          this.shadowRoot.innerHTML = `
-            <style>
-              :host {
-                display: inline-block;
-                color: red;
-                font-size: 12px;
-              }
-            </style>
-            <span>Error loading counter</span>
-          `;
+          this.shadowRoot.innerHTML = 'Error';
         });
       }
     } else {
