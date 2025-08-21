@@ -8,10 +8,10 @@ export interface CounterImageOptions {
 }
 
 export function generateCounterSVG(options: CounterImageOptions): string {
-  const { value, type, style = 'classic', digits = 6 } = options
+  const { value, type, style = 'classic', digits } = options
   
-  // 数値を指定桁数でゼロパディング
-  const paddedValue = value.toString().padStart(digits, '0')
+  // digitsが指定されている場合のみゼロパディング
+  const paddedValue = digits ? value.toString().padStart(digits, '0') : value.toString()
   
   // スタイル設定
   const styles = {
@@ -39,7 +39,7 @@ export function generateCounterSVG(options: CounterImageOptions): string {
   }
   
   const currentStyle = styles[style]
-  const width = digits * 12 + 20
+  const width = (digits ? digits : paddedValue.length) * 12 + 20
   const height = 30
   
   return `

@@ -54,10 +54,18 @@ class NostalgicCounter extends HTMLElement {
       return;
     }
 
+    // フォーマットをチェックして初期表示を設定
+    const format = this.getAttribute('format') || 'image';
+    
     // 既にカウント済みの場合は即座にレンダリング
     if (NostalgicCounter.counted.has(id)) {
       this.render();
       return;
+    }
+
+    // テキスト形式の場合は先に初期値を表示
+    if (format === 'text') {
+      this.renderInitialText();
     }
 
     // カウントアップして結果を待つ
@@ -98,6 +106,19 @@ class NostalgicCounter extends HTMLElement {
     }
   }
 
+  renderInitialText() {
+    // テキスト形式の初期表示（ローディング中表示）
+    const digits = this.getAttribute('digits');
+    const formatValue = (value) => {
+      if (digits && !isNaN(digits) && digits > 0) {
+        return String(value).padStart(parseInt(digits), '0');
+      }
+      return String(value);
+    };
+    
+    this.shadowRoot.innerHTML = digits ? formatValue(0) : '0';
+  }
+
   render() {
     const id = this.getAttribute('id');
     const type = this.getAttribute('type') || 'total';
@@ -136,19 +157,25 @@ class NostalgicCounter extends HTMLElement {
       };
       
       // 最新データがあれば即座に表示
+      console.log('DEBUG: latestData =', latestData, 'hasLatestData =', hasLatestData, 'type =', type);
       if (hasLatestData) {
         const value = latestData[type];
+        console.log('DEBUG: Using latestData value =', value);
         this.shadowRoot.innerHTML = formatValue(value);
       } else {
         // ローディング中は何も表示しない（または "0" を表示）
         this.shadowRoot.innerHTML = digits ? formatValue(0) : '0';
         
-        // 値を非同期で取得
+        // 値を非同期で取得（action=getを使用）
         fetch(`${baseUrl}/api/visit?action=get&id=${encodeURIComponent(id)}`)
         .then(response => response.json())
         .then(data => {
+          console.log('DEBUG: API response data =', data);
           if (data.success && data.data && data.data[type] !== undefined) {
+            console.log('DEBUG: Setting value from API =', data.data[type]);
             this.shadowRoot.innerHTML = formatValue(data.data[type]);
+          } else {
+            this.shadowRoot.innerHTML = 'Error';
           }
         })
         .catch(error => {

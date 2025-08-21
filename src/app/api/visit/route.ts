@@ -31,7 +31,7 @@ const ApiParamsSchema = z.object({
   id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/).optional(),
   type: z.enum(['total', 'today', 'yesterday', 'week', 'month']).default('total'),
   theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
-  digits: z.coerce.number().int().min(1).max(10).default(6),
+  digits: z.coerce.number().int().min(1).max(10).optional(),
   format: z.enum(['json', 'text', 'image']).default('image'),
   total: z.coerce.number().int().min(0).optional()
 })
@@ -118,7 +118,7 @@ const displayHandler = ApiHandler.createSpecialResponse(
     id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
     type: z.enum(['total', 'today', 'yesterday', 'week', 'month']).default('total'),
     theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
-    digits: z.coerce.number().int().min(1).max(10).default(6),
+    digits: z.coerce.number().int().min(1).max(10).optional(),
     format: z.enum(['json', 'text', 'image']).default('json')
   }),
   async ({ id, type, format, digits }) => {
@@ -166,7 +166,7 @@ const svgHandler = ApiHandler.createSpecialResponse(
     id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
     type: z.enum(['total', 'today', 'yesterday', 'week', 'month']).default('total'),
     theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
-    digits: z.coerce.number().int().min(1).max(10).default(6),
+    digits: z.coerce.number().int().min(1).max(10).optional(),
     format: z.literal('image')
   }),
   async ({ id, type, theme, digits }) => {
