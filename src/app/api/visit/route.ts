@@ -15,6 +15,7 @@ import {
   CounterSchemas,
   CounterActionParams,
   UnifiedAPISchemas,
+  CommonResponseSchemas,
   type CounterData
 } from '@/lib/validation/service-schemas'
 import { BaseSchemas } from '@/lib/core/validation'
@@ -106,8 +107,8 @@ const displayHandler = ApiHandler.createSpecialResponse(
   {
     schema: z.union([
       CounterSchemas.data, // JSON format
-      BaseSchemas.nonNegativeInt, // number format
-      z.string() // padded text format
+      CommonResponseSchemas.numberResponse, // number format
+      CommonResponseSchemas.textResponse // padded text format
     ]),
     formatter: (data) => {
       if (typeof data === 'object') {
@@ -141,12 +142,7 @@ const svgHandler = ApiHandler.createSpecialResponse(
     })
   },
   {
-    schema: z.object({
-      value: BaseSchemas.nonNegativeInt,
-      type: BaseSchemas.counterType,
-      theme: BaseSchemas.theme,
-      digits: BaseSchemas.counterDigits
-    }),
+    schema: CommonResponseSchemas.counterSvgData,
     formatter: (data) => generateCounterSVG({
       value: data.value,
       type: data.type,
@@ -209,8 +205,8 @@ async function routeRequest(request: NextRequest) {
       
       default:
         return ApiHandler.create({
-          paramsSchema: z.object({ action: z.string() }),
-          resultSchema: z.object({ error: z.string() }),
+          paramsSchema: CommonResponseSchemas.errorAction,
+          resultSchema: CommonResponseSchemas.errorResponse,
           handler: async ({ action }) => {
             throw new ValidationError(`Invalid action: ${action}`)
           }
@@ -219,8 +215,8 @@ async function routeRequest(request: NextRequest) {
   } catch (error) {
     console.error('Counter API routing error:', error)
     return ApiHandler.create({
-      paramsSchema: z.object({}),
-      resultSchema: z.object({ error: z.string() }),
+      paramsSchema: CommonResponseSchemas.emptyParams,
+      resultSchema: CommonResponseSchemas.errorResponse,
       handler: async () => {
         throw new Error('Internal server error')
       }

@@ -13,7 +13,8 @@ import { getClientIP, getUserAgent } from '@/lib/utils/api'
 import {
   LikeSchemas,
   LikeActionParams,
-  UnifiedAPISchemas
+  UnifiedAPISchemas,
+  CommonResponseSchemas
 } from '@/lib/validation/service-schemas'
 import { BaseSchemas } from '@/lib/core/validation'
 
@@ -72,7 +73,7 @@ const getHandler = ApiHandler.create({
  */
 const displayHandler = ApiHandler.createSpecialResponse(
   LikeSchemas.display.extend({
-    format: z.enum(['json', 'text']).default('json')
+    format: BaseSchemas.counterFormat.refine(val => val !== 'image').default('json')
   }),
   async ({ id, format }, request) => {
     const clientIP = getClientIP(request)
@@ -95,7 +96,7 @@ const displayHandler = ApiHandler.createSpecialResponse(
   {
     schema: z.union([
       LikeSchemas.data, // JSON format
-      z.string() // text format
+      CommonResponseSchemas.textResponse // text format
     ]),
     formatter: (data) => {
       if (typeof data === 'object') {
@@ -113,7 +114,7 @@ const displayHandler = ApiHandler.createSpecialResponse(
  */
 const svgHandler = ApiHandler.createSpecialResponse(
   LikeSchemas.display.extend({
-    format: z.literal('image')
+    format: BaseSchemas.counterFormat.refine(val => val === 'image')
   }),
   async ({ id, theme }, request) => {
     const clientIP = getClientIP(request)
@@ -138,10 +139,7 @@ const svgHandler = ApiHandler.createSpecialResponse(
     })
   },
   {
-    schema: z.object({
-      total: BaseSchemas.nonNegativeInt,
-      theme: BaseSchemas.theme
-    }),
+    schema: CommonResponseSchemas.likeSvgData,
     formatter: (data) => {
       // SVG生成ロジック（Counterと同様）
       const iconType = 'heart' // デフォルトはハート
@@ -271,8 +269,8 @@ async function routeRequest(request: NextRequest) {
       
       default:
         return ApiHandler.create({
-          paramsSchema: z.object({ action: z.string() }),
-          resultSchema: z.object({ error: z.string() }),
+          paramsSchema: CommonResponseSchemas.errorAction,
+          resultSchema: CommonResponseSchemas.errorResponse,
           handler: async ({ action }) => {
             throw new Error(`Invalid action: ${action}`)
           }
@@ -281,8 +279,8 @@ async function routeRequest(request: NextRequest) {
   } catch (error) {
     console.error('Like API routing error:', error)
     return ApiHandler.create({
-      paramsSchema: z.object({}),
-      resultSchema: z.object({ error: z.string() }),
+      paramsSchema: CommonResponseSchemas.emptyParams,
+      resultSchema: CommonResponseSchemas.errorResponse,
       handler: async () => {
         throw new Error('Internal server error')
       }

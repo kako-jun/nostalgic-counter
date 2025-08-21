@@ -10,7 +10,8 @@ import { rankingService } from '@/domain/ranking/ranking.service'
 import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
 import {
   RankingSchemas,
-  UnifiedAPISchemas
+  UnifiedAPISchemas,
+  CommonResponseSchemas
 } from '@/lib/validation/service-schemas'
 
 /**
@@ -174,8 +175,8 @@ async function routeRequest(request: NextRequest) {
       
       default:
         return ApiHandler.create({
-          paramsSchema: z.object({ action: z.string() }),
-          resultSchema: z.object({ error: z.string() }),
+          paramsSchema: CommonResponseSchemas.errorAction,
+          resultSchema: CommonResponseSchemas.errorResponse,
           handler: async ({ action }) => {
             throw new Error(`Invalid action: ${action}`)
           }
@@ -184,8 +185,8 @@ async function routeRequest(request: NextRequest) {
   } catch (error) {
     console.error('Ranking API routing error:', error)
     return ApiHandler.create({
-      paramsSchema: z.object({}),
-      resultSchema: z.object({ error: z.string() }),
+      paramsSchema: CommonResponseSchemas.emptyParams,
+      resultSchema: CommonResponseSchemas.errorResponse,
       handler: async () => {
         throw new Error('Internal server error')
       }

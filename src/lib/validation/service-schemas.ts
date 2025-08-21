@@ -526,3 +526,28 @@ export type BBSPostParams = z.infer<typeof BBSSchemas.post>
 export type BBSDisplayParams = z.infer<typeof BBSSchemas.display>
 export type BBSMessage = z.infer<typeof BBSSchemas.message>
 export type BBSData = z.infer<typeof BBSSchemas.data>
+
+// === 共通レスポンススキーマ ===
+export const CommonResponseSchemas = {
+  // エラーハンドリング用
+  errorAction: z.object({ action: z.string() }),
+  errorResponse: z.object({ error: z.string() }),
+  emptyParams: z.object({}),
+  
+  // 特殊レスポンス用
+  textResponse: z.string(),
+  numberResponse: BaseSchemas.nonNegativeInt,
+  
+  // 表示用オブジェクト
+  counterSvgData: z.object({
+    value: BaseSchemas.nonNegativeInt,
+    type: BaseSchemas.counterType,
+    theme: BaseSchemas.theme,
+    digits: BaseSchemas.counterDigits
+  }),
+  
+  likeSvgData: z.object({
+    total: BaseSchemas.nonNegativeInt,
+    theme: BaseSchemas.theme
+  })
+} as const
