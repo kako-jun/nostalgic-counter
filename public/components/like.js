@@ -49,7 +49,7 @@ class NostalgicLike extends HTMLElement {
   async loadLikeData() {
     const id = this.getAttribute('id');
     if (!id) {
-      this.renderError('Error: id attribute is required');
+      this.renderError('エラー: id属性が必要です');
       return;
     }
 
@@ -68,7 +68,7 @@ class NostalgicLike extends HTMLElement {
       if (responseData.success) {
         this.likeData = responseData.data;
       } else {
-        throw new Error(responseData.error || 'API returned error');
+        throw new Error(responseData.error || 'APIがエラーを返しました');
       }
     } catch (error) {
       console.error('nostalgic-like: Failed to load data:', error);
@@ -99,7 +99,7 @@ class NostalgicLike extends HTMLElement {
       if (responseData.success) {
         this.likeData = responseData.data;
       } else {
-        throw new Error(responseData.error || 'API returned error');
+        throw new Error(responseData.error || 'APIがエラーを返しました');
       }
     } catch (error) {
       console.error('nostalgic-like: Toggle failed:', error);
@@ -128,7 +128,7 @@ class NostalgicLike extends HTMLElement {
     const format = this.getAttribute('format') || 'interactive';
     
     if (!this.getAttribute('id')) {
-      this.renderError('Error: id attribute is required');
+      this.renderError('エラー: id属性が必要です');
       return;
     }
 

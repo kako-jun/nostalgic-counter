@@ -11,8 +11,6 @@ const DEFAULTS = {
   TYPE: 'total',
   THEME: 'classic',
   FORMAT: 'image',
-  LOADING_TEXT: 'Loading...',
-  ERROR_TEXT: 'Error',
   INITIAL_VALUE: '0'
 };
 
@@ -137,16 +135,15 @@ class NostalgicCounter extends HTMLElement {
     const format = this.getAttribute('format') || DEFAULTS.FORMAT;
     
     if (!id) {
-      this.shadowRoot.innerHTML = `
-        <style>
-          :host {
-            display: inline-block;
-            color: red;
-            font-size: 12px;
-          }
-        </style>
-        <span>Error: id attribute is required</span>
-      `;
+      // IDが無い場合は0を表示
+      const digits = this.getAttribute('digits');
+      const formatValue = (value) => {
+        if (digits && !isNaN(digits) && digits > 0) {
+          return String(value).padStart(parseInt(digits), '0');
+        }
+        return String(value);
+      };
+      this.shadowRoot.innerHTML = formatValue(0);
       return;
     }
     
@@ -167,29 +164,25 @@ class NostalgicCounter extends HTMLElement {
       };
       
       // 最新データがあれば即座に表示
-      console.log('DEBUG: latestData =', latestData, 'hasLatestData =', hasLatestData, 'type =', type);
       if (hasLatestData) {
         const value = latestData[type];
-        console.log('DEBUG: Using latestData value =', value);
         this.shadowRoot.innerHTML = formatValue(value);
       } else {
-        // ローディング中は何も表示しない（または "0" を表示）
-        this.shadowRoot.innerHTML = digits ? formatValue(0) : '0';
+        // ローディング中は0を桁数分表示
+        this.shadowRoot.innerHTML = formatValue(0);
         
         // 値を非同期で取得（action=getを使用）
         fetch(`${baseUrl}/api/visit?action=get&id=${encodeURIComponent(id)}`)
         .then(response => response.json())
         .then(data => {
-          console.log('DEBUG: API response data =', data);
           if (data.success && data.data && data.data[type] !== undefined) {
-            console.log('DEBUG: Setting value from API =', data.data[type]);
             this.shadowRoot.innerHTML = formatValue(data.data[type]);
           } else {
-            this.shadowRoot.innerHTML = 'Error';
+            this.shadowRoot.innerHTML = formatValue(0); // エラー時も0表示
           }
         })
         .catch(error => {
-          this.shadowRoot.innerHTML = 'Error';
+          this.shadowRoot.innerHTML = 'エラー';
         });
       }
     } else {

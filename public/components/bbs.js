@@ -109,7 +109,7 @@ class NostalgicBBS extends HTMLElement {
           }
         </style>
         <div class="bbs-container">
-          <div class="loading">${this.loading ? 'Loading...' : 'No data'}</div>
+          <div class="loading">${this.loading ? '読み込み中...' : 'データがありません'}</div>
         </div>
       `;
       return;
@@ -461,7 +461,7 @@ class NostalgicBBS extends HTMLElement {
     const id = this.getAttribute('id');
     
     if (!id) {
-      this.showMessage('Error: id attribute is required for message posting');
+      this.showMessage('エラー: メッセージ投稿にid属性が必要です');
       return;
     }
 
@@ -540,7 +540,7 @@ class NostalgicBBS extends HTMLElement {
       }
     } catch (error) {
       console.error('Post message failed:', error);
-      this.showMessage(`Failed to post message: ${error.message}`);
+      this.showMessage(`メッセージの投稿に失敗しました: ${error.message}`);
     } finally {
       this.posting = false;
       this.updatePostButton();

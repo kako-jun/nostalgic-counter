@@ -99,7 +99,7 @@ class NostalgicRanking extends HTMLElement {
           }
         </style>
         <div class="ranking-container">
-          <div class="loading">${this.loading ? 'Loading...' : 'No data'}</div>
+          <div class="loading">${this.loading ? '読み込み中...' : 'データがありません'}</div>
         </div>
       `;
       return;
@@ -285,15 +285,15 @@ class NostalgicRanking extends HTMLElement {
             `).join('')}
           </ul>
         ` : `
-          <div class="empty-message">No rankings yet</div>
+          <div class="empty-message">まだランキングがありません</div>
         `}
         ${this.getAttribute('url') && this.getAttribute('token') ? `
           <div class="submit-form">
-            <div class="form-header">Submit Score</div>
+            <div class="form-header">スコア送信</div>
             <div class="form-row">
-              <input type="text" id="score-name" placeholder="Your name" maxlength="50">
-              <input type="number" id="score-value" placeholder="Score" min="0">
-              <button id="submit-button" onclick="this.getRootNode().host.submitScore()">Submit</button>
+              <input type="text" id="score-name" placeholder="お名前" maxlength="50">
+              <input type="number" id="score-value" placeholder="スコア" min="0">
+              <button id="submit-button" onclick="this.getRootNode().host.submitScore()">送信</button>
             </div>
           </div>
         ` : ''}
@@ -326,7 +326,7 @@ class NostalgicRanking extends HTMLElement {
     const token = this.getAttribute('token');
     
     if (!url || !token) {
-      alert('Error: url and token attributes are required for score submission');
+      alert('エラー: url と token 属性がスコア送信に必要です');
       return;
     }
 
@@ -337,7 +337,7 @@ class NostalgicRanking extends HTMLElement {
     const score = parseInt(scoreInput.value);
 
     if (!name || isNaN(score)) {
-      alert('Please enter both name and score');
+      alert('名前とスコアの両方を入力してください');
       return;
     }
 
@@ -356,13 +356,13 @@ class NostalgicRanking extends HTMLElement {
         nameInput.value = '';
         scoreInput.value = '';
         await this.loadRankingData();
-        alert('Score submitted successfully!');
+        alert('スコアが正常に送信されました！');
       } else {
         throw new Error(data.error || 'Failed to submit score');
       }
     } catch (error) {
       console.error('Submit score failed:', error);
-      alert(`Failed to submit score: ${error.message}`);
+      alert(`スコアの送信に失敗しました: ${error.message}`);
     } finally {
       this.submitting = false;
       this.updateSubmitButton();
@@ -373,7 +373,7 @@ class NostalgicRanking extends HTMLElement {
     const button = this.shadowRoot.querySelector('#submit-button');
     if (button) {
       button.disabled = this.submitting;
-      button.textContent = this.submitting ? 'Submitting...' : 'Submit';
+      button.textContent = this.submitting ? '送信中...' : '送信';
     }
   }
 
