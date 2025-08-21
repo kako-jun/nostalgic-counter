@@ -9,10 +9,10 @@ import { CommonSchemas } from '@/lib/core/validation'
  * Ranking固有のフィールドスキーマ
  */
 export const RankingFieldSchemas = {
-  playerName: z.string().min(1).max(50),
-  score: CommonSchemas.nonNegativeInt,
-  maxEntries: z.number().int().min(1).max(10000),
-  limit: z.number().int().min(1).max(1000)
+  playerName: CommonSchemas.rankingName,
+  score: CommonSchemas.rankingScore,
+  maxEntries: CommonSchemas.rankingMaxEntries,
+  limit: CommonSchemas.rankingLimit
 } as const
 
 /**

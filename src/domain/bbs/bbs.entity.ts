@@ -9,17 +9,17 @@ import { CommonSchemas } from '@/lib/core/validation'
  * BBS固有のフィールドスキーマ
  */
 export const BBSFieldSchemas = {
-  bbsTitle: z.string().min(1).max(100),
-  author: z.string().min(1).max(50),
-  messageText: z.string().min(1).max(1000),
-  messageId: z.string(),
-  authorHash: z.string(),
-  icon: z.string(),
-  page: z.number().int().min(1),
-  maxMessages: z.number().int().min(1).max(10000),
-  messagesPerPage: z.number().int().min(1).max(100),
-  selectLabel: z.string().min(1).max(50),
-  selectOption: z.string().min(1).max(50)
+  bbsTitle: CommonSchemas.bbsTitle,
+  author: CommonSchemas.bbsAuthor,
+  messageText: CommonSchemas.bbsMessage,
+  messageId: CommonSchemas.messageId,
+  authorHash: CommonSchemas.authorHash,
+  icon: CommonSchemas.iconString,
+  page: CommonSchemas.bbsPage,
+  maxMessages: CommonSchemas.bbsMaxMessages,
+  messagesPerPage: CommonSchemas.bbsMessagesPerPage,
+  selectLabel: CommonSchemas.bbsSelectLabel,
+  selectOption: CommonSchemas.bbsSelectOption
 } as const
 
 /**
