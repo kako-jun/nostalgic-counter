@@ -2,21 +2,11 @@
  * Nostalgic Counter Web Component
  * 
  * 使用方法:
- * <script src="/components/validation-constants.js"></script>
  * <script src="/components/visit.js"></script>
  * <nostalgic-counter id="your-counter-id" type="total" theme="classic"></nostalgic-counter>
  */
 
-// validation-constants.js が読み込まれていることを前提とする
-import { VALIDATION_CONSTANTS, SafeValidator } from './validation-constants.js';
-
-// デフォルト値（APIスキーマと同期）
-const DEFAULTS = {
-  TYPE: 'total',
-  THEME: 'classic',
-  FORMAT: 'image',
-  INITIAL_VALUE: '0'
-};
+// バリデーション定数は不要になりました（API側でデフォルト値処理）
 
 class NostalgicCounter extends HTMLElement {
   // ページ内でカウント済みのIDを記録（同じIDは1回のみカウント）
@@ -62,17 +52,16 @@ class NostalgicCounter extends HTMLElement {
         return value.trim();
         
       case 'type':
-        return SafeValidator.validateEnum(value, VALIDATION_CONSTANTS.COUNTER.TYPE).safeValue || DEFAULTS.TYPE;
+        return value;
         
       case 'theme':
-        return SafeValidator.validateEnum(value, { values: ['classic', 'modern', 'retro'] }).safeValue || DEFAULTS.THEME;
+        return value;
         
       case 'digits':
-        if (!value) return null;
-        return SafeValidator.validateNumber(value, VALIDATION_CONSTANTS.COUNTER.DIGITS).safeValue;
+        return value;
         
       case 'format':
-        return SafeValidator.validateEnum(value, VALIDATION_CONSTANTS.COUNTER.FORMAT).safeValue || DEFAULTS.FORMAT;
+        return value;
         
       default:
         return value;

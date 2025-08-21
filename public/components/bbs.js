@@ -2,13 +2,11 @@
  * Nostalgic BBS Web Component
  * 
  * 使用方法:
- * <script src="/components/validation-constants.js"></script>
  * <script src="/components/bbs.js"></script>
  * <nostalgic-bbs id="your-bbs-id" page="1" theme="classic"></nostalgic-bbs>
  */
 
-// validation-constants.js が読み込まれていることを前提とする
-import { VALIDATION_CONSTANTS, SafeValidator } from './validation-constants.js';
+// バリデーション定数は不要になりました（API側でデフォルト値処理）
 
 class NostalgicBBS extends HTMLElement {
   // スクリプトが読み込まれたドメインを自動検出
@@ -50,8 +48,7 @@ class NostalgicBBS extends HTMLElement {
     
     switch (name) {
       case 'page':
-        const pageResult = SafeValidator.validateNumber(value, VALIDATION_CONSTANTS.BBS.MESSAGES_PER_PAGE);
-        return pageResult.safeValue;
+        return value;
         
       case 'id':
         if (!value || typeof value !== 'string' || value.trim() === '') {
@@ -60,10 +57,10 @@ class NostalgicBBS extends HTMLElement {
         return value.trim();
         
       case 'theme':
-        return SafeValidator.validateEnum(value, { values: ['classic', 'modern', 'retro'] }).safeValue;
+        return value;
         
       case 'format':
-        return SafeValidator.validateEnum(value, { values: ['interactive'] }).safeValue;
+        return value;
         
       default:
         return value;

@@ -2,13 +2,11 @@
  * Nostalgic Like Web Component
  * 
  * 使用方法:
- * <script src="/components/validation-constants.js"></script>
  * <script src="/components/like.js"></script>
  * <nostalgic-like id="your-like-id" theme="classic" icon="heart" format="interactive"></nostalgic-like>
  */
 
-// validation-constants.js が読み込まれていることを前提とする
-import { VALIDATION_CONSTANTS, SafeValidator } from './validation-constants.js';
+// バリデーション定数は不要になりました（API側でデフォルト値処理）
 
 class NostalgicLike extends HTMLElement {
   // スクリプトが読み込まれたドメインを自動検出
@@ -52,13 +50,13 @@ class NostalgicLike extends HTMLElement {
         return value.trim();
         
       case 'theme':
-        return SafeValidator.validateEnum(value, { values: ['classic', 'modern', 'retro'] }).safeValue || 'classic';
+        return value;
         
       case 'icon':
-        return SafeValidator.validateEnum(value, VALIDATION_CONSTANTS.LIKE.ICON).safeValue || 'heart';
+        return value;
         
       case 'format':
-        return SafeValidator.validateEnum(value, VALIDATION_CONSTANTS.LIKE.FORMAT).safeValue || 'interactive';
+        return value;
         
       case 'url':
         if (!value || typeof value !== 'string') return null;

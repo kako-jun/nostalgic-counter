@@ -2,13 +2,11 @@
  * Nostalgic Ranking Web Component
  * 
  * 使用方法:
- * <script src="/components/validation-constants.js"></script>
  * <script src="/components/ranking.js"></script>
  * <nostalgic-ranking id="your-ranking-id" limit="10" theme="classic" format="interactive"></nostalgic-ranking>
  */
 
-// validation-constants.js が読み込まれていることを前提とする
-import { VALIDATION_CONSTANTS, SafeValidator } from './validation-constants.js';
+// バリデーション定数は不要になりました（API側でデフォルト値処理）
 
 class NostalgicRanking extends HTMLElement {
   // スクリプトが読み込まれたドメインを自動検出
@@ -53,13 +51,13 @@ class NostalgicRanking extends HTMLElement {
         return value.trim();
         
       case 'limit':
-        return SafeValidator.validateNumber(value, VALIDATION_CONSTANTS.RANKING.LIMIT).safeValue || 10;
+        return value;
         
       case 'theme':
-        return SafeValidator.validateEnum(value, { values: ['classic', 'modern', 'retro'] }).safeValue || 'classic';
+        return value;
         
       case 'format':
-        return SafeValidator.validateEnum(value, VALIDATION_CONSTANTS.RANKING.FORMAT).safeValue || 'interactive';
+        return value;
         
       case 'url':
         if (!value || typeof value !== 'string') return null;
@@ -96,13 +94,18 @@ class NostalgicRanking extends HTMLElement {
       return;
     }
 
-    const limit = this.safeGetAttribute('limit');
+    const limit = this.getAttribute('limit');
 
     try {
       this.loading = true;
       this.render();
 
-      const response = await fetch(`${NostalgicRanking.apiBaseUrl}/api/ranking?action=display&id=${encodeURIComponent(id)}&limit=${encodeURIComponent(limit)}`);
+      let url = `${NostalgicRanking.apiBaseUrl}/api/ranking?action=display&id=${encodeURIComponent(id)}`;
+      if (limit) {
+        url += `&limit=${encodeURIComponent(limit)}`;
+      }
+      
+      const response = await fetch(url);
       const data = await response.json();
 
       if (data.success) {
