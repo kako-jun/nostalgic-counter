@@ -169,7 +169,7 @@ class NostalgicCounter extends HTMLElement {
     }
     
     const baseUrl = this.getAttribute('api-base') || NostalgicCounter.apiBaseUrl;
-    const apiUrl = `${baseUrl}/api/visit?action=display&id=${encodeURIComponent(id)}&type=${type}&theme=${theme}${digits ? `&digits=${digits}` : ''}&format=${format}`;
+    const apiUrl = `${baseUrl}/api/visit?action=display&id=${encodeURIComponent(id)}${type ? `&type=${type}` : ''}${theme ? `&theme=${theme}` : ''}${digits ? `&digits=${digits}` : ''}${format ? `&format=${format}` : ''}`;
     
     // カウントアップ後の最新データがあれば使用
     const latestData = NostalgicCounter.latestCounts.get(id);
