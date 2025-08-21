@@ -156,6 +156,53 @@ class NostalgicLike extends HTMLElement {
       `;
       return;
     }
+
+    // テキスト形式の場合（数字のみ）
+    if (format === 'text') {
+      const isLoading = this.isLoading;
+      const total = this.likeData ? this.likeData.total : 0;
+      const userLiked = this.likeData ? this.likeData.userLiked : false;
+      
+      // テーマ別スタイル
+      const textThemes = {
+        classic: {
+          color: userLiked ? '#0000ff' : '#0066cc',
+          hoverColor: userLiked ? '#000080' : '#004499'
+        },
+        modern: {
+          color: userLiked ? '#3742fa' : '#2f3542',
+          hoverColor: userLiked ? '#2f32e2' : '#1e2328'
+        },
+        retro: {
+          color: userLiked ? '#8b0000' : '#b22222',
+          hoverColor: userLiked ? '#660000' : '#8b1a1a'
+        }
+      };
+      
+      const textStyle = textThemes[theme] || textThemes.classic;
+      
+      this.shadowRoot.innerHTML = `
+        <style>
+          :host {
+            display: inline;
+          }
+          .like-text {
+            color: ${textStyle.color};
+            cursor: pointer;
+            text-decoration: underline;
+            font-family: inherit;
+            font-size: inherit;
+            opacity: ${isLoading ? '0.6' : '1'};
+            transition: color 0.2s ease;
+          }
+          .like-text:hover:not(.loading) {
+            color: ${textStyle.hoverColor};
+          }
+        </style>
+        <span class="like-text ${isLoading ? 'loading' : ''}" onclick="this.getRootNode().host.toggleLike()">${total}</span>
+      `;
+      return;
+    }
     
     const isLoading = this.isLoading;
     const total = this.likeData ? this.likeData.total : 0;
