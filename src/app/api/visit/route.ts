@@ -144,7 +144,7 @@ const svgHandler = ApiHandler.createSpecialResponse(
       value: z.number().int().min(0),
       type: z.enum(['total', 'today', 'yesterday', 'week', 'month']),
       theme: z.enum(['classic', 'modern', 'retro']),
-      digits: z.number().int().min(1).max(10)
+      digits: z.number().int().min(1).max(10).optional()
     }),
     formatter: (data) => generateCounterSVG({
       value: data.value,
