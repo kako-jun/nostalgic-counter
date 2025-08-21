@@ -17,6 +17,7 @@ import {
   UnifiedAPISchemas,
   type CounterData
 } from '@/lib/validation/service-schemas'
+import { BaseSchemas } from '@/lib/core/validation'
 
 /**
  * 統合API パラメータスキーマ - service-schemas から使用

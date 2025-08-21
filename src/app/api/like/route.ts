@@ -15,6 +15,7 @@ import {
   LikeActionParams,
   UnifiedAPISchemas
 } from '@/lib/validation/service-schemas'
+import { BaseSchemas } from '@/lib/core/validation'
 
 /**
  * CREATE アクション
