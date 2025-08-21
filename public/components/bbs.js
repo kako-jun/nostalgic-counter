@@ -68,7 +68,7 @@ class NostalgicBBS extends HTMLElement {
   }
 
   connectedCallback() {
-    this.currentPage = this.safeGetAttribute('page', 'number');
+    this.currentPage = this.safeGetAttribute('page') || 1;
     this.loadBBSData();
   }
 
@@ -77,7 +77,7 @@ class NostalgicBBS extends HTMLElement {
     const safeValue = this.safeGetAttribute(name);
     
     if (name === 'page') {
-      this.currentPage = safeValue;
+      this.currentPage = safeValue || 1;
       this.loadBBSData();
     } else {
       this.loadBBSData();
@@ -204,7 +204,7 @@ class NostalgicBBS extends HTMLElement {
           background: var(--bbs-bg-color);
           border: 2px solid var(--bbs-border-color);
           border-radius: var(--bbs-border-radius);
-          box-shadow: 2px 2px 0px var(--bbs-border-color);
+          box-shadow: 3px 3px 0px var(--bbs-border-color);
           min-width: var(--bbs-min-width);
           max-width: var(--bbs-max-width);
         }
@@ -241,7 +241,7 @@ class NostalgicBBS extends HTMLElement {
           gap: 4px;
         }
         .edit-btn, .delete-btn {
-          font-size: 10px;
+          font-size: 11px;
           padding: 2px 6px;
           border: 1px solid var(--bbs-border-color);
           background: var(--bbs-bg-color);
@@ -254,9 +254,11 @@ class NostalgicBBS extends HTMLElement {
         }
         .message-author {
           font-weight: bold;
+          font-size: 13px;
         }
         .message-time {
-          font-size: 10px;
+          font-size: 12px;
+          margin-right: 8px;
         }
         .message-content {
           margin: 4px 0;
@@ -265,6 +267,11 @@ class NostalgicBBS extends HTMLElement {
           font-family: 'Courier New', 'MS Gothic', 'ＭＳ ゴシック', monospace;
           white-space: pre-wrap;
           overflow-wrap: break-word;
+        }
+        /* 全角スペースの可視化を無効にする */
+        .message-content {
+          -webkit-text-fill-color: inherit;
+          text-rendering: optimizeLegibility;
         }
         .message-meta {
           font-size: 10px;
@@ -306,7 +313,6 @@ class NostalgicBBS extends HTMLElement {
         }
         .post-form {
           border-top: 2px solid var(--bbs-border-color);
-          margin-top: 10px;
           padding-top: 10px;
         }
         .form-header {
@@ -315,7 +321,7 @@ class NostalgicBBS extends HTMLElement {
           padding: 6px 8px;
           text-align: center;
           font-weight: bold;
-          font-size: 12px;
+          font-size: 14px;
           margin-bottom: 8px;
         }
         .form-body {
@@ -335,6 +341,8 @@ class NostalgicBBS extends HTMLElement {
           border-radius: 2px;
           background: var(--bbs-message-bg);
           color: var(--bbs-text-color);
+          height: 32px;
+          box-sizing: border-box;
         }
         .form-row input[type="text"] {
           flex: 2;
@@ -347,6 +355,7 @@ class NostalgicBBS extends HTMLElement {
           width: 100%;
           resize: vertical;
           min-height: 60px;
+          height: auto;
         }
         .form-row button {
           font-family: inherit;
@@ -393,18 +402,17 @@ class NostalgicBBS extends HTMLElement {
             messages.map(message => `
               <div class="message-item">
                 <div class="message-header">
-                  <span class="message-author">${this.escapeHtml(message.author || 'Anonymous')}</span>
-                  <span class="message-time">${this.formatDate(message.timestamp)}</span>
+                  <span class="message-author">${this.escapeHtml(message.author || 'Anonymous')}${message.icon ? ` ${message.icon}` : ''}</span>
                   <div class="message-actions">
+                    <span class="message-time">${this.formatDate(message.timestamp)}</span>
                     <button class="edit-btn" onclick="this.getRootNode().host.editMessage('${message.id}')">編集</button>
                     <button class="delete-btn" onclick="this.getRootNode().host.deleteMessage('${message.id}')">削除</button>
                   </div>
                 </div>
                 <div class="message-content">${this.escapeHtml(message.message || '')}</div>
-                ${message.icon || message.selects ? `
+                ${message.selects && Object.keys(message.selects).length > 0 ? `
                   <div class="message-meta">
-                    ${message.icon ? `Icon: ${message.icon}` : ''}
-                    ${message.selects ? Object.entries(message.selects).map(([key, value]) => `${key}: ${value}`).join(', ') : ''}
+                    ${Object.entries(message.selects).map(([key, value]) => `${key}: ${value}`).join(', ')}
                   </div>
                 ` : ''}
               </div>
@@ -427,7 +435,7 @@ class NostalgicBBS extends HTMLElement {
             <div class="form-header">コメントを投稿</div>
             <div class="form-body">
               <div class="form-row">
-                <input type="text" id="message-author" placeholder="名前（省略可、最大20文字）" maxlength="20">
+                <input type="text" id="message-author" placeholder="名前（省略可、20文字まで）" maxlength="20">
                 <select id="message-icon">
                   <option value="">アイコンなし</option>
                   <option value="😀">😀</option>
@@ -439,10 +447,10 @@ class NostalgicBBS extends HTMLElement {
                 </select>
               </div>
               <div class="form-row">
-                <textarea id="message-content" placeholder="メッセージを入力（200文字まで）" maxlength="200" rows="3"></textarea>
+                <textarea id="message-content" placeholder="メッセージを入力（200文字まで）..." maxlength="200" rows="3"></textarea>
               </div>
               <div class="message-area" id="form-message"></div>
-              <div class="form-row">
+              <div class="form-row" style="justify-content: flex-end;">
                 <button id="post-button" onclick="this.getRootNode().host.postMessage()">投稿</button>
               </div>
             </div>
@@ -618,13 +626,13 @@ class NostalgicBBS extends HTMLElement {
   formatDate(dateString) {
     try {
       const date = new Date(dateString);
-      return date.toLocaleString('ja-JP', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
-      });
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const seconds = String(date.getSeconds()).padStart(2, '0');
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     } catch (e) {
       return dateString;
     }

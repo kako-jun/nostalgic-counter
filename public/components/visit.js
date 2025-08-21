@@ -85,7 +85,7 @@ class NostalgicCounter extends HTMLElement {
     }
 
     // フォーマットをチェックして初期表示を設定
-    const format = this.safeGetAttribute('format') || DEFAULTS.FORMAT;
+    const format = this.safeGetAttribute('format');
     
     // 既にカウント済みの場合は即座にレンダリング
     if (NostalgicCounter.counted.has(id)) {
