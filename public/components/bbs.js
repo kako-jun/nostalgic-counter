@@ -331,7 +331,7 @@ class NostalgicBBS extends HTMLElement {
           font-weight: bold;
           font-size: 14px;
           margin-bottom: 8px;
-          border: 1px solid var(--bbs-border-color);
+          border-bottom: 1px solid var(--bbs-border-color);
         }
         .form-body {
           padding: 0 5px;

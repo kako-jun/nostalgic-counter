@@ -114,9 +114,7 @@ const displayHandler = ApiHandler.createSpecialResponse(
  * SVG表示専用ハンドラー
  */
 const svgHandler = ApiHandler.createSpecialResponse(
-  LikeSchemas.display.extend({
-    format: CounterFieldSchemas.counterFormat.refine(val => val === 'image')
-  }),
+  LikeSchemas.display,
   async ({ id, theme }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
@@ -255,10 +253,13 @@ async function routeRequest(request: NextRequest) {
         return await getHandler(request)
       
       case 'display':
-        const format = searchParams.get('format') || 'json'
-        if (format === 'image') {
+        // スキーマでデフォルト値が適用されるため、事前判定を削除
+        const displayFormat = searchParams.get('format')
+        
+        if (displayFormat === 'image') {
           return await svgHandler(request)
         } else {
+          // format未指定またはinteractive/text指定の場合はdisplayハンドラー
           return await displayHandler(request)
         }
       

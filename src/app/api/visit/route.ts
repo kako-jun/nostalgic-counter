@@ -126,9 +126,7 @@ const displayHandler = ApiHandler.createSpecialResponse(
  * SVG表示専用ハンドラー
  */
 const svgHandler = ApiHandler.createSpecialResponse(
-  CounterSchemas.display.extend({
-    format: CounterFieldSchemas.counterFormat.refine(val => val === 'image')
-  }),
+  CounterSchemas.display,
   async ({ id, type, theme, digits }) => {
     const displayResult = await counterService.getDisplayData(id, type)
     if (!displayResult.success) {
@@ -182,7 +180,6 @@ async function routeRequest(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
     const action = searchParams.get('action')
-    const format = searchParams.get('format') || 'image'
 
     switch (action) {
       case 'create':
@@ -195,10 +192,16 @@ async function routeRequest(request: NextRequest) {
         return await setHandler(request)
       
       case 'display':
-        if (format === 'image') {
-          return await svgHandler(request)
-        } else {
+        // スキーマでデフォルト値が適用されるため、事前判定を削除
+        // パラメータ解析をハンドラー側に委譲
+        const { searchParams: displayParams } = new URL(request.url)
+        const displayFormat = displayParams.get('format')
+        
+        if (displayFormat === 'json' || displayFormat === 'text') {
           return await displayHandler(request)
+        } else {
+          // format未指定またはimage指定の場合はSVGハンドラー
+          return await svgHandler(request)
         }
       
       case 'delete':
