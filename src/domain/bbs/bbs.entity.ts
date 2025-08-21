@@ -21,7 +21,11 @@ export const BBSFieldSchemas = {
   messagesPerPage: z.number().int().min(1).max(100),
   selectLabel: z.string().min(1).max(50),
   selectOption: z.string().min(1).max(50),
-  format: z.enum(['interactive'])
+  format: z.enum(['interactive']),
+  enableFlags: z.coerce.boolean(),
+  updateMessagesPerPage: z.coerce.number().int().min(1).max(50),
+  updateMaxMessages: z.coerce.number().int().min(1).max(1000),
+  editToken: z.string()
 } as const
 
 /**
@@ -196,7 +200,7 @@ export const BBSCreateParamsSchema = z.object({
   title: BBSFieldSchemas.bbsTitle.default('💬 BBS'),
   maxMessages: BBSFieldSchemas.maxMessages.default(1000),
   messagesPerPage: BBSFieldSchemas.messagesPerPage.default(10),
-  icons: z.array(BBSFieldSchemas.icon).max(20).default([]),
+  icons: z.array(BBSFieldSchemas.iconForArray).max(20).default([]),
   selects: z.array(BBSSelectOptionSchema).max(3).default([])
 })
 
@@ -234,7 +238,7 @@ export const BBSUpdateSettingsParamsSchema = z.object({
   title: BBSFieldSchemas.bbsTitle.optional(),
   messagesPerPage: BBSFieldSchemas.messagesPerPage.optional(),
   maxMessages: BBSFieldSchemas.maxMessages.optional(),
-  icons: z.array(BBSFieldSchemas.icon).max(20).optional(),
+  icons: z.array(BBSFieldSchemas.iconForArray).max(20).optional(),
   selects: z.array(BBSSelectOptionSchema).max(3).optional()
 })
 

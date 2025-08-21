@@ -56,13 +56,13 @@ export const CounterSchemas = {
 
   // データ形式
   data: z.object({
-    url: z.string(),
-    total: z.number().int().min(0),
-    today: z.number().int().min(0),
-    yesterday: z.number().int().min(0),
-    week: z.number().int().min(0),
-    month: z.number().int().min(0),
-    lastVisit: z.date().optional()
+    url: CommonSchemas.url,
+    total: CommonSchemas.nonNegativeInt,
+    today: CommonSchemas.nonNegativeInt,
+    yesterday: CommonSchemas.nonNegativeInt,
+    week: CommonSchemas.nonNegativeInt,
+    month: CommonSchemas.nonNegativeInt,
+    lastVisit: CommonSchemas.date.optional()
   })
 } as const
 
@@ -112,10 +112,10 @@ export const LikeSchemas = {
 
   // データ形式
   data: z.object({
-    url: z.string(),
-    total: z.number().int().min(0),
-    userLiked: z.boolean(),
-    action: z.enum(['liked', 'unliked']).optional()
+    url: CommonSchemas.url,
+    total: CommonSchemas.nonNegativeInt,
+    userLiked: LikeFieldSchemas.userLiked,
+    action: LikeFieldSchemas.likeAction.optional()
   })
 } as const
 
@@ -188,21 +188,21 @@ export const RankingSchemas = {
 
   // エントリー形式
   entry: z.object({
-    rank: z.number().int().positive(),
-    name: z.string(),
-    score: z.number().int().min(0)
+    rank: CommonSchemas.positiveInt,
+    name: RankingFieldSchemas.playerName,
+    score: RankingFieldSchemas.score
   }),
 
   // データ形式
   data: z.object({
-    url: z.string(),
-    title: z.string().optional(),
+    url: CommonSchemas.url,
+    title: CommonSchemas.title.optional(),
     entries: z.array(z.object({
-      rank: z.number().int().positive(),
-      name: z.string(),
-      score: z.number().int().min(0)
+      rank: CommonSchemas.positiveInt,
+      name: RankingFieldSchemas.playerName,
+      score: RankingFieldSchemas.score
     })),
-    maxEntries: z.number().int().positive()
+    maxEntries: RankingFieldSchemas.maxEntries
   })
 } as const
 
@@ -214,10 +214,10 @@ export const BBSSchemas = {
     url: CommonSchemas.url,
     token: CommonSchemas.token,
     title: BBSFieldSchemas.bbsTitle.default('BBS'),
-    messagesPerPage: z.coerce.number().int().min(1).max(50).default(10),
-    max: z.coerce.number().int().min(1).max(1000).default(100),
-    enableIcons: z.coerce.boolean().default(true),
-    enableSelects: z.coerce.boolean().default(false)
+    messagesPerPage: BBSFieldSchemas.messagesPerPage.default(10),
+    max: BBSFieldSchemas.maxMessages.default(100),
+    enableIcons: BBSFieldSchemas.enableFlags.default(true),
+    enableSelects: BBSFieldSchemas.enableFlags.default(false)
   }),
 
   // 投稿用パラメータ
@@ -227,9 +227,9 @@ export const BBSSchemas = {
     author: BBSFieldSchemas.author.default(BBS.AUTHOR.DEFAULT_VALUE),
     message: BBSFieldSchemas.messageText,
     icon: BBSFieldSchemas.icon,
-    select1: z.string().optional(),
-    select2: z.string().optional(),
-    select3: z.string().optional()
+    select1: BBSFieldSchemas.selectOption.optional(),
+    select2: BBSFieldSchemas.selectOption.optional(),
+    select3: BBSFieldSchemas.selectOption.optional()
   }),
 
   // ID指定投稿用パラメータ
@@ -247,28 +247,28 @@ export const BBSSchemas = {
     action: z.literal('editMessage'),
     url: CommonSchemas.url,
     token: CommonSchemas.token,
-    messageId: z.string(),
-    editToken: z.string(),
+    messageId: BBSFieldSchemas.messageId,
+    editToken: BBSFieldSchemas.editToken,
     author: BBSFieldSchemas.author,
     message: BBSFieldSchemas.messageText,
     icon: BBSFieldSchemas.icon,
-    select1: z.string().optional(),
-    select2: z.string().optional(),
-    select3: z.string().optional()
+    select1: BBSFieldSchemas.selectOption.optional(),
+    select2: BBSFieldSchemas.selectOption.optional(),
+    select3: BBSFieldSchemas.selectOption.optional()
   }),
 
   // ID指定メッセージ編集用パラメータ
   editMessageById: z.object({
     action: z.literal('editMessageById'),
     id: CommonSchemas.publicId,
-    messageId: z.string(),
-    editToken: z.string(),
+    messageId: BBSFieldSchemas.messageId,
+    editToken: BBSFieldSchemas.editToken,
     author: BBSFieldSchemas.author,
     message: BBSFieldSchemas.messageText,
     icon: BBSFieldSchemas.icon,
-    select1: z.string().optional(),
-    select2: z.string().optional(),
-    select3: z.string().optional()
+    select1: BBSFieldSchemas.selectOption.optional(),
+    select2: BBSFieldSchemas.selectOption.optional(),
+    select3: BBSFieldSchemas.selectOption.optional()
   }),
 
   // メッセージ削除用パラメータ
@@ -276,7 +276,7 @@ export const BBSSchemas = {
     action: z.literal('deleteMessage'),
     url: CommonSchemas.url,
     token: CommonSchemas.token,
-    messageId: z.string(),
+    messageId: BBSFieldSchemas.messageId,
     editToken: z.string()
   }),
 
@@ -284,7 +284,7 @@ export const BBSSchemas = {
   deleteMessageById: z.object({
     action: z.literal('deleteMessageById'),
     id: CommonSchemas.publicId,
-    messageId: z.string(),
+    messageId: BBSFieldSchemas.messageId,
     editToken: z.string()
   }),
 
@@ -299,7 +299,7 @@ export const BBSSchemas = {
   get: z.object({
     action: z.literal('get'),
     id: CommonSchemas.publicId,
-    page: CommonSchemas.bbsPage.default(BBS.PAGINATION.DEFAULT_PAGE)
+    page: BBSFieldSchemas.page.default(BBS.PAGINATION.DEFAULT_PAGE)
   }),
 
   // 削除用パラメータ
@@ -315,15 +315,15 @@ export const BBSSchemas = {
     url: CommonSchemas.url,
     token: CommonSchemas.token,
     title: BBSFieldSchemas.bbsTitle.optional(),
-    messagesPerPage: z.coerce.number().int().min(1).max(50).optional(),
-    maxMessages: z.coerce.number().int().min(1).max(1000).optional()
+    messagesPerPage: BBSFieldSchemas.updateMessagesPerPage.optional(),
+    maxMessages: BBSFieldSchemas.updateMaxMessages.optional()
   }),
 
   // 表示用パラメータ
   display: z.object({
     action: z.literal('display'),
     id: CommonSchemas.publicId,
-    page: CommonSchemas.bbsPage.default(BBS.PAGINATION.DEFAULT_PAGE),
+    page: BBSFieldSchemas.page.default(BBS.PAGINATION.DEFAULT_PAGE),
     theme: CommonSchemas.theme.default(DEFAULT_THEME),
     format: BBSFieldSchemas.format.default(BBS.DEFAULT_FORMAT)
   }),
@@ -334,10 +334,10 @@ export const BBSSchemas = {
     author: z.string(),
     message: z.string(),
     timestamp: z.date(),
-    icon: z.string().optional(),
+    icon: BBSFieldSchemas.selectOption.optional(),
     selects: z.array(z.string()).optional(),
     authorHash: z.string(),
-    editToken: z.string().optional()
+    editToken: BBSFieldSchemas.selectOption.optional()
   }),
 
   // 投稿結果形式
@@ -352,7 +352,7 @@ export const BBSSchemas = {
         author: z.string(),
         message: z.string(),
         timestamp: z.date(),
-        icon: z.string().optional(),
+        icon: BBSFieldSchemas.selectOption.optional(),
         selects: z.array(z.string()).optional(),
         authorHash: z.string()
       })),
@@ -377,7 +377,7 @@ export const BBSSchemas = {
       }),
       lastMessage: z.date().optional()
     }),
-    messageId: z.string(),
+    messageId: BBSFieldSchemas.messageId,
     editToken: z.string()
   }),
 
@@ -391,7 +391,7 @@ export const BBSSchemas = {
       author: z.string(),
       message: z.string(),
       timestamp: z.date(),
-      icon: z.string().optional(),
+      icon: BBSFieldSchemas.selectOption.optional(),
       selects: z.array(z.string()).optional(),
       authorHash: z.string()
     })),
@@ -424,7 +424,7 @@ export const UnifiedAPISchemas = {
   error: z.object({
     success: z.literal(false),
     error: z.string(),
-    code: z.string().optional(),
+    code: BBSFieldSchemas.selectOption.optional(),
     details: z.record(z.string(), z.unknown()).optional()
   }),
 
@@ -432,7 +432,7 @@ export const UnifiedAPISchemas = {
   success: <T extends z.ZodTypeAny>(dataSchema: T) => z.object({
     success: z.literal(true),
     data: dataSchema,
-    message: z.string().optional()
+    message: BBSFieldSchemas.selectOption.optional()
   }),
 
   // 作成成功レスポンス
@@ -440,7 +440,7 @@ export const UnifiedAPISchemas = {
     success: z.literal(true),
     id: CommonSchemas.publicId,
     url: z.string(),
-    message: z.string().optional()
+    message: BBSFieldSchemas.selectOption.optional()
   }),
 
   // 更新成功レスポンス
