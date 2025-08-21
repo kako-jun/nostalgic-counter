@@ -256,6 +256,7 @@ class NostalgicBBS extends HTMLElement {
         .message-author {
           font-weight: bold;
           font-size: 13px;
+          font-family: 'Courier New', 'MS Gothic', 'ＭＳ ゴシック', monospace;
         }
         .message-time {
           font-size: 12px;
@@ -342,6 +343,7 @@ class NostalgicBBS extends HTMLElement {
         }
         .form-row input[type="text"] {
           flex: 2;
+          font-family: 'Courier New', 'MS Gothic', 'ＭＳ ゴシック', monospace;
         }
         .form-row select {
           flex: 1;
@@ -352,6 +354,7 @@ class NostalgicBBS extends HTMLElement {
           resize: vertical;
           min-height: 60px;
           height: auto;
+          font-family: 'Courier New', 'MS Gothic', 'ＭＳ ゴシック', monospace;
         }
         .form-row button {
           font-family: inherit;
@@ -443,7 +446,7 @@ class NostalgicBBS extends HTMLElement {
                 </select>
               </div>
               <div class="form-row">
-                <textarea id="message-content" placeholder="メッセージを入力（200文字まで）..." maxlength="200" rows="3"></textarea>
+                <textarea id="message-content" placeholder="メッセージを入力（200文字まで）" maxlength="200" rows="4"></textarea>
               </div>
               <div class="message-area" id="form-message"></div>
               <div class="form-row" style="justify-content: flex-end;">
@@ -520,7 +523,8 @@ class NostalgicBBS extends HTMLElement {
     // 存在チェックと型チェック
     try {
       rawAuthor = (typeof authorInput.value === 'string' ? authorInput.value : '').trim();
-      rawMessage = (typeof messageInput.value === 'string' ? messageInput.value : '').trim();
+      // メッセージは前側のスペースを保持（アスキーアート調整のため）、後ろのみトリミング
+      rawMessage = (typeof messageInput.value === 'string' ? messageInput.value : '').replace(/\s+$/, '');
       rawIcon = iconSelect && typeof iconSelect.value === 'string' ? iconSelect.value : '';
     } catch (error) {
       this.showMessage('エラー: 入力値の取得に失敗しました');
