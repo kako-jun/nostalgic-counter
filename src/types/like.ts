@@ -1,6 +1,7 @@
-// Re-export types from Zod schemas for backward compatibility
+// Re-export types from service schemas
 export type {
-  LikeData,
-  LikeMetadata,
-  LikeType
-} from '@/lib/validation/schemas'
+  LikeCreateParams,
+  LikeToggleParams,
+  LikeDisplayParams,
+  LikeData
+} from '@/lib/validation/service-schemas'

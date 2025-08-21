@@ -8,22 +8,17 @@ import { ApiHandler } from '@/lib/core/api-handler'
 import { Ok, map } from '@/lib/core/result'
 import { rankingService } from '@/domain/ranking/ranking.service'
 import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
-import { RankingDataSchema } from '@/domain/ranking/ranking.entity'
+import {
+  RankingSchemas,
+  UnifiedAPISchemas
+} from '@/lib/validation/service-schemas'
 
 /**
  * CREATE アクション
  */
 const createHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('create'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16),
-    max: z.coerce.number().int().min(1).max(1000).default(100)
-  }),
-  resultSchema: z.object({
-    id: z.string(),
-    url: z.string()
-  }),
+  paramsSchema: RankingSchemas.create,
+  resultSchema: UnifiedAPISchemas.createSuccess,
   handler: async ({ url, token, max }, request) => {
     const createResult = await rankingService.create(url, token, {
       maxEntries: max
@@ -44,14 +39,8 @@ const createHandler = ApiHandler.create({
  * SUBMIT アクション
  */
 const submitHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('submit'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16),
-    name: z.string().min(1).max(50),
-    score: z.coerce.number().int()
-  }),
-  resultSchema: RankingDataSchema,
+  paramsSchema: RankingSchemas.submit,
+  resultSchema: RankingSchemas.data,
   handler: async ({ url, token, name, score }) => {
     return await rankingService.submitScore(url, token, { name, score })
   }
@@ -61,16 +50,8 @@ const submitHandler = ApiHandler.create({
  * UPDATE アクション
  */
 const updateHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('update'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16),
-    name: z.string().min(1).max(50),
-    score: z.coerce.number().int()
-  }),
-  resultSchema: z.object({
-    success: z.literal(true)
-  }),
+  paramsSchema: RankingSchemas.update,
+  resultSchema: UnifiedAPISchemas.updateSuccess,
   handler: async ({ url, token, name, score }) => {
     const updateResult = await rankingService.updateScore(url, token, { name, score })
     
@@ -86,15 +67,8 @@ const updateHandler = ApiHandler.create({
  * REMOVE アクション
  */
 const removeHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('remove'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16),
-    name: z.string().min(1).max(50)
-  }),
-  resultSchema: z.object({
-    success: z.literal(true)
-  }),
+  paramsSchema: RankingSchemas.remove,
+  resultSchema: UnifiedAPISchemas.removeSuccess,
   handler: async ({ url, token, name }) => {
     const removeResult = await rankingService.removeEntry(url, token, { name })
     
@@ -110,14 +84,8 @@ const removeHandler = ApiHandler.create({
  * CLEAR アクション
  */
 const clearHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('clear'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16)
-  }),
-  resultSchema: z.object({
-    success: z.literal(true)
-  }),
+  paramsSchema: RankingSchemas.clear,
+  resultSchema: UnifiedAPISchemas.clearSuccess,
   handler: async ({ url, token }) => {
     const clearResult = await rankingService.clearRanking(url, token)
     
@@ -133,12 +101,8 @@ const clearHandler = ApiHandler.create({
  * GET アクション
  */
 const getHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('get'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    limit: z.coerce.number().int().min(1).max(100).default(10)
-  }),
-  resultSchema: RankingDataSchema,
+  paramsSchema: RankingSchemas.get,
+  resultSchema: RankingSchemas.data,
   handler: async ({ id, limit }) => {
     return await rankingService.getRankingData(id, limit)
   }
@@ -148,13 +112,8 @@ const getHandler = ApiHandler.create({
  * DISPLAY アクション (Web Components用)
  */
 const displayHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('display'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    limit: z.coerce.number().int().min(1).max(100).default(10),
-    format: z.enum(['json']).default('json')
-  }),
-  resultSchema: RankingDataSchema,
+  paramsSchema: RankingSchemas.display,
+  resultSchema: RankingSchemas.data,
   handler: async ({ id, limit }) => {
     return await rankingService.getRankingData(id, limit)
   }
@@ -164,15 +123,8 @@ const displayHandler = ApiHandler.create({
  * DELETE アクション
  */
 const deleteHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('delete'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16)
-  }),
-  resultSchema: z.object({
-    success: z.literal(true),
-    message: z.string()
-  }),
+  paramsSchema: RankingSchemas.delete,
+  resultSchema: UnifiedAPISchemas.deleteSuccess,
   handler: async ({ url, token }) => {
     const deleteResult = await rankingService.delete(url, token)
     

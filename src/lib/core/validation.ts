@@ -5,6 +5,10 @@
 
 import { z } from 'zod'
 import { Result, Ok, Err, ValidationError, StorageError } from './result'
+import {
+  TOKEN, PUBLIC_ID, URL, THEMES, DEFAULT_THEME,
+  COUNTER, LIKE, RANKING, BBS, LIMITS
+} from '../validation/schema-constants'
 
 /**
  * ValidationFramework - 統一されたバリデーション処理
@@ -206,31 +210,63 @@ export class ValidationFramework {
 }
 
 /**
- * よく使用されるスキーマのプリセット
+ * 基盤スキーマ - 全ての定数は schema-constants から取得
  */
-export const CommonSchemas = {
-  // 基本型
+export const BaseSchemas = {
+  // === 基本型 ===
   nonEmptyString: z.string().min(1),
   positiveInt: z.number().int().positive(),
   nonNegativeInt: z.number().int().min(0),
-  url: z.string().url(),
+  url: z.string().url().refine(url => url.startsWith(URL.REQUIRED_PROTOCOL), {
+    message: `URL must start with '${URL.REQUIRED_PROTOCOL}'`
+  }),
   email: z.string().email(),
   date: z.coerce.date(),
   
-  // アプリケーション固有
-  publicId: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-  token: z.string().min(8).max(16),
-  theme: z.enum(['classic', 'modern', 'retro']),
+  // === アプリケーション固有 ===
+  publicId: z.string().regex(PUBLIC_ID.PATTERN),
+  token: z.string().min(TOKEN.MIN_LENGTH).max(TOKEN.MAX_LENGTH),
+  theme: z.enum(THEMES),
   
-  // Redis用
+  // === Counter 関連 ===
+  counterType: z.enum(COUNTER.TYPES),
+  counterFormat: z.enum(COUNTER.FORMATS),
+  counterDigits: z.coerce.number().int().min(COUNTER.DIGITS.MIN).max(COUNTER.DIGITS.MAX).optional(),
+  
+  // === Like 関連 ===
+  likeIcon: z.enum(LIKE.ICONS),
+  likeFormat: z.enum(LIKE.FORMATS),
+  
+  // === Ranking 関連 ===
+  rankingFormat: z.enum(RANKING.FORMATS),
+  rankingLimit: z.coerce.number().int().min(RANKING.LIMIT.MIN).max(RANKING.LIMIT.MAX),
+  rankingScore: z.coerce.number().int().min(RANKING.SCORE.MIN).max(RANKING.SCORE.MAX),
+  rankingName: z.string().min(RANKING.NAME.MIN_LENGTH).max(RANKING.NAME.MAX_LENGTH),
+  
+  // === BBS 関連 ===
+  bbsFormat: z.enum(BBS.FORMATS),
+  bbsAuthor: z.string().max(BBS.AUTHOR.MAX_LENGTH),
+  bbsMessage: z.string().min(BBS.MESSAGE.MIN_LENGTH).max(BBS.MESSAGE.MAX_LENGTH),
+  bbsTitle: z.string().max(BBS.TITLE.MAX_LENGTH),
+  bbsIcon: z.enum(BBS.ICONS).optional(),
+  bbsPage: z.coerce.number().int().min(1),
+  
+  // === 共通制限 ===
+  shortText: z.string().max(LIMITS.SHORT_TEXT),
+  mediumText: z.string().max(LIMITS.MEDIUM_TEXT),
+  longText: z.string().max(LIMITS.LONG_TEXT),
+  veryLongText: z.string().max(LIMITS.VERY_LONG_TEXT),
+  
+  // === Redis用 ===
   redisKey: z.string().min(1),
   
-  // API用
+  // === API用 ===
   pagination: z.object({
-    page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(10)
+    page: z.coerce.number().int().min(1).default(BBS.PAGINATION.DEFAULT_PAGE),
+    limit: z.coerce.number().int().min(RANKING.LIMIT.MIN).max(RANKING.LIMIT.MAX).default(RANKING.LIMIT.DEFAULT)
   })
 } as const
+
 
 /**
  * バリデーション結果のログ記録

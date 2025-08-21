@@ -1,6 +1,8 @@
-// Re-export types from Zod schemas for backward compatibility
+// Re-export types from service schemas
 export type {
+  RankingCreateParams,
+  RankingSubmitParams,
+  RankingDisplayParams,
   RankingEntry,
-  RankingData,
-  RankingMetadata
-} from '@/lib/validation/schemas'
+  RankingData
+} from '@/lib/validation/service-schemas'

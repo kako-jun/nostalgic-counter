@@ -1,8 +1,11 @@
-// Re-export types from Zod schemas for backward compatibility
+// Re-export types from service schemas
 export type {
-  CounterData,
-  CounterMetadata
-} from '@/lib/validation/schemas'
+  CounterCreateParams,
+  CounterIncrementParams,
+  CounterDisplayParams,
+  CounterSetParams,
+  CounterData
+} from '@/lib/validation/service-schemas'
 
 export type CounterType = 'total' | 'today' | 'yesterday' | 'week' | 'month'
 

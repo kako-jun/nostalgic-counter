@@ -12,45 +12,23 @@ import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
 import { getCacheSettings } from '@/lib/core/config'
 import { getClientIP, getUserAgent } from '@/lib/utils/api'
 import {
-  CounterCreateParamsSchema,
-  CounterIncrementParamsSchema,
-  CounterSetParamsSchema,
-  CounterDisplayParamsSchema,
-  CounterDataSchema
-} from '@/domain/counter/counter.entity'
+  CounterSchemas,
+  CounterActionParams,
+  UnifiedAPISchemas,
+  type CounterData
+} from '@/lib/validation/service-schemas'
 
 /**
- * 統合API パラメータスキーマ
+ * 統合API パラメータスキーマ - service-schemas から使用
  */
-const ApiParamsSchema = z.object({
-  action: z.enum(['create', 'increment', 'display', 'set']),
-  url: z.string().url().refine(url => url.startsWith('https://'), {
-    message: "URL must start with 'https://'"
-  }).optional(),
-  token: z.string().min(8).max(16).optional(),
-  id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/).optional(),
-  type: z.enum(['total', 'today', 'yesterday', 'week', 'month']).default('total'),
-  theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
-  digits: z.coerce.number().int().min(1).max(10).optional(),
-  format: z.enum(['json', 'text', 'image']).default('image'),
-  total: z.coerce.number().int().min(0).optional()
-})
+const ApiParamsSchema = CounterActionParams
 
 /**
  * CREATE アクション
  */
 const createHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('create'),
-    url: z.string().url().refine(url => url.startsWith('https://'), {
-      message: "URL must start with 'https://'"
-    }),
-    token: z.string().min(8).max(16)
-  }),
-  resultSchema: z.object({
-    id: z.string(),
-    url: z.string()
-  }),
+  paramsSchema: CounterSchemas.create,
+  resultSchema: UnifiedAPISchemas.createSuccess,
   handler: async ({ url, token }, request) => {
     const createResult = await counterService.create(url, token, { enableDailyStats: true })
     
@@ -69,11 +47,8 @@ const createHandler = ApiHandler.create({
  * INCREMENT アクション
  */
 const incrementHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('increment'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/)
-  }),
-  resultSchema: CounterDataSchema,
+  paramsSchema: CounterSchemas.increment,
+  resultSchema: CounterSchemas.data,
   handler: async ({ id }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
@@ -87,17 +62,8 @@ const incrementHandler = ApiHandler.create({
  * SET アクション
  */
 const setHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('set'),
-    url: z.string().url().refine(url => url.startsWith('https://'), {
-      message: "URL must start with 'https://'"
-    }),
-    token: z.string().min(8).max(16),
-    total: z.coerce.number().int().min(0)
-  }),
-  resultSchema: z.object({
-    success: z.literal(true)
-  }),
+  paramsSchema: CounterSchemas.set,
+  resultSchema: UnifiedAPISchemas.setSuccess,
   handler: async ({ url, token, total }) => {
     const setResult = await counterService.setCounterValue(url, token, total)
     
@@ -113,12 +79,7 @@ const setHandler = ApiHandler.create({
  * DISPLAY アクション（特殊レスポンス）
  */
 const displayHandler = ApiHandler.createSpecialResponse(
-  z.object({
-    action: z.literal('display'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    type: z.enum(['total', 'today', 'yesterday', 'week', 'month']).default('total'),
-    theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
-    digits: z.coerce.number().int().min(1).max(10).optional(),
+  CounterSchemas.display.extend({
     format: z.enum(['json', 'text', 'image']).default('json')
   }),
   async ({ id, type, format, digits }) => {
@@ -135,14 +96,15 @@ const displayHandler = ApiHandler.createSpecialResponse(
     
     // テキスト形式の場合は指定桁数でパディング
     if (format === 'text' && typeof displayData === 'number') {
-      return Ok(String(displayData).padStart(digits, '0'))
+      const paddedValue = digits ? String(displayData).padStart(digits, '0') : String(displayData)
+      return Ok(paddedValue)
     }
     
     return Ok(displayData)
   },
   {
     schema: z.union([
-      CounterDataSchema, // JSON format
+      CounterSchemas.data, // JSON format
       z.number().int().min(0), // number format
       z.string() // padded text format
     ]),
@@ -161,12 +123,7 @@ const displayHandler = ApiHandler.createSpecialResponse(
  * SVG表示専用ハンドラー
  */
 const svgHandler = ApiHandler.createSpecialResponse(
-  z.object({
-    action: z.literal('display'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    type: z.enum(['total', 'today', 'yesterday', 'week', 'month']).default('total'),
-    theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
-    digits: z.coerce.number().int().min(1).max(10).optional(),
+  CounterSchemas.display.extend({
     format: z.literal('image')
   }),
   async ({ id, type, theme, digits }) => {
@@ -204,17 +161,8 @@ const svgHandler = ApiHandler.createSpecialResponse(
  * DELETE アクション
  */
 const deleteHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('delete'),
-    url: z.string().url().refine(url => url.startsWith('https://'), {
-      message: "URL must start with 'https://'"
-    }),
-    token: z.string().min(8).max(16)
-  }),
-  resultSchema: z.object({
-    success: z.literal(true),
-    message: z.string()
-  }),
+  paramsSchema: CounterSchemas.delete,
+  resultSchema: UnifiedAPISchemas.deleteSuccess,
   handler: async ({ url, token }) => {
     const deleteResult = await counterService.delete(url, token)
     

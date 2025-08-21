@@ -6,6 +6,16 @@
  * <nostalgic-counter id="your-counter-id" type="total" theme="classic"></nostalgic-counter>
  */
 
+// デフォルト値（APIスキーマと同期）
+const DEFAULTS = {
+  TYPE: 'total',
+  THEME: 'classic',
+  FORMAT: 'image',
+  LOADING_TEXT: 'Loading...',
+  ERROR_TEXT: 'Error',
+  INITIAL_VALUE: '0'
+};
+
 class NostalgicCounter extends HTMLElement {
   // ページ内でカウント済みのIDを記録（同じIDは1回のみカウント）
   static counted = new Set();
@@ -55,7 +65,7 @@ class NostalgicCounter extends HTMLElement {
     }
 
     // フォーマットをチェックして初期表示を設定
-    const format = this.getAttribute('format') || 'image';
+    const format = this.getAttribute('format') || DEFAULTS.FORMAT;
     
     // 既にカウント済みの場合は即座にレンダリング
     if (NostalgicCounter.counted.has(id)) {
@@ -121,10 +131,10 @@ class NostalgicCounter extends HTMLElement {
 
   render() {
     const id = this.getAttribute('id');
-    const type = this.getAttribute('type') || 'total';
-    const theme = this.getAttribute('theme') || 'classic';
+    const type = this.getAttribute('type') || DEFAULTS.TYPE;
+    const theme = this.getAttribute('theme') || DEFAULTS.THEME;
     const digits = this.getAttribute('digits');
-    const format = this.getAttribute('format') || 'image';
+    const format = this.getAttribute('format') || DEFAULTS.FORMAT;
     
     if (!id) {
       this.shadowRoot.innerHTML = `

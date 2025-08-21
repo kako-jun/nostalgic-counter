@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod'
-import { CommonSchemas } from '@/lib/core/validation'
+import { BaseSchemas } from '@/lib/core/validation'
 
 /**
  * BBSエンティティの基本型
@@ -65,7 +65,7 @@ export interface BBSData {
     totalPages: number
     hasPrev: boolean
     hasNext: boolean
-  } // Web Components用のページネーション
+  }
   settings: BBSSettings
   lastMessage?: Date
 }
@@ -137,11 +137,11 @@ export const BBSSettingsSchema = z.object({
 })
 
 export const BBSEntitySchema = z.object({
-  id: CommonSchemas.publicId,
-  url: CommonSchemas.url,
-  created: CommonSchemas.date,
-  totalMessages: CommonSchemas.nonNegativeInt,
-  lastMessage: CommonSchemas.date.optional(),
+  id: BaseSchemas.publicId,
+  url: BaseSchemas.url,
+  created: BaseSchemas.date,
+  totalMessages: BaseSchemas.nonNegativeInt,
+  lastMessage: BaseSchemas.date.optional(),
   settings: BBSSettingsSchema
 })
 
@@ -149,7 +149,7 @@ export const BBSMessageSchema = z.object({
   id: z.string(),
   author: z.string().min(1).max(50),
   message: z.string().min(1).max(1000),
-  timestamp: CommonSchemas.date,
+  timestamp: BaseSchemas.date,
   icon: z.string().optional(),
   selects: z.array(z.string()).max(3).optional(),
   authorHash: z.string()
@@ -157,20 +157,20 @@ export const BBSMessageSchema = z.object({
 
 export const BBSDataSchema = z.object({
   id: z.string(),
-  url: CommonSchemas.url,
+  url: BaseSchemas.url,
   title: z.string(),
   messages: z.array(BBSMessageSchema),
-  totalMessages: CommonSchemas.nonNegativeInt,
-  currentPage: CommonSchemas.positiveInt,
-  totalPages: CommonSchemas.nonNegativeInt,
+  totalMessages: BaseSchemas.nonNegativeInt,
+  currentPage: BaseSchemas.positiveInt,
+  totalPages: BaseSchemas.nonNegativeInt,
   pagination: z.object({
-    page: CommonSchemas.positiveInt,
-    totalPages: CommonSchemas.nonNegativeInt,
+    page: BaseSchemas.positiveInt,
+    totalPages: BaseSchemas.nonNegativeInt,
     hasPrev: z.boolean(),
     hasNext: z.boolean()
   }), // Web Components用のページネーション
   settings: BBSSettingsSchema,
-  lastMessage: CommonSchemas.date.optional()
+  lastMessage: BaseSchemas.date.optional()
 })
 
 export const BBSCreateParamsSchema = z.object({

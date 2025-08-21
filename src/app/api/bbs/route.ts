@@ -9,26 +9,17 @@ import { Ok, map } from '@/lib/core/result'
 import { bbsService } from '@/domain/bbs/bbs.service'
 import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
 import { getClientIP, getUserAgent } from '@/lib/utils/api'
-import { BBSDataSchema, BBSMessageSchema, BBSUpdateSettingsParamsSchema } from '@/domain/bbs/bbs.entity'
+import {
+  BBSSchemas,
+  UnifiedAPISchemas
+} from '@/lib/validation/service-schemas'
 
 /**
  * CREATE アクション
  */
 const createHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('create'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16),
-    title: z.string().min(1).max(100).default('BBS'),
-    messagesPerPage: z.coerce.number().int().min(1).max(50).default(10),
-    max: z.coerce.number().int().min(1).max(1000).default(100),
-    enableIcons: z.coerce.boolean().default(true),
-    enableSelects: z.coerce.boolean().default(false)
-  }),
-  resultSchema: z.object({
-    id: z.string(),
-    url: z.string()
-  }),
+  paramsSchema: BBSSchemas.create,
+  resultSchema: UnifiedAPISchemas.createSuccess,
   handler: async ({ url, token, title, messagesPerPage, max, enableIcons, enableSelects }, request) => {
     const icons = enableIcons ? ['😀', '😉', '😎', '😠', '😢', '😮'] : []
     const selects = enableSelects ? [
@@ -60,22 +51,8 @@ const createHandler = ApiHandler.create({
  * POST アクション
  */
 const postHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('post'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    author: z.string().min(1).max(20).default('名無しさん'),
-    message: z.string().min(1).max(200),
-    icon: z.string().optional(),
-    select1: z.string().optional(),
-    select2: z.string().optional(),
-    select3: z.string().optional()
-  }),
-  resultSchema: z.object({
-    success: z.literal(true),
-    data: BBSDataSchema,
-    messageId: z.string(),
-    editToken: z.string()
-  }),
+  paramsSchema: BBSSchemas.post,
+  resultSchema: BBSSchemas.postResult,
   handler: async ({ id, author, message, icon, select1, select2, select3 }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
@@ -113,21 +90,8 @@ const postHandler = ApiHandler.create({
  * EDIT_MESSAGE アクション（オーナー権限）
  */
 const editMessageHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('editMessage'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16),
-    messageId: z.string(),
-    author: z.string().min(1).max(20),
-    message: z.string().min(1).max(200),
-    icon: z.string().optional(),
-    select1: z.string().optional(),
-    select2: z.string().optional(),
-    select3: z.string().optional()
-  }),
-  resultSchema: z.object({
-    success: z.literal(true)
-  }),
+  paramsSchema: BBSSchemas.editMessage,
+  resultSchema: UnifiedAPISchemas.updateSuccess,
   handler: async ({ url, token, messageId, author, message, icon, select1, select2, select3 }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
@@ -159,21 +123,8 @@ const editMessageHandler = ApiHandler.create({
  * EDIT_MESSAGE_BY_ID アクション（投稿者権限）
  */
 const editMessageByIdHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('editMessageById'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    messageId: z.string(),
-    editToken: z.string(),
-    author: z.string().min(1).max(20),
-    message: z.string().min(1).max(200),
-    icon: z.string().optional(),
-    select1: z.string().optional(),
-    select2: z.string().optional(),
-    select3: z.string().optional()
-  }),
-  resultSchema: z.object({
-    success: z.literal(true)
-  }),
+  paramsSchema: BBSSchemas.editMessageById,
+  resultSchema: UnifiedAPISchemas.updateSuccess,
   handler: async ({ id, messageId, editToken, author, message, icon, select1, select2, select3 }, request) => {
     const selects: string[] = []
     if (select1) selects.push(select1)
@@ -199,15 +150,8 @@ const editMessageByIdHandler = ApiHandler.create({
  * DELETE_MESSAGE_BY_ID アクション（投稿者権限）
  */
 const deleteMessageByIdHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('deleteMessageById'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    messageId: z.string(),
-    editToken: z.string()
-  }),
-  resultSchema: z.object({
-    success: z.literal(true)
-  }),
+  paramsSchema: BBSSchemas.deleteMessageById,
+  resultSchema: UnifiedAPISchemas.deleteSuccess,
   handler: async ({ id, messageId, editToken }, request) => {
     const deleteResult = await bbsService.deleteMessageByIdWithToken(id, messageId, editToken)
     
@@ -223,15 +167,8 @@ const deleteMessageByIdHandler = ApiHandler.create({
  * DELETE_MESSAGE アクション（オーナー権限）
  */
 const deleteMessageHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('deleteMessage'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16),
-    messageId: z.string()
-  }),
-  resultSchema: z.object({
-    success: z.literal(true)
-  }),
+  paramsSchema: BBSSchemas.deleteMessage,
+  resultSchema: UnifiedAPISchemas.deleteSuccess,
   handler: async ({ url, token, messageId }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
@@ -254,14 +191,8 @@ const deleteMessageHandler = ApiHandler.create({
  * CLEAR アクション
  */
 const clearHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('clear'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16)
-  }),
-  resultSchema: z.object({
-    success: z.literal(true)
-  }),
+  paramsSchema: BBSSchemas.clear,
+  resultSchema: UnifiedAPISchemas.clearSuccess,
   handler: async ({ url, token }) => {
     const clearResult = await bbsService.clearBBS(url, token)
     
@@ -277,12 +208,8 @@ const clearHandler = ApiHandler.create({
  * GET アクション
  */
 const getHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('get'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    page: z.coerce.number().int().min(1).default(1)
-  }),
-  resultSchema: BBSDataSchema,
+  paramsSchema: BBSSchemas.get,
+  resultSchema: BBSSchemas.data,
   handler: async ({ id, page }) => {
     return await bbsService.getBBSData(id, page)
   }
@@ -292,13 +219,8 @@ const getHandler = ApiHandler.create({
  * DISPLAY アクション (Web Components用)
  */
 const displayHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('display'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    page: z.coerce.number().int().min(1).default(1),
-    format: z.enum(['json']).default('json')
-  }),
-  resultSchema: BBSDataSchema,
+  paramsSchema: BBSSchemas.display,
+  resultSchema: BBSSchemas.data,
   handler: async ({ id, page }) => {
     return await bbsService.getBBSData(id, page)
   }
@@ -308,12 +230,8 @@ const displayHandler = ApiHandler.create({
  * UPDATE_SETTINGS アクション（オーナー限定）
  */
 const updateSettingsHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('updateSettings'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16)
-  }).and(BBSUpdateSettingsParamsSchema),
-  resultSchema: BBSDataSchema,
+  paramsSchema: BBSSchemas.updateSettings,
+  resultSchema: BBSSchemas.data,
   handler: async ({ url, token, ...params }) => {
     return await bbsService.updateSettings(url, token, params)
   }
@@ -323,15 +241,8 @@ const updateSettingsHandler = ApiHandler.create({
  * DELETE アクション
  */
 const deleteHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('delete'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16)
-  }),
-  resultSchema: z.object({
-    success: z.literal(true),
-    message: z.string()
-  }),
+  paramsSchema: BBSSchemas.delete,
+  resultSchema: UnifiedAPISchemas.deleteSuccess,
   handler: async ({ url, token }) => {
     const deleteResult = await bbsService.delete(url, token)
     

@@ -1,8 +1,8 @@
-// Re-export types from Zod schemas for backward compatibility
+// Re-export types from service schemas
 export type {
-  BBSSelectOption,
-  BBSOptions,
+  BBSCreateParams,
+  BBSPostParams,
+  BBSDisplayParams,
   BBSMessage,
-  BBSMetadata,
   BBSData
-} from '@/lib/validation/schemas'
+} from '@/lib/validation/service-schemas'

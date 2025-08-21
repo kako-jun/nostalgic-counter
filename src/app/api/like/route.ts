@@ -10,21 +10,18 @@ import { likeService } from '@/domain/like/like.service'
 import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
 import { getCacheSettings } from '@/lib/core/config'
 import { getClientIP, getUserAgent } from '@/lib/utils/api'
-import { LikeDataSchema } from '@/domain/like/like.entity'
+import {
+  LikeSchemas,
+  LikeActionParams,
+  UnifiedAPISchemas
+} from '@/lib/validation/service-schemas'
 
 /**
  * CREATE アクション
  */
 const createHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('create'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16)
-  }),
-  resultSchema: z.object({
-    id: z.string(),
-    url: z.string()
-  }),
+  paramsSchema: LikeSchemas.create,
+  resultSchema: UnifiedAPISchemas.createSuccess,
   handler: async ({ url, token }, request) => {
     const createResult = await likeService.create(url, token, {})
     
@@ -43,11 +40,8 @@ const createHandler = ApiHandler.create({
  * TOGGLE アクション
  */
 const toggleHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('toggle'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/)
-  }),
-  resultSchema: LikeDataSchema,
+  paramsSchema: LikeSchemas.toggle,
+  resultSchema: LikeSchemas.data,
   handler: async ({ id }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
@@ -61,11 +55,8 @@ const toggleHandler = ApiHandler.create({
  * GET アクション
  */
 const getHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('get'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/)
-  }),
-  resultSchema: LikeDataSchema,
+  paramsSchema: LikeSchemas.get,
+  resultSchema: LikeSchemas.data,
   handler: async ({ id }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
@@ -79,10 +70,7 @@ const getHandler = ApiHandler.create({
  * DISPLAY アクション（text/json形式）
  */
 const displayHandler = ApiHandler.createSpecialResponse(
-  z.object({
-    action: z.literal('display'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
+  LikeSchemas.display.extend({
     format: z.enum(['json', 'text']).default('json')
   }),
   async ({ id, format }, request) => {
@@ -105,7 +93,7 @@ const displayHandler = ApiHandler.createSpecialResponse(
   },
   {
     schema: z.union([
-      LikeDataSchema, // JSON format
+      LikeSchemas.data, // JSON format
       z.string() // text format
     ]),
     formatter: (data) => {
@@ -123,10 +111,7 @@ const displayHandler = ApiHandler.createSpecialResponse(
  * SVG表示専用ハンドラー
  */
 const svgHandler = ApiHandler.createSpecialResponse(
-  z.object({
-    action: z.literal('display'),
-    id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-    theme: z.enum(['classic', 'modern', 'retro']).default('classic'),
+  LikeSchemas.display.extend({
     format: z.literal('image')
   }),
   async ({ id, theme }, request) => {
@@ -214,13 +199,8 @@ const svgHandler = ApiHandler.createSpecialResponse(
  * SET アクション
  */
 const setHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('set'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16),
-    value: z.coerce.number().min(0)
-  }),
-  resultSchema: LikeDataSchema,
+  paramsSchema: LikeSchemas.set,
+  resultSchema: LikeSchemas.data,
   handler: async ({ url, token, value }, request) => {
     const ip = getClientIP(request)
     const userAgent = getUserAgent(request)
@@ -240,15 +220,8 @@ const setHandler = ApiHandler.create({
  * DELETE アクション
  */
 const deleteHandler = ApiHandler.create({
-  paramsSchema: z.object({
-    action: z.literal('delete'),
-    url: z.string().url(),
-    token: z.string().min(8).max(16)
-  }),
-  resultSchema: z.object({
-    success: z.literal(true),
-    message: z.string()
-  }),
+  paramsSchema: LikeSchemas.delete,
+  resultSchema: UnifiedAPISchemas.deleteSuccess,
   handler: async ({ url, token }) => {
     const deleteResult = await likeService.delete(url, token)
     

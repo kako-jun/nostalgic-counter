@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod'
-import { CommonSchemas } from '@/lib/core/validation'
+import { BaseSchemas } from '@/lib/core/validation'
 
 /**
  * Rankingエンティティの基本型
@@ -81,28 +81,28 @@ export interface RankingDisplayParams {
  * Zodスキーマ定義
  */
 export const RankingEntitySchema = z.object({
-  id: CommonSchemas.publicId,
-  url: CommonSchemas.url,
-  created: CommonSchemas.date,
-  totalEntries: CommonSchemas.nonNegativeInt,
-  maxEntries: CommonSchemas.nonNegativeInt,
-  lastUpdate: CommonSchemas.date.optional()
+  id: BaseSchemas.publicId,
+  url: BaseSchemas.url,
+  created: BaseSchemas.date,
+  totalEntries: BaseSchemas.nonNegativeInt,
+  maxEntries: BaseSchemas.nonNegativeInt,
+  lastUpdate: BaseSchemas.date.optional()
 })
 
 export const RankingEntrySchema = z.object({
   name: z.string().min(1).max(50),
-  score: CommonSchemas.nonNegativeInt,
-  rank: CommonSchemas.positiveInt, // Web Components用にランク番号を追加
-  timestamp: CommonSchemas.date
+  score: BaseSchemas.nonNegativeInt,
+  rank: BaseSchemas.positiveInt, // Web Components用にランク番号を追加
+  timestamp: BaseSchemas.date
 })
 
 export const RankingDataSchema = z.object({
   id: z.string(),
-  url: CommonSchemas.url,
+  url: BaseSchemas.url,
   entries: z.array(RankingEntrySchema),
-  totalEntries: CommonSchemas.nonNegativeInt,
-  maxEntries: CommonSchemas.nonNegativeInt,
-  lastUpdate: CommonSchemas.date.optional()
+  totalEntries: BaseSchemas.nonNegativeInt,
+  maxEntries: BaseSchemas.nonNegativeInt,
+  lastUpdate: BaseSchemas.date.optional()
 })
 
 export const RankingCreateParamsSchema = z.object({
@@ -111,12 +111,12 @@ export const RankingCreateParamsSchema = z.object({
 
 export const RankingSubmitParamsSchema = z.object({
   name: z.string().min(1).max(50),
-  score: CommonSchemas.nonNegativeInt
+  score: BaseSchemas.nonNegativeInt
 })
 
 export const RankingUpdateParamsSchema = z.object({
   name: z.string().min(1).max(50),
-  score: CommonSchemas.nonNegativeInt
+  score: BaseSchemas.nonNegativeInt
 })
 
 export const RankingRemoveParamsSchema = z.object({
@@ -124,7 +124,7 @@ export const RankingRemoveParamsSchema = z.object({
 })
 
 export const RankingDisplayParamsSchema = z.object({
-  id: CommonSchemas.publicId,
+  id: BaseSchemas.publicId,
   limit: z.number().int().min(1).max(1000).default(10)
 })
 
