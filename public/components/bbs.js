@@ -261,6 +261,7 @@ class NostalgicBBS extends HTMLElement {
         .message-time {
           font-size: 12px;
           margin-right: 8px;
+          font-family: 'Courier New', 'MS Gothic', 'ＭＳ ゴシック', monospace;
         }
         .message-content {
           margin: 4px 0;

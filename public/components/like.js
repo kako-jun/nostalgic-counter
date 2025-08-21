@@ -261,15 +261,14 @@ class NostalgicLike extends HTMLElement {
     const total = this.likeData ? this.likeData.total : 0;
     const userLiked = this.likeData ? this.likeData.userLiked : false;
     
-    // アイコンマッピング
+    // アイコンマッピング（幅を統一するため同じ文字を使用）
     const iconMapping = {
-      heart: { filled: '♥', empty: '♡' },
-      star: { filled: '★', empty: '☆' },
-      thumb: { filled: '👍', empty: '👍' }
+      heart: '♥',
+      star: '★', 
+      thumb: '👍'
     };
     
-    const currentIcon = iconMapping[icon] || iconMapping.heart;
-    const displayIcon = userLiked ? currentIcon.filled : currentIcon.empty;
+    const displayIcon = iconMapping[icon] || iconMapping.heart;
     
     // アイコンの色設定
     const iconColor = {
@@ -347,6 +346,9 @@ class NostalgicLike extends HTMLElement {
           font-size: 16px;
           line-height: 1;
           color: ${currentIconColor};
+          width: 16px;
+          text-align: center;
+          display: inline-block;
         }
         
         .like-count {
