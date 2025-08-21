@@ -134,6 +134,11 @@ class NostalgicCounter extends HTMLElement {
     const digits = this.getAttribute('digits');
     const format = this.getAttribute('format') || DEFAULTS.FORMAT;
     
+    // デバッグログ（本番では削除予定）
+    if (id === 'nostalgic-b89803bb' && type === 'total') {
+      console.log('DEBUG homepage total counter:', { id, type, format, digits, formatAttr: this.getAttribute('format') });
+    }
+    
     if (!id) {
       // IDが無い場合は0を表示
       const digits = this.getAttribute('digits');
@@ -171,15 +176,17 @@ class NostalgicCounter extends HTMLElement {
         // ローディング中は0を桁数分表示
         this.shadowRoot.innerHTML = formatValue(0);
         
-        // 値を非同期で取得（action=getを使用）
-        fetch(`${baseUrl}/api/visit?action=get&id=${encodeURIComponent(id)}`)
-        .then(response => response.json())
-        .then(data => {
-          if (data.success && data.data && data.data[type] !== undefined) {
-            this.shadowRoot.innerHTML = formatValue(data.data[type]);
-          } else {
-            this.shadowRoot.innerHTML = formatValue(0); // エラー時も0表示
+        // 値を非同期で取得（action=display&format=textを使用）
+        fetch(`${baseUrl}/api/visit?action=display&id=${encodeURIComponent(id)}&type=${type}&format=text${digits ? `&digits=${digits}` : ''}`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
           }
+          return response.text(); // テキスト形式なのでtextで取得
+        })
+        .then(data => {
+          // すでに桁数がパディング済みの文字列なのでそのまま表示
+          this.shadowRoot.innerHTML = data;
         })
         .catch(error => {
           this.shadowRoot.innerHTML = 'エラー';

@@ -405,7 +405,7 @@ class NostalgicBBS extends HTMLElement {
                 </select>
               </div>
               <div class="form-row">
-                <textarea id="message-content" placeholder="メッセージを入力（最大200文字）..." maxlength="200" rows="3"></textarea>
+                <textarea id="message-content" placeholder="メッセージを入力（最大200文字）" maxlength="200" rows="3"></textarea>
               </div>
               <div class="message-area" id="form-message"></div>
               <div class="form-row">
