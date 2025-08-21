@@ -333,10 +333,10 @@ export default function HomePage() {
         ]}
       />
       
-      <Script src="https://nostalgic.llll-ll.com/components/visit.js" strategy="beforeInteractive" type="module" />
-      <Script src="https://nostalgic.llll-ll.com/components/like.js" strategy="beforeInteractive" type="module" />
-      <Script src="https://nostalgic.llll-ll.com/components/ranking.js" strategy="beforeInteractive" type="module" />
-      <Script src="https://nostalgic.llll-ll.com/components/bbs.js" strategy="beforeInteractive" type="module" />
+      <Script src="https://nostalgic.llll-ll.com/components/visit.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic.llll-ll.com/components/like.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic.llll-ll.com/components/ranking.js" strategy="beforeInteractive" />
+      <Script src="https://nostalgic.llll-ll.com/components/bbs.js" strategy="beforeInteractive" />
       <div className="nostalgic-main-frame">
         <button 
           className="nostalgic-mobile-menu-button"
