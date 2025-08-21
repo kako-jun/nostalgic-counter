@@ -222,6 +222,7 @@ export const BaseSchemas = {
   }),
   email: z.string().email(),
   date: z.coerce.date(),
+  title: z.string().min(1).max(50),
   
   // === アプリケーション固有 ===
   publicId: z.string().regex(PUBLIC_ID.PATTERN),

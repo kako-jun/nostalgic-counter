@@ -6,6 +6,23 @@ import { z } from 'zod'
 import { BaseSchemas } from '@/lib/core/validation'
 
 /**
+ * BBS固有のフィールドスキーマ
+ */
+export const BBSFieldSchemas = {
+  bbsTitle: z.string().min(1).max(100),
+  author: z.string().min(1).max(50),
+  messageText: z.string().min(1).max(1000),
+  messageId: z.string(),
+  authorHash: z.string(),
+  icon: z.string(),
+  page: z.number().int().min(1),
+  maxMessages: z.number().int().min(1).max(10000),
+  messagesPerPage: z.number().int().min(1).max(100),
+  selectLabel: z.string().min(1).max(50),
+  selectOption: z.string().min(1).max(50)
+} as const
+
+/**
  * BBSエンティティの基本型
  */
 export interface BBSEntity {
@@ -124,15 +141,15 @@ export interface BBSDisplayParams {
  * Zodスキーマ定義
  */
 export const BBSSelectOptionSchema = z.object({
-  label: z.string().min(1).max(50),
-  options: z.array(z.string().min(1).max(50)).max(50)
+  label: BBSFieldSchemas.selectLabel,
+  options: z.array(BBSFieldSchemas.selectOption).max(50)
 })
 
 export const BBSSettingsSchema = z.object({
-  title: z.string().min(1).max(100).default('💬 BBS'),
-  maxMessages: z.number().int().min(1).max(10000),
-  messagesPerPage: z.number().int().min(1).max(100),
-  icons: z.array(z.string()).max(20),
+  title: BBSFieldSchemas.bbsTitle.default('💬 BBS'),
+  maxMessages: BBSFieldSchemas.maxMessages,
+  messagesPerPage: BBSFieldSchemas.messagesPerPage,
+  icons: z.array(BBSFieldSchemas.icon).max(20),
   selects: z.array(BBSSelectOptionSchema).max(3)
 })
 
@@ -146,19 +163,19 @@ export const BBSEntitySchema = z.object({
 })
 
 export const BBSMessageSchema = z.object({
-  id: z.string(),
-  author: z.string().min(1).max(50),
-  message: z.string().min(1).max(1000),
+  id: BBSFieldSchemas.messageId,
+  author: BBSFieldSchemas.author,
+  message: BBSFieldSchemas.messageText,
   timestamp: BaseSchemas.date,
-  icon: z.string().optional(),
+  icon: BBSFieldSchemas.icon.optional(),
   selects: z.array(z.string()).max(3).optional(),
-  authorHash: z.string()
+  authorHash: BBSFieldSchemas.authorHash
 })
 
 export const BBSDataSchema = z.object({
   id: z.string(),
   url: BaseSchemas.url,
-  title: z.string(),
+  title: BBSFieldSchemas.bbsTitle,
   messages: z.array(BBSMessageSchema),
   totalMessages: BaseSchemas.nonNegativeInt,
   currentPage: BaseSchemas.positiveInt,
@@ -174,48 +191,48 @@ export const BBSDataSchema = z.object({
 })
 
 export const BBSCreateParamsSchema = z.object({
-  title: z.string().min(1).max(100).default('💬 BBS'),
-  maxMessages: z.number().int().min(1).max(10000).default(1000),
-  messagesPerPage: z.number().int().min(1).max(100).default(10),
-  icons: z.array(z.string()).max(20).default([]),
+  title: BBSFieldSchemas.bbsTitle.default('💬 BBS'),
+  maxMessages: BBSFieldSchemas.maxMessages.default(1000),
+  messagesPerPage: BBSFieldSchemas.messagesPerPage.default(10),
+  icons: z.array(BBSFieldSchemas.icon).max(20).default([]),
   selects: z.array(BBSSelectOptionSchema).max(3).default([])
 })
 
 export const BBSPostParamsSchema = z.object({
-  author: z.string().min(1).max(50),
-  message: z.string().min(1).max(1000),
-  icon: z.string().optional(),
+  author: BBSFieldSchemas.author,
+  message: BBSFieldSchemas.messageText,
+  icon: BBSFieldSchemas.icon.optional(),
   selects: z.array(z.string()).max(3).optional(),
-  authorHash: z.string()
+  authorHash: BBSFieldSchemas.authorHash
 })
 
 export const BBSUpdateParamsSchema = z.object({
-  messageId: z.string(),
-  author: z.string().min(1).max(50),
-  message: z.string().min(1).max(1000),
-  icon: z.string().optional(),
+  messageId: BBSFieldSchemas.messageId,
+  author: BBSFieldSchemas.author,
+  message: BBSFieldSchemas.messageText,
+  icon: BBSFieldSchemas.icon.optional(),
   selects: z.array(z.string()).max(3).optional(),
-  authorHash: z.string()
+  authorHash: BBSFieldSchemas.authorHash
 })
 
 export const BBSRemoveParamsSchema = z.object({
-  messageId: z.string(),
-  authorHash: z.string()
+  messageId: BBSFieldSchemas.messageId,
+  authorHash: BBSFieldSchemas.authorHash
 })
 
 export const BBSDisplayParamsSchema = z.object({
-  id: z.string().regex(/^[a-z0-9-]+-[a-f0-9]{8}$/),
-  page: z.number().int().min(1).default(1)
+  id: BaseSchemas.publicId,
+  page: BBSFieldSchemas.page.default(1)
 })
 
 /**
  * BBS設定更新用パラメータ
  */
 export const BBSUpdateSettingsParamsSchema = z.object({
-  title: z.string().min(1).max(100).optional(),
-  messagesPerPage: z.number().int().min(1).max(100).optional(),
-  maxMessages: z.number().int().min(1).max(10000).optional(),
-  icons: z.array(z.string()).max(20).optional(),
+  title: BBSFieldSchemas.bbsTitle.optional(),
+  messagesPerPage: BBSFieldSchemas.messagesPerPage.optional(),
+  maxMessages: BBSFieldSchemas.maxMessages.optional(),
+  icons: z.array(BBSFieldSchemas.icon).max(20).optional(),
   selects: z.array(BBSSelectOptionSchema).max(3).optional()
 })
 

@@ -6,6 +6,16 @@ import { z } from 'zod'
 import { BaseSchemas } from '@/lib/core/validation'
 
 /**
+ * Ranking固有のフィールドスキーマ
+ */
+export const RankingFieldSchemas = {
+  playerName: z.string().min(1).max(50),
+  score: BaseSchemas.nonNegativeInt,
+  maxEntries: z.number().int().min(1).max(10000),
+  limit: z.number().int().min(1).max(1000)
+} as const
+
+/**
  * Rankingエンティティの基本型
  */
 export interface RankingEntity {
@@ -14,6 +24,7 @@ export interface RankingEntity {
   created: Date
   totalEntries: number
   maxEntries: number
+  title?: string
   lastUpdate?: Date
 }
 
@@ -36,6 +47,7 @@ export interface RankingData {
   entries: RankingEntry[]
   totalEntries: number
   maxEntries: number
+  title?: string
   lastUpdate?: Date
 }
 
@@ -44,6 +56,7 @@ export interface RankingData {
  */
 export interface RankingCreateParams {
   maxEntries?: number
+  title?: string
 }
 
 /**
@@ -86,12 +99,13 @@ export const RankingEntitySchema = z.object({
   created: BaseSchemas.date,
   totalEntries: BaseSchemas.nonNegativeInt,
   maxEntries: BaseSchemas.nonNegativeInt,
+  title: BaseSchemas.title.optional(),
   lastUpdate: BaseSchemas.date.optional()
 })
 
 export const RankingEntrySchema = z.object({
-  name: z.string().min(1).max(50),
-  score: BaseSchemas.nonNegativeInt,
+  name: RankingFieldSchemas.playerName,
+  score: RankingFieldSchemas.score,
   rank: BaseSchemas.positiveInt, // Web Components用にランク番号を追加
   timestamp: BaseSchemas.date
 })
@@ -102,30 +116,32 @@ export const RankingDataSchema = z.object({
   entries: z.array(RankingEntrySchema),
   totalEntries: BaseSchemas.nonNegativeInt,
   maxEntries: BaseSchemas.nonNegativeInt,
+  title: BaseSchemas.title.optional(),
   lastUpdate: BaseSchemas.date.optional()
 })
 
 export const RankingCreateParamsSchema = z.object({
-  maxEntries: z.number().int().min(1).max(10000).default(1000)
+  maxEntries: RankingFieldSchemas.maxEntries.default(1000),
+  title: BaseSchemas.title.default('RANKING')
 })
 
 export const RankingSubmitParamsSchema = z.object({
-  name: z.string().min(1).max(50),
-  score: BaseSchemas.nonNegativeInt
+  name: RankingFieldSchemas.playerName,
+  score: RankingFieldSchemas.score
 })
 
 export const RankingUpdateParamsSchema = z.object({
-  name: z.string().min(1).max(50),
-  score: BaseSchemas.nonNegativeInt
+  name: RankingFieldSchemas.playerName,
+  score: RankingFieldSchemas.score
 })
 
 export const RankingRemoveParamsSchema = z.object({
-  name: z.string().min(1).max(50)
+  name: RankingFieldSchemas.playerName
 })
 
 export const RankingDisplayParamsSchema = z.object({
   id: BaseSchemas.publicId,
-  limit: z.number().int().min(1).max(1000).default(10)
+  limit: RankingFieldSchemas.limit.default(10)
 })
 
 /**
