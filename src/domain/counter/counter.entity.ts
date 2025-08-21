@@ -4,51 +4,51 @@
 
 import { z } from 'zod'
 import { BaseEntity } from '@/lib/core/base-service'
-import { BaseSchemas } from '@/lib/core/validation'
+import { CommonSchemas } from '@/lib/core/validation'
 
 /**
  * カウンターエンティティのスキーマ
  */
 export const CounterEntitySchema = z.object({
-  id: BaseSchemas.publicId,
-  url: BaseSchemas.url,
-  created: BaseSchemas.date,
-  lastVisit: BaseSchemas.date.optional(),
-  totalCount: BaseSchemas.nonNegativeInt.default(0)
+  id: CommonSchemas.publicId,
+  url: CommonSchemas.url,
+  created: CommonSchemas.date,
+  lastVisit: CommonSchemas.date.optional(),
+  totalCount: CommonSchemas.nonNegativeInt.default(0)
 })
 
 export const CounterDataSchema = z.object({
   id: z.string(),
   url: z.string(),
-  total: BaseSchemas.nonNegativeInt,
-  today: BaseSchemas.nonNegativeInt,
-  yesterday: BaseSchemas.nonNegativeInt,
-  week: BaseSchemas.nonNegativeInt,
-  month: BaseSchemas.nonNegativeInt,
-  lastVisit: BaseSchemas.date.optional()
+  total: CommonSchemas.nonNegativeInt,
+  today: CommonSchemas.nonNegativeInt,
+  yesterday: CommonSchemas.nonNegativeInt,
+  week: CommonSchemas.nonNegativeInt,
+  month: CommonSchemas.nonNegativeInt,
+  lastVisit: CommonSchemas.date.optional()
 })
 
 export const CounterCreateParamsSchema = z.object({
-  maxValue: BaseSchemas.positiveInt.optional(),
+  maxValue: CommonSchemas.positiveInt.optional(),
   enableDailyStats: z.boolean().default(true)
 })
 
 export const CounterIncrementParamsSchema = z.object({
-  id: BaseSchemas.publicId,
-  by: BaseSchemas.positiveInt.default(1)
+  id: CommonSchemas.publicId,
+  by: CommonSchemas.positiveInt.default(1)
 })
 
 export const CounterSetParamsSchema = z.object({
-  url: BaseSchemas.url,
-  token: BaseSchemas.token,
-  value: BaseSchemas.nonNegativeInt
+  url: CommonSchemas.url,
+  token: CommonSchemas.token,
+  value: CommonSchemas.nonNegativeInt
 })
 
 export const CounterDisplayParamsSchema = z.object({
-  id: BaseSchemas.publicId,
-  type: BaseSchemas.counterType.default('total'),
-  theme: BaseSchemas.theme.default('classic'),
-  digits: BaseSchemas.counterDigits,
+  id: CommonSchemas.publicId,
+  type: CommonSchemas.counterType.default('total'),
+  theme: CommonSchemas.theme.default('classic'),
+  digits: CommonSchemas.counterDigits,
   format: z.enum(['json', 'text', 'image']).default('image')
 })
 

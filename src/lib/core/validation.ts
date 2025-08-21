@@ -210,9 +210,9 @@ export class ValidationFramework {
 }
 
 /**
- * 基盤スキーマ - 全ての定数は schema-constants から取得
+ * 共通スキーマ - 全サービスで共有されるスキーマ定義
  */
-export const BaseSchemas = {
+export const CommonSchemas = {
   // === 基本型 ===
   nonEmptyString: z.string().min(1),
   positiveInt: z.number().int().positive(),

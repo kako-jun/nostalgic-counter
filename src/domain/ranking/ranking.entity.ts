@@ -3,14 +3,14 @@
  */
 
 import { z } from 'zod'
-import { BaseSchemas } from '@/lib/core/validation'
+import { CommonSchemas } from '@/lib/core/validation'
 
 /**
  * Ranking固有のフィールドスキーマ
  */
 export const RankingFieldSchemas = {
   playerName: z.string().min(1).max(50),
-  score: BaseSchemas.nonNegativeInt,
+  score: CommonSchemas.nonNegativeInt,
   maxEntries: z.number().int().min(1).max(10000),
   limit: z.number().int().min(1).max(1000)
 } as const
@@ -94,35 +94,35 @@ export interface RankingDisplayParams {
  * Zodスキーマ定義
  */
 export const RankingEntitySchema = z.object({
-  id: BaseSchemas.publicId,
-  url: BaseSchemas.url,
-  created: BaseSchemas.date,
-  totalEntries: BaseSchemas.nonNegativeInt,
-  maxEntries: BaseSchemas.nonNegativeInt,
-  title: BaseSchemas.title.optional(),
-  lastUpdate: BaseSchemas.date.optional()
+  id: CommonSchemas.publicId,
+  url: CommonSchemas.url,
+  created: CommonSchemas.date,
+  totalEntries: CommonSchemas.nonNegativeInt,
+  maxEntries: CommonSchemas.nonNegativeInt,
+  title: CommonSchemas.title.optional(),
+  lastUpdate: CommonSchemas.date.optional()
 })
 
 export const RankingEntrySchema = z.object({
   name: RankingFieldSchemas.playerName,
   score: RankingFieldSchemas.score,
-  rank: BaseSchemas.positiveInt, // Web Components用にランク番号を追加
-  timestamp: BaseSchemas.date
+  rank: CommonSchemas.positiveInt, // Web Components用にランク番号を追加
+  timestamp: CommonSchemas.date
 })
 
 export const RankingDataSchema = z.object({
   id: z.string(),
-  url: BaseSchemas.url,
+  url: CommonSchemas.url,
   entries: z.array(RankingEntrySchema),
-  totalEntries: BaseSchemas.nonNegativeInt,
-  maxEntries: BaseSchemas.nonNegativeInt,
-  title: BaseSchemas.title.optional(),
-  lastUpdate: BaseSchemas.date.optional()
+  totalEntries: CommonSchemas.nonNegativeInt,
+  maxEntries: CommonSchemas.nonNegativeInt,
+  title: CommonSchemas.title.optional(),
+  lastUpdate: CommonSchemas.date.optional()
 })
 
 export const RankingCreateParamsSchema = z.object({
   maxEntries: RankingFieldSchemas.maxEntries.default(1000),
-  title: BaseSchemas.title.default('RANKING')
+  title: CommonSchemas.title.default('RANKING')
 })
 
 export const RankingSubmitParamsSchema = z.object({
@@ -140,7 +140,7 @@ export const RankingRemoveParamsSchema = z.object({
 })
 
 export const RankingDisplayParamsSchema = z.object({
-  id: BaseSchemas.publicId,
+  id: CommonSchemas.publicId,
   limit: RankingFieldSchemas.limit.default(10)
 })
 

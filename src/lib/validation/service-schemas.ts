@@ -4,7 +4,7 @@
  */
 
 import { z } from 'zod'
-import { BaseSchemas } from '../core/validation'
+import { CommonSchemas } from '../core/validation'
 import {
   COUNTER, LIKE, RANKING, BBS,
   DEFAULT_THEME
@@ -15,39 +15,39 @@ export const CounterSchemas = {
   // 作成用パラメータ
   create: z.object({
     action: z.literal('create'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token
+    url: CommonSchemas.url,
+    token: CommonSchemas.token
   }),
 
   // カウントアップ用パラメータ
   increment: z.object({
     action: z.literal('increment'),
-    id: BaseSchemas.publicId
+    id: CommonSchemas.publicId
   }),
 
   // 表示用パラメータ
   display: z.object({
     action: z.literal('display'),
-    id: BaseSchemas.publicId,
-    type: BaseSchemas.counterType.default(COUNTER.DEFAULT_TYPE),
-    theme: BaseSchemas.theme.default(DEFAULT_THEME),
-    digits: BaseSchemas.counterDigits,
-    format: BaseSchemas.counterFormat.default(COUNTER.DEFAULT_FORMAT)
+    id: CommonSchemas.publicId,
+    type: CommonSchemas.counterType.default(COUNTER.DEFAULT_TYPE),
+    theme: CommonSchemas.theme.default(DEFAULT_THEME),
+    digits: CommonSchemas.counterDigits,
+    format: CommonSchemas.counterFormat.default(COUNTER.DEFAULT_FORMAT)
   }),
 
   // 値設定用パラメータ
   set: z.object({
     action: z.literal('set'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token,
-    total: BaseSchemas.nonNegativeInt
+    url: CommonSchemas.url,
+    token: CommonSchemas.token,
+    total: CommonSchemas.nonNegativeInt
   }),
 
   // 削除用パラメータ
   delete: z.object({
     action: z.literal('delete'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token
+    url: CommonSchemas.url,
+    token: CommonSchemas.token
   }),
 
   // データ形式
@@ -67,43 +67,43 @@ export const LikeSchemas = {
   // 作成用パラメータ
   create: z.object({
     action: z.literal('create'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token
+    url: CommonSchemas.url,
+    token: CommonSchemas.token
   }),
 
   // いいねトグル用パラメータ
   toggle: z.object({
     action: z.literal('toggle'),
-    id: BaseSchemas.publicId
+    id: CommonSchemas.publicId
   }),
 
   // 取得用パラメータ
   get: z.object({
     action: z.literal('get'),
-    id: BaseSchemas.publicId
+    id: CommonSchemas.publicId
   }),
 
   // 表示用パラメータ
   display: z.object({
     action: z.literal('display'),
-    id: BaseSchemas.publicId,
-    theme: BaseSchemas.theme.default(DEFAULT_THEME),
-    format: BaseSchemas.likeFormat.default(LIKE.DEFAULT_FORMAT)
+    id: CommonSchemas.publicId,
+    theme: CommonSchemas.theme.default(DEFAULT_THEME),
+    format: CommonSchemas.likeFormat.default(LIKE.DEFAULT_FORMAT)
   }),
 
   // 値設定用パラメータ
   set: z.object({
     action: z.literal('set'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token,
-    value: BaseSchemas.nonNegativeInt
+    url: CommonSchemas.url,
+    token: CommonSchemas.token,
+    value: CommonSchemas.nonNegativeInt
   }),
 
   // 削除用パラメータ
   delete: z.object({
     action: z.literal('delete'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token
+    url: CommonSchemas.url,
+    token: CommonSchemas.token
   }),
 
   // データ形式
@@ -120,66 +120,66 @@ export const RankingSchemas = {
   // 作成用パラメータ
   create: z.object({
     action: z.literal('create'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token,
-    title: BaseSchemas.shortText.optional(),
-    max: BaseSchemas.rankingLimit.default(RANKING.LIMIT.DEFAULT)
+    url: CommonSchemas.url,
+    token: CommonSchemas.token,
+    title: CommonSchemas.shortText.optional(),
+    max: CommonSchemas.rankingLimit.default(RANKING.LIMIT.DEFAULT)
   }),
 
   // スコア送信用パラメータ
   submit: z.object({
     action: z.literal('submit'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token,
-    name: BaseSchemas.rankingName,
-    score: BaseSchemas.rankingScore
+    url: CommonSchemas.url,
+    token: CommonSchemas.token,
+    name: CommonSchemas.rankingName,
+    score: CommonSchemas.rankingScore
   }),
 
   // スコア更新用パラメータ
   update: z.object({
     action: z.literal('update'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token,
-    name: BaseSchemas.rankingName,
-    score: BaseSchemas.rankingScore
+    url: CommonSchemas.url,
+    token: CommonSchemas.token,
+    name: CommonSchemas.rankingName,
+    score: CommonSchemas.rankingScore
   }),
 
   // エントリー削除用パラメータ
   remove: z.object({
     action: z.literal('remove'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token,
-    name: BaseSchemas.rankingName
+    url: CommonSchemas.url,
+    token: CommonSchemas.token,
+    name: CommonSchemas.rankingName
   }),
 
   // 全削除用パラメータ
   clear: z.object({
     action: z.literal('clear'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token
+    url: CommonSchemas.url,
+    token: CommonSchemas.token
   }),
 
   // 取得用パラメータ
   get: z.object({
     action: z.literal('get'),
-    id: BaseSchemas.publicId,
-    limit: BaseSchemas.rankingLimit.default(RANKING.LIMIT.DEFAULT)
+    id: CommonSchemas.publicId,
+    limit: CommonSchemas.rankingLimit.default(RANKING.LIMIT.DEFAULT)
   }),
 
   // 表示用パラメータ
   display: z.object({
     action: z.literal('display'),
-    id: BaseSchemas.publicId,
-    limit: BaseSchemas.rankingLimit.default(RANKING.LIMIT.DEFAULT),
-    theme: BaseSchemas.theme.default(DEFAULT_THEME),
-    format: BaseSchemas.rankingFormat.default(RANKING.DEFAULT_FORMAT)
+    id: CommonSchemas.publicId,
+    limit: CommonSchemas.rankingLimit.default(RANKING.LIMIT.DEFAULT),
+    theme: CommonSchemas.theme.default(DEFAULT_THEME),
+    format: CommonSchemas.rankingFormat.default(RANKING.DEFAULT_FORMAT)
   }),
 
   // 削除用パラメータ
   delete: z.object({
     action: z.literal('delete'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token
+    url: CommonSchemas.url,
+    token: CommonSchemas.token
   }),
 
   // エントリー形式
@@ -207,9 +207,9 @@ export const BBSSchemas = {
   // 作成用パラメータ
   create: z.object({
     action: z.literal('create'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token,
-    title: BaseSchemas.bbsTitle.default('BBS'),
+    url: CommonSchemas.url,
+    token: CommonSchemas.token,
+    title: CommonSchemas.bbsTitle.default('BBS'),
     messagesPerPage: z.coerce.number().int().min(1).max(50).default(10),
     max: z.coerce.number().int().min(1).max(1000).default(100),
     enableIcons: z.coerce.boolean().default(true),
@@ -219,10 +219,10 @@ export const BBSSchemas = {
   // 投稿用パラメータ
   post: z.object({
     action: z.literal('post'),
-    id: BaseSchemas.publicId,
-    author: BaseSchemas.bbsAuthor.default(BBS.AUTHOR.DEFAULT_VALUE),
-    message: BaseSchemas.bbsMessage,
-    icon: BaseSchemas.bbsIcon,
+    id: CommonSchemas.publicId,
+    author: CommonSchemas.bbsAuthor.default(BBS.AUTHOR.DEFAULT_VALUE),
+    message: CommonSchemas.bbsMessage,
+    icon: CommonSchemas.bbsIcon,
     select1: z.string().optional(),
     select2: z.string().optional(),
     select3: z.string().optional()
@@ -231,23 +231,23 @@ export const BBSSchemas = {
   // ID指定投稿用パラメータ
   postById: z.object({
     action: z.literal('postById'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token,
-    author: BaseSchemas.bbsAuthor.default(BBS.AUTHOR.DEFAULT_VALUE),
-    message: BaseSchemas.bbsMessage,
-    icon: BaseSchemas.bbsIcon
+    url: CommonSchemas.url,
+    token: CommonSchemas.token,
+    author: CommonSchemas.bbsAuthor.default(BBS.AUTHOR.DEFAULT_VALUE),
+    message: CommonSchemas.bbsMessage,
+    icon: CommonSchemas.bbsIcon
   }),
 
   // メッセージ編集用パラメータ
   editMessage: z.object({
     action: z.literal('editMessage'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token,
+    url: CommonSchemas.url,
+    token: CommonSchemas.token,
     messageId: z.string(),
     editToken: z.string(),
-    author: BaseSchemas.bbsAuthor,
-    message: BaseSchemas.bbsMessage,
-    icon: BaseSchemas.bbsIcon,
+    author: CommonSchemas.bbsAuthor,
+    message: CommonSchemas.bbsMessage,
+    icon: CommonSchemas.bbsIcon,
     select1: z.string().optional(),
     select2: z.string().optional(),
     select3: z.string().optional()
@@ -256,12 +256,12 @@ export const BBSSchemas = {
   // ID指定メッセージ編集用パラメータ
   editMessageById: z.object({
     action: z.literal('editMessageById'),
-    id: BaseSchemas.publicId,
+    id: CommonSchemas.publicId,
     messageId: z.string(),
     editToken: z.string(),
-    author: BaseSchemas.bbsAuthor,
-    message: BaseSchemas.bbsMessage,
-    icon: BaseSchemas.bbsIcon,
+    author: CommonSchemas.bbsAuthor,
+    message: CommonSchemas.bbsMessage,
+    icon: CommonSchemas.bbsIcon,
     select1: z.string().optional(),
     select2: z.string().optional(),
     select3: z.string().optional()
@@ -270,8 +270,8 @@ export const BBSSchemas = {
   // メッセージ削除用パラメータ
   deleteMessage: z.object({
     action: z.literal('deleteMessage'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token,
+    url: CommonSchemas.url,
+    token: CommonSchemas.token,
     messageId: z.string(),
     editToken: z.string()
   }),
@@ -279,7 +279,7 @@ export const BBSSchemas = {
   // ID指定メッセージ削除用パラメータ
   deleteMessageById: z.object({
     action: z.literal('deleteMessageById'),
-    id: BaseSchemas.publicId,
+    id: CommonSchemas.publicId,
     messageId: z.string(),
     editToken: z.string()
   }),
@@ -287,30 +287,30 @@ export const BBSSchemas = {
   // 全削除用パラメータ
   clear: z.object({
     action: z.literal('clear'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token
+    url: CommonSchemas.url,
+    token: CommonSchemas.token
   }),
 
   // 取得用パラメータ
   get: z.object({
     action: z.literal('get'),
-    id: BaseSchemas.publicId,
-    page: BaseSchemas.bbsPage.default(BBS.PAGINATION.DEFAULT_PAGE)
+    id: CommonSchemas.publicId,
+    page: CommonSchemas.bbsPage.default(BBS.PAGINATION.DEFAULT_PAGE)
   }),
 
   // 削除用パラメータ
   delete: z.object({
     action: z.literal('delete'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token
+    url: CommonSchemas.url,
+    token: CommonSchemas.token
   }),
 
   // 設定更新用パラメータ
   updateSettings: z.object({
     action: z.literal('updateSettings'),
-    url: BaseSchemas.url,
-    token: BaseSchemas.token,
-    title: BaseSchemas.bbsTitle.optional(),
+    url: CommonSchemas.url,
+    token: CommonSchemas.token,
+    title: CommonSchemas.bbsTitle.optional(),
     messagesPerPage: z.coerce.number().int().min(1).max(50).optional(),
     maxMessages: z.coerce.number().int().min(1).max(1000).optional()
   }),
@@ -318,10 +318,10 @@ export const BBSSchemas = {
   // 表示用パラメータ
   display: z.object({
     action: z.literal('display'),
-    id: BaseSchemas.publicId,
-    page: BaseSchemas.bbsPage.default(BBS.PAGINATION.DEFAULT_PAGE),
-    theme: BaseSchemas.theme.default(DEFAULT_THEME),
-    format: BaseSchemas.bbsFormat.default(BBS.DEFAULT_FORMAT)
+    id: CommonSchemas.publicId,
+    page: CommonSchemas.bbsPage.default(BBS.PAGINATION.DEFAULT_PAGE),
+    theme: CommonSchemas.theme.default(DEFAULT_THEME),
+    format: CommonSchemas.bbsFormat.default(BBS.DEFAULT_FORMAT)
   }),
 
   // メッセージ形式
@@ -434,7 +434,7 @@ export const UnifiedAPISchemas = {
   // 作成成功レスポンス
   createSuccess: z.object({
     success: z.literal(true),
-    id: BaseSchemas.publicId,
+    id: CommonSchemas.publicId,
     url: z.string(),
     message: z.string().optional()
   }),
@@ -536,18 +536,18 @@ export const CommonResponseSchemas = {
   
   // 特殊レスポンス用
   textResponse: z.string(),
-  numberResponse: BaseSchemas.nonNegativeInt,
+  numberResponse: CommonSchemas.nonNegativeInt,
   
   // 表示用オブジェクト
   counterSvgData: z.object({
-    value: BaseSchemas.nonNegativeInt,
-    type: BaseSchemas.counterType,
-    theme: BaseSchemas.theme,
-    digits: BaseSchemas.counterDigits
+    value: CommonSchemas.nonNegativeInt,
+    type: CommonSchemas.counterType,
+    theme: CommonSchemas.theme,
+    digits: CommonSchemas.counterDigits
   }),
   
   likeSvgData: z.object({
-    total: BaseSchemas.nonNegativeInt,
-    theme: BaseSchemas.theme
+    total: CommonSchemas.nonNegativeInt,
+    theme: CommonSchemas.theme
   })
 } as const

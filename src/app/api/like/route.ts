@@ -16,7 +16,7 @@ import {
   UnifiedAPISchemas,
   CommonResponseSchemas
 } from '@/lib/validation/service-schemas'
-import { BaseSchemas } from '@/lib/core/validation'
+import { CommonSchemas } from '@/lib/core/validation'
 
 /**
  * CREATE アクション
@@ -73,7 +73,7 @@ const getHandler = ApiHandler.create({
  */
 const displayHandler = ApiHandler.createSpecialResponse(
   LikeSchemas.display.extend({
-    format: BaseSchemas.counterFormat.refine(val => val !== 'image').default('json')
+    format: CommonSchemas.counterFormat.refine(val => val !== 'image').default('json')
   }),
   async ({ id, format }, request) => {
     const clientIP = getClientIP(request)
@@ -114,7 +114,7 @@ const displayHandler = ApiHandler.createSpecialResponse(
  */
 const svgHandler = ApiHandler.createSpecialResponse(
   LikeSchemas.display.extend({
-    format: BaseSchemas.counterFormat.refine(val => val === 'image')
+    format: CommonSchemas.counterFormat.refine(val => val === 'image')
   }),
   async ({ id, theme }, request) => {
     const clientIP = getClientIP(request)

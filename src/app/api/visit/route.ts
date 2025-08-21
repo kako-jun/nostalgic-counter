@@ -18,7 +18,7 @@ import {
   CommonResponseSchemas,
   type CounterData
 } from '@/lib/validation/service-schemas'
-import { BaseSchemas } from '@/lib/core/validation'
+import { CommonSchemas } from '@/lib/core/validation'
 
 /**
  * 統合API パラメータスキーマ - service-schemas から使用
@@ -82,7 +82,7 @@ const setHandler = ApiHandler.create({
  */
 const displayHandler = ApiHandler.createSpecialResponse(
   CounterSchemas.display.extend({
-    format: BaseSchemas.counterFormat.default('json')
+    format: CommonSchemas.counterFormat.default('json')
   }),
   async ({ id, type, format, digits }) => {
     if (format === 'json') {
@@ -126,7 +126,7 @@ const displayHandler = ApiHandler.createSpecialResponse(
  */
 const svgHandler = ApiHandler.createSpecialResponse(
   CounterSchemas.display.extend({
-    format: BaseSchemas.counterFormat.refine(val => val === 'image')
+    format: CommonSchemas.counterFormat.refine(val => val === 'image')
   }),
   async ({ id, type, theme, digits }) => {
     const displayResult = await counterService.getDisplayData(id, type)

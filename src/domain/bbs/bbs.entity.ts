@@ -3,7 +3,7 @@
  */
 
 import { z } from 'zod'
-import { BaseSchemas } from '@/lib/core/validation'
+import { CommonSchemas } from '@/lib/core/validation'
 
 /**
  * BBS固有のフィールドスキーマ
@@ -154,11 +154,11 @@ export const BBSSettingsSchema = z.object({
 })
 
 export const BBSEntitySchema = z.object({
-  id: BaseSchemas.publicId,
-  url: BaseSchemas.url,
-  created: BaseSchemas.date,
-  totalMessages: BaseSchemas.nonNegativeInt,
-  lastMessage: BaseSchemas.date.optional(),
+  id: CommonSchemas.publicId,
+  url: CommonSchemas.url,
+  created: CommonSchemas.date,
+  totalMessages: CommonSchemas.nonNegativeInt,
+  lastMessage: CommonSchemas.date.optional(),
   settings: BBSSettingsSchema
 })
 
@@ -166,7 +166,7 @@ export const BBSMessageSchema = z.object({
   id: BBSFieldSchemas.messageId,
   author: BBSFieldSchemas.author,
   message: BBSFieldSchemas.messageText,
-  timestamp: BaseSchemas.date,
+  timestamp: CommonSchemas.date,
   icon: BBSFieldSchemas.icon.optional(),
   selects: z.array(z.string()).max(3).optional(),
   authorHash: BBSFieldSchemas.authorHash
@@ -174,20 +174,20 @@ export const BBSMessageSchema = z.object({
 
 export const BBSDataSchema = z.object({
   id: z.string(),
-  url: BaseSchemas.url,
+  url: CommonSchemas.url,
   title: BBSFieldSchemas.bbsTitle,
   messages: z.array(BBSMessageSchema),
-  totalMessages: BaseSchemas.nonNegativeInt,
-  currentPage: BaseSchemas.positiveInt,
-  totalPages: BaseSchemas.nonNegativeInt,
+  totalMessages: CommonSchemas.nonNegativeInt,
+  currentPage: CommonSchemas.positiveInt,
+  totalPages: CommonSchemas.nonNegativeInt,
   pagination: z.object({
-    page: BaseSchemas.positiveInt,
-    totalPages: BaseSchemas.nonNegativeInt,
+    page: CommonSchemas.positiveInt,
+    totalPages: CommonSchemas.nonNegativeInt,
     hasPrev: z.boolean(),
     hasNext: z.boolean()
   }), // Web Components用のページネーション
   settings: BBSSettingsSchema,
-  lastMessage: BaseSchemas.date.optional()
+  lastMessage: CommonSchemas.date.optional()
 })
 
 export const BBSCreateParamsSchema = z.object({
@@ -221,7 +221,7 @@ export const BBSRemoveParamsSchema = z.object({
 })
 
 export const BBSDisplayParamsSchema = z.object({
-  id: BaseSchemas.publicId,
+  id: CommonSchemas.publicId,
   page: BBSFieldSchemas.page.default(1)
 })
 
