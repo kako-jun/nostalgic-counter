@@ -105,7 +105,7 @@ const displayHandler = ApiHandler.createSpecialResponse(
   {
     schema: z.union([
       CounterSchemas.data, // JSON format
-      z.number().int().min(0), // number format
+      BaseSchemas.nonNegativeInt, // number format
       z.string() // padded text format
     ]),
     formatter: (data) => {
@@ -141,7 +141,7 @@ const svgHandler = ApiHandler.createSpecialResponse(
   },
   {
     schema: z.object({
-      value: z.number().int().min(0),
+      value: BaseSchemas.nonNegativeInt,
       type: BaseSchemas.counterType,
       theme: BaseSchemas.theme,
       digits: BaseSchemas.counterDigits

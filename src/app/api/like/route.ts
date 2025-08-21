@@ -138,7 +138,7 @@ const svgHandler = ApiHandler.createSpecialResponse(
   },
   {
     schema: z.object({
-      total: z.number().int().min(0),
+      total: BaseSchemas.nonNegativeInt,
       theme: BaseSchemas.theme
     }),
     formatter: (data) => {
