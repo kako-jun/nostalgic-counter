@@ -229,36 +229,6 @@ export const CommonSchemas = {
   token: z.string().min(TOKEN.MIN_LENGTH).max(TOKEN.MAX_LENGTH),
   theme: z.enum(THEMES),
   
-  // === Counter 関連 ===
-  counterType: z.enum(COUNTER.TYPES),
-  counterFormat: z.enum(COUNTER.FORMATS),
-  counterDigits: z.coerce.number().int().min(COUNTER.DIGITS.MIN).max(COUNTER.DIGITS.MAX).optional(),
-  
-  // === Like 関連 ===
-  likeIcon: z.enum(LIKE.ICONS),
-  likeFormat: z.enum(LIKE.FORMATS),
-  
-  // === Ranking 関連 ===
-  rankingFormat: z.enum(RANKING.FORMATS),
-  rankingLimit: z.coerce.number().int().min(RANKING.LIMIT.MIN).max(RANKING.LIMIT.MAX),
-  rankingScore: z.coerce.number().int().min(RANKING.SCORE.MIN).max(RANKING.SCORE.MAX),
-  rankingName: z.string().min(RANKING.NAME.MIN_LENGTH).max(RANKING.NAME.MAX_LENGTH),
-  rankingMaxEntries: z.number().int().min(1).max(10000),
-  
-  // === BBS 関連 ===
-  bbsFormat: z.enum(BBS.FORMATS),
-  bbsAuthor: z.string().max(BBS.AUTHOR.MAX_LENGTH),
-  bbsMessage: z.string().min(BBS.MESSAGE.MIN_LENGTH).max(BBS.MESSAGE.MAX_LENGTH),
-  bbsTitle: z.string().max(BBS.TITLE.MAX_LENGTH),
-  bbsIcon: z.enum(BBS.ICONS).optional(),
-  bbsPage: z.coerce.number().int().min(1),
-  bbsMaxMessages: z.number().int().min(1).max(10000),
-  bbsMessagesPerPage: z.number().int().min(1).max(100),
-  bbsSelectLabel: z.string().min(1).max(50),
-  bbsSelectOption: z.string().min(1).max(50),
-  messageId: z.string(),
-  authorHash: z.string(),
-  iconString: z.string(),
   
   // === 共通制限 ===
   shortText: z.string().max(LIMITS.SHORT_TEXT),

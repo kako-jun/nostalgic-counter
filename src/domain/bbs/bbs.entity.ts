@@ -9,17 +9,19 @@ import { CommonSchemas } from '@/lib/core/validation'
  * BBS固有のフィールドスキーマ
  */
 export const BBSFieldSchemas = {
-  bbsTitle: CommonSchemas.bbsTitle,
-  author: CommonSchemas.bbsAuthor,
-  messageText: CommonSchemas.bbsMessage,
-  messageId: CommonSchemas.messageId,
-  authorHash: CommonSchemas.authorHash,
-  icon: CommonSchemas.iconString,
-  page: CommonSchemas.bbsPage,
-  maxMessages: CommonSchemas.bbsMaxMessages,
-  messagesPerPage: CommonSchemas.bbsMessagesPerPage,
-  selectLabel: CommonSchemas.bbsSelectLabel,
-  selectOption: CommonSchemas.bbsSelectOption
+  bbsTitle: z.string().max(100),
+  author: z.string().max(20),
+  messageText: z.string().min(1).max(200),
+  messageId: z.string(),
+  authorHash: z.string(),
+  icon: z.string().optional(),
+  iconForArray: z.string(),
+  page: z.coerce.number().int().min(1),
+  maxMessages: z.number().int().min(1).max(10000),
+  messagesPerPage: z.number().int().min(1).max(100),
+  selectLabel: z.string().min(1).max(50),
+  selectOption: z.string().min(1).max(50),
+  format: z.enum(['interactive'])
 } as const
 
 /**
@@ -149,7 +151,7 @@ export const BBSSettingsSchema = z.object({
   title: BBSFieldSchemas.bbsTitle.default('💬 BBS'),
   maxMessages: BBSFieldSchemas.maxMessages,
   messagesPerPage: BBSFieldSchemas.messagesPerPage,
-  icons: z.array(BBSFieldSchemas.icon).max(20),
+  icons: z.array(BBSFieldSchemas.iconForArray).max(20),
   selects: z.array(BBSSelectOptionSchema).max(3)
 })
 

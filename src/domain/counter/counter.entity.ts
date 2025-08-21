@@ -7,6 +7,15 @@ import { BaseEntity } from '@/lib/core/base-service'
 import { CommonSchemas } from '@/lib/core/validation'
 
 /**
+ * Counter固有のフィールドスキーマ
+ */
+export const CounterFieldSchemas = {
+  counterType: z.enum(['total', 'today', 'yesterday', 'week', 'month']),
+  counterFormat: z.enum(['json', 'text', 'image']),
+  counterDigits: z.coerce.number().int().min(1).max(10).optional()
+} as const
+
+/**
  * カウンターエンティティのスキーマ
  */
 export const CounterEntitySchema = z.object({
@@ -46,10 +55,10 @@ export const CounterSetParamsSchema = z.object({
 
 export const CounterDisplayParamsSchema = z.object({
   id: CommonSchemas.publicId,
-  type: CommonSchemas.counterType.default('total'),
+  type: CounterFieldSchemas.counterType.default('total'),
   theme: CommonSchemas.theme.default('classic'),
-  digits: CommonSchemas.counterDigits,
-  format: z.enum(['json', 'text', 'image']).default('image')
+  digits: CounterFieldSchemas.counterDigits,
+  format: CounterFieldSchemas.counterFormat.default('image')
 })
 
 export type CounterEntity = z.infer<typeof CounterEntitySchema>

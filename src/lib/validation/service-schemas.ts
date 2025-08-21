@@ -9,6 +9,10 @@ import {
   COUNTER, LIKE, RANKING, BBS,
   DEFAULT_THEME
 } from './schema-constants'
+import { CounterFieldSchemas } from '../../domain/counter/counter.entity'
+import { LikeFieldSchemas } from '../../domain/like/like.entity'
+import { RankingFieldSchemas } from '../../domain/ranking/ranking.entity'
+import { BBSFieldSchemas } from '../../domain/bbs/bbs.entity'
 
 // === Counter Service Schemas ===
 export const CounterSchemas = {
@@ -29,10 +33,10 @@ export const CounterSchemas = {
   display: z.object({
     action: z.literal('display'),
     id: CommonSchemas.publicId,
-    type: CommonSchemas.counterType.default(COUNTER.DEFAULT_TYPE),
+    type: CounterFieldSchemas.counterType.default(COUNTER.DEFAULT_TYPE),
     theme: CommonSchemas.theme.default(DEFAULT_THEME),
-    digits: CommonSchemas.counterDigits,
-    format: CommonSchemas.counterFormat.default(COUNTER.DEFAULT_FORMAT)
+    digits: CounterFieldSchemas.counterDigits,
+    format: CounterFieldSchemas.counterFormat.default(COUNTER.DEFAULT_FORMAT)
   }),
 
   // 値設定用パラメータ
@@ -88,7 +92,7 @@ export const LikeSchemas = {
     action: z.literal('display'),
     id: CommonSchemas.publicId,
     theme: CommonSchemas.theme.default(DEFAULT_THEME),
-    format: CommonSchemas.likeFormat.default(LIKE.DEFAULT_FORMAT)
+    format: LikeFieldSchemas.likeFormat.default(LIKE.DEFAULT_FORMAT)
   }),
 
   // 値設定用パラメータ
@@ -123,7 +127,7 @@ export const RankingSchemas = {
     url: CommonSchemas.url,
     token: CommonSchemas.token,
     title: CommonSchemas.shortText.optional(),
-    max: CommonSchemas.rankingLimit.default(RANKING.LIMIT.DEFAULT)
+    max: RankingFieldSchemas.limit.default(RANKING.LIMIT.DEFAULT)
   }),
 
   // スコア送信用パラメータ
@@ -131,8 +135,8 @@ export const RankingSchemas = {
     action: z.literal('submit'),
     url: CommonSchemas.url,
     token: CommonSchemas.token,
-    name: CommonSchemas.rankingName,
-    score: CommonSchemas.rankingScore
+    name: RankingFieldSchemas.playerName,
+    score: RankingFieldSchemas.score
   }),
 
   // スコア更新用パラメータ
@@ -140,8 +144,8 @@ export const RankingSchemas = {
     action: z.literal('update'),
     url: CommonSchemas.url,
     token: CommonSchemas.token,
-    name: CommonSchemas.rankingName,
-    score: CommonSchemas.rankingScore
+    name: RankingFieldSchemas.playerName,
+    score: RankingFieldSchemas.score
   }),
 
   // エントリー削除用パラメータ
@@ -149,7 +153,7 @@ export const RankingSchemas = {
     action: z.literal('remove'),
     url: CommonSchemas.url,
     token: CommonSchemas.token,
-    name: CommonSchemas.rankingName
+    name: RankingFieldSchemas.playerName
   }),
 
   // 全削除用パラメータ
@@ -163,16 +167,16 @@ export const RankingSchemas = {
   get: z.object({
     action: z.literal('get'),
     id: CommonSchemas.publicId,
-    limit: CommonSchemas.rankingLimit.default(RANKING.LIMIT.DEFAULT)
+    limit: RankingFieldSchemas.limit.default(RANKING.LIMIT.DEFAULT)
   }),
 
   // 表示用パラメータ
   display: z.object({
     action: z.literal('display'),
     id: CommonSchemas.publicId,
-    limit: CommonSchemas.rankingLimit.default(RANKING.LIMIT.DEFAULT),
+    limit: RankingFieldSchemas.limit.default(RANKING.LIMIT.DEFAULT),
     theme: CommonSchemas.theme.default(DEFAULT_THEME),
-    format: CommonSchemas.rankingFormat.default(RANKING.DEFAULT_FORMAT)
+    format: RankingFieldSchemas.format.default(RANKING.DEFAULT_FORMAT)
   }),
 
   // 削除用パラメータ
@@ -209,7 +213,7 @@ export const BBSSchemas = {
     action: z.literal('create'),
     url: CommonSchemas.url,
     token: CommonSchemas.token,
-    title: CommonSchemas.bbsTitle.default('BBS'),
+    title: BBSFieldSchemas.bbsTitle.default('BBS'),
     messagesPerPage: z.coerce.number().int().min(1).max(50).default(10),
     max: z.coerce.number().int().min(1).max(1000).default(100),
     enableIcons: z.coerce.boolean().default(true),
@@ -220,9 +224,9 @@ export const BBSSchemas = {
   post: z.object({
     action: z.literal('post'),
     id: CommonSchemas.publicId,
-    author: CommonSchemas.bbsAuthor.default(BBS.AUTHOR.DEFAULT_VALUE),
-    message: CommonSchemas.bbsMessage,
-    icon: CommonSchemas.bbsIcon,
+    author: BBSFieldSchemas.author.default(BBS.AUTHOR.DEFAULT_VALUE),
+    message: BBSFieldSchemas.messageText,
+    icon: BBSFieldSchemas.icon,
     select1: z.string().optional(),
     select2: z.string().optional(),
     select3: z.string().optional()
@@ -233,9 +237,9 @@ export const BBSSchemas = {
     action: z.literal('postById'),
     url: CommonSchemas.url,
     token: CommonSchemas.token,
-    author: CommonSchemas.bbsAuthor.default(BBS.AUTHOR.DEFAULT_VALUE),
-    message: CommonSchemas.bbsMessage,
-    icon: CommonSchemas.bbsIcon
+    author: BBSFieldSchemas.author.default(BBS.AUTHOR.DEFAULT_VALUE),
+    message: BBSFieldSchemas.messageText,
+    icon: BBSFieldSchemas.icon
   }),
 
   // メッセージ編集用パラメータ
@@ -245,9 +249,9 @@ export const BBSSchemas = {
     token: CommonSchemas.token,
     messageId: z.string(),
     editToken: z.string(),
-    author: CommonSchemas.bbsAuthor,
-    message: CommonSchemas.bbsMessage,
-    icon: CommonSchemas.bbsIcon,
+    author: BBSFieldSchemas.author,
+    message: BBSFieldSchemas.messageText,
+    icon: BBSFieldSchemas.icon,
     select1: z.string().optional(),
     select2: z.string().optional(),
     select3: z.string().optional()
@@ -259,9 +263,9 @@ export const BBSSchemas = {
     id: CommonSchemas.publicId,
     messageId: z.string(),
     editToken: z.string(),
-    author: CommonSchemas.bbsAuthor,
-    message: CommonSchemas.bbsMessage,
-    icon: CommonSchemas.bbsIcon,
+    author: BBSFieldSchemas.author,
+    message: BBSFieldSchemas.messageText,
+    icon: BBSFieldSchemas.icon,
     select1: z.string().optional(),
     select2: z.string().optional(),
     select3: z.string().optional()
@@ -310,7 +314,7 @@ export const BBSSchemas = {
     action: z.literal('updateSettings'),
     url: CommonSchemas.url,
     token: CommonSchemas.token,
-    title: CommonSchemas.bbsTitle.optional(),
+    title: BBSFieldSchemas.bbsTitle.optional(),
     messagesPerPage: z.coerce.number().int().min(1).max(50).optional(),
     maxMessages: z.coerce.number().int().min(1).max(1000).optional()
   }),
@@ -321,7 +325,7 @@ export const BBSSchemas = {
     id: CommonSchemas.publicId,
     page: CommonSchemas.bbsPage.default(BBS.PAGINATION.DEFAULT_PAGE),
     theme: CommonSchemas.theme.default(DEFAULT_THEME),
-    format: CommonSchemas.bbsFormat.default(BBS.DEFAULT_FORMAT)
+    format: BBSFieldSchemas.format.default(BBS.DEFAULT_FORMAT)
   }),
 
   // メッセージ形式
@@ -541,9 +545,9 @@ export const CommonResponseSchemas = {
   // 表示用オブジェクト
   counterSvgData: z.object({
     value: CommonSchemas.nonNegativeInt,
-    type: CommonSchemas.counterType,
+    type: CounterFieldSchemas.counterType,
     theme: CommonSchemas.theme,
-    digits: CommonSchemas.counterDigits
+    digits: CounterFieldSchemas.counterDigits
   }),
   
   likeSvgData: z.object({

@@ -6,6 +6,14 @@ import { z } from 'zod'
 import { CommonSchemas } from '@/lib/core/validation'
 
 /**
+ * Like固有のフィールドスキーマ
+ */
+export const LikeFieldSchemas = {
+  likeIcon: z.enum(['heart', 'star', 'thumb']),
+  likeFormat: z.enum(['interactive', 'text', 'image'])
+} as const
+
+/**
  * Likeエンティティの基本型
  */
 export interface LikeEntity {
