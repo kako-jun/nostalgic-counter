@@ -283,22 +283,25 @@ class NostalgicLike extends HTMLElement {
     // テーマ別のスタイル
     const themeStyles = {
       classic: {
-        bgColor: '#ffffff',
-        hoverBgColor: '#f5f5f5',
+        bgColor: '#f0f0f0',
+        hoverBgColor: '#e8e8e8',
         textColor: '#333',
-        border: userLiked ? '2px solid #666' : '2px solid #ccc'
+        borderColor: '#333',
+        shadowColor: '#333'
       },
       modern: {
-        bgColor: '#ffffff',
+        bgColor: '#fff',
         hoverBgColor: '#f8f9fa',
         textColor: '#2f3542',
-        border: userLiked ? '2px solid #3742fa' : '1px solid #ddd'
+        borderColor: '#ddd',
+        shadowColor: '#ddd'
       },
       retro: {
-        bgColor: '#ffffff',
-        hoverBgColor: '#fffef5',
+        bgColor: '#ffe066',
+        hoverBgColor: '#ffdd44',
         textColor: '#2d3436',
-        border: userLiked ? '3px solid #2d3436' : '3px solid #999'
+        borderColor: '#2d3436',
+        shadowColor: '#2d3436'
       }
     };
     
@@ -317,10 +320,11 @@ class NostalgicLike extends HTMLElement {
           padding: 8px 12px;
           background: ${style.bgColor};
           color: ${style.textColor};
-          border: ${style.border};
-          border-radius: 6px;
+          border: 2px solid ${style.borderColor};
+          border-radius: 4px;
+          box-shadow: 3px 3px 0px ${style.shadowColor};
           cursor: pointer;
-          font-family: Arial, sans-serif;
+          font-family: 'Courier New', monospace;
           font-size: 14px;
           font-weight: bold;
           user-select: none;
@@ -330,12 +334,13 @@ class NostalgicLike extends HTMLElement {
         
         .like-button:hover:not(.loading) {
           background: ${style.hoverBgColor};
-          transform: scale(1.05);
-          box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+          transform: translate(-1px, -1px);
+          box-shadow: 4px 4px 0px ${style.shadowColor};
         }
         
         .like-button:active:not(.loading) {
-          transform: scale(0.95);
+          transform: translate(1px, 1px);
+          box-shadow: 2px 2px 0px ${style.shadowColor};
         }
         
         .heart-icon {

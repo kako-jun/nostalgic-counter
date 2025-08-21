@@ -153,12 +153,12 @@ export default function HomePage() {
             <div className="nostalgic-section">
               <p style={{ textAlign: "center" }}>
                 <span style={{ color: "#ff8c00" }}>
-                  <b>◆足跡帳・ゲストブック◆</b>
+                  <b>◆ゲストブック◆</b>
                 </span>
               </p>
               <div style={{ margin: "20px 0", display: "flex", justifyContent: "center" }}>
                 <div>
-                  <p style={{ marginBottom: "10px", textAlign: "center" }}>訪問の記念に、何かコメントを残していってください！</p>
+                  <p style={{ marginBottom: "10px", textAlign: "center" }}>訪問の記念に、足あとを残していってください！</p>
                   <nostalgic-bbs id="nostalgic-b89803bb" theme="classic" />
                 </div>
               </div>

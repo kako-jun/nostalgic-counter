@@ -136,7 +136,7 @@ class NostalgicRanking extends HTMLElement {
             border: 2px solid #333;
             padding: 10px;
             border-radius: 4px;
-            box-shadow: 2px 2px 0px #333;
+            box-shadow: 3px 3px 0px #333;
             min-width: 200px;
           }
           .loading {
@@ -203,7 +203,7 @@ class NostalgicRanking extends HTMLElement {
           background: var(--ranking-bg-color);
           border: 2px solid var(--ranking-border-color);
           border-radius: var(--ranking-border-radius);
-          box-shadow: 2px 2px 0px var(--ranking-border-color);
+          box-shadow: 3px 3px 0px var(--ranking-border-color);
           min-width: var(--ranking-min-width);
           max-width: var(--ranking-max-width);
         }
