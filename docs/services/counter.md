@@ -69,8 +69,8 @@ GET /api/visit?action=display&id={ID}&type={TYPE}&theme={THEME}&format={FORMAT}
   - `retro`: Yellow on purple (80s neon style)
 - `format` (optional): Response format
   - `image` (default): SVG image
-  - `text`: Plain text number
-- `digits` (optional): Display digits (default: 6, image only)
+  - `text`: Plain text number (no styling)
+- `digits` (optional): Zero-padding digits (only when specified, for both image and text formats)
 
 **Response:**
 - `format=image`: SVG image
@@ -100,18 +100,38 @@ GET /api/visit?action=set&url={URL}&token={TOKEN}&total={VALUE}
 
 ```html
 <script src="https://nostalgic.llll-ll.com/components/visit.js"></script>
+
+<!-- Image format (default) -->
 <nostalgic-counter 
   id="yoursite-a7b9c3d4" 
   type="total" 
-  theme="classic">
+  theme="classic"
+  digits="6">
+</nostalgic-counter>
+
+<!-- Text format -->
+<nostalgic-counter 
+  id="yoursite-a7b9c3d4" 
+  type="total" 
+  format="text">
+</nostalgic-counter>
+
+<!-- Text format with zero-padding -->
+<nostalgic-counter 
+  id="yoursite-a7b9c3d4" 
+  type="total" 
+  format="text"
+  digits="6">
 </nostalgic-counter>
 ```
 
 **Attributes:**
 - `id`: Counter public ID
 - `type`: Display type (total, today, yesterday, week, month)
-- `theme`: Visual style (classic, modern, retro)
-- `digits`: Number of digits to display
+- `theme`: Visual style (classic, modern, retro) - only for image format
+- `format`: Output format (image, text) - default: image
+- `digits`: Zero-padding digits (only when specified)
+- `api-base`: Custom API base URL (optional)
 
 ## Usage Examples
 
@@ -135,6 +155,20 @@ document.body.innerHTML += `
 <nostalgic-counter id="blog-a7b9c3d4" type="total" theme="classic"></nostalgic-counter>
 <nostalgic-counter id="blog-a7b9c3d4" type="today" theme="modern"></nostalgic-counter>
 <nostalgic-counter id="blog-a7b9c3d4" type="week" theme="retro"></nostalgic-counter>
+```
+
+### Text Format Integration
+```html
+<!-- Inline text counters for modern layouts -->
+<div class="stats">
+  <span>Total visitors: <nostalgic-counter id="blog-a7b9c3d4" type="total" format="text"></nostalgic-counter></span>
+  <span>Today: <nostalgic-counter id="blog-a7b9c3d4" type="today" format="text"></nostalgic-counter></span>
+</div>
+
+<!-- Zero-padded display -->
+<div class="retro-style">
+  Visitor Count: <nostalgic-counter id="blog-a7b9c3d4" type="total" format="text" digits="8"></nostalgic-counter>
+</div>
 ```
 
 ### Manual Count Control

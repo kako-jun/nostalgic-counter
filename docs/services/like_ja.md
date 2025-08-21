@@ -72,8 +72,23 @@ GET /api/like?action=get&id={ID}
 
 ```html
 <script src="https://nostalgic.llll-ll.com/components/like.js"></script>
-<nostalgic-like id="yoursite-a7b9c3d4"></nostalgic-like>
+
+<!-- インタラクティブボタン（デフォルト） -->
+<nostalgic-like id="yoursite-a7b9c3d4" theme="classic" icon="heart"></nostalgic-like>
+
+<!-- テキスト形式 -->
+<nostalgic-like id="yoursite-a7b9c3d4" format="text" theme="modern"></nostalgic-like>
+
+<!-- SVG画像形式 -->
+<nostalgic-like id="yoursite-a7b9c3d4" format="image" theme="retro"></nostalgic-like>
 ```
+
+**属性:**
+- `id`: 公開いいねボタンID
+- `theme`: 表示スタイル（classic, modern, retro）
+- `icon`: アイコン種類（heart, star, thumb）- インタラクティブ形式のみ
+- `format`: 表示形式（interactive, text, image）- デフォルト: interactive
+- `api-base`: カスタムAPIベースURL（オプション）
 
 ## 使用例
 
@@ -89,6 +104,26 @@ document.body.innerHTML += `
   <script src="/components/like.js"></script>
   <nostalgic-like id="${data.id}"></nostalgic-like>
 `
+```
+
+### テキスト形式の活用
+```html
+<!-- モダンなレイアウト用インラインテキスト -->
+<div class="post-stats">
+  <span>いいね: <nostalgic-like id="post-123" format="text" theme="modern"></nostalgic-like></span>
+  <span>閲覧: 1,234</span>
+</div>
+
+<!-- カスタムスタイルのテキストいいね -->
+<style>
+nostalgic-like {
+  --like-text-color-unliked: #666;
+  --like-text-color-liked: #ff4757;
+  --like-text-hover-color-unliked: #333;
+  --like-text-hover-color-liked: #ff3838;
+}
+</style>
+<nostalgic-like id="post-123" format="text"></nostalgic-like>
 ```
 
 ### 手動いいね制御

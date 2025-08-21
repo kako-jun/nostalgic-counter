@@ -62,7 +62,8 @@ GET /api/visit?action=display&id={ID}&type={TYPE}&theme={THEME}&format={FORMAT}
   - `retro`: 紫背景に黄文字（80年代ネオンスタイル）
 - `format` (オプション): レスポンス形式
   - `image` (デフォルト): SVG画像
-  - `text`: プレーンテキスト数値
+  - `text`: プレーンテキスト数値（スタイルなし）
+- `digits` (オプション): ゼロ埋め桁数（指定時のみ、画像・テキスト両方で有効）
 
 ### set
 カウンター値を設定（オーナーのみ）。
@@ -74,13 +75,39 @@ GET /api/visit?action=set&url={URL}&token={TOKEN}&total={VALUE}
 ## Web Component 統合
 
 ```html
-<script src="https://nostalgic.llll-ll.com/components/display.js"></script>
+<script src="https://nostalgic.llll-ll.com/components/visit.js"></script>
+
+<!-- 画像形式（デフォルト） -->
 <nostalgic-counter 
   id="yoursite-a7b9c3d4" 
   type="total" 
-  theme="classic">
+  theme="classic"
+  digits="6">
+</nostalgic-counter>
+
+<!-- テキスト形式 -->
+<nostalgic-counter 
+  id="yoursite-a7b9c3d4" 
+  type="total" 
+  format="text">
+</nostalgic-counter>
+
+<!-- テキスト形式（ゼロ埋めあり） -->
+<nostalgic-counter 
+  id="yoursite-a7b9c3d4" 
+  type="total" 
+  format="text"
+  digits="6">
 </nostalgic-counter>
 ```
+
+**属性:**
+- `id`: 公開カウンターID
+- `type`: 表示タイプ（total, today, yesterday, week, month）
+- `theme`: 表示スタイル（classic, modern, retro）- 画像形式のみ
+- `format`: 出力形式（image, text）- デフォルト: image
+- `digits`: ゼロ埋め桁数（指定時のみ）
+- `api-base`: カスタムAPI ベースURL（オプション）
 
 ## 使用例
 
@@ -104,6 +131,20 @@ document.body.innerHTML += `
 <nostalgic-counter id="blog-a7b9c3d4" type="total" theme="classic"></nostalgic-counter>
 <nostalgic-counter id="blog-a7b9c3d4" type="today" theme="modern"></nostalgic-counter>
 <nostalgic-counter id="blog-a7b9c3d4" type="week" theme="retro"></nostalgic-counter>
+```
+
+### テキスト形式の活用
+```html
+<!-- モダンなレイアウト用インラインテキストカウンター -->
+<div class="stats">
+  <span>総訪問者数: <nostalgic-counter id="blog-a7b9c3d4" type="total" format="text"></nostalgic-counter></span>
+  <span>今日: <nostalgic-counter id="blog-a7b9c3d4" type="today" format="text"></nostalgic-counter></span>
+</div>
+
+<!-- ゼロ埋め表示 -->
+<div class="retro-style">
+  訪問者数: <nostalgic-counter id="blog-a7b9c3d4" type="total" format="text" digits="8"></nostalgic-counter>
+</div>
 ```
 
 ## 特徴

@@ -72,11 +72,23 @@ GET /api/like?action=get&id={ID}
 
 ```html
 <script src="https://nostalgic.llll-ll.com/components/like.js"></script>
-<nostalgic-like id="yoursite-a7b9c3d4"></nostalgic-like>
+
+<!-- Interactive button (default) -->
+<nostalgic-like id="yoursite-a7b9c3d4" theme="classic" icon="heart"></nostalgic-like>
+
+<!-- Text format -->
+<nostalgic-like id="yoursite-a7b9c3d4" format="text" theme="modern"></nostalgic-like>
+
+<!-- SVG image format -->
+<nostalgic-like id="yoursite-a7b9c3d4" format="image" theme="retro"></nostalgic-like>
 ```
 
 **Attributes:**
 - `id`: Like button public ID
+- `theme`: Visual style (classic, modern, retro)
+- `icon`: Icon type (heart, star, thumb) - interactive format only
+- `format`: Display format (interactive, text, image) - default: interactive
+- `api-base`: Custom API base URL (optional)
 
 ## Usage Examples
 
@@ -92,6 +104,26 @@ document.body.innerHTML += `
   <script src="/components/like.js"></script>
   <nostalgic-like id="${data.id}"></nostalgic-like>
 `
+```
+
+### Text Format Integration
+```html
+<!-- Inline text likes for modern layouts -->
+<div class="post-stats">
+  <span>Likes: <nostalgic-like id="post-123" format="text" theme="modern"></nostalgic-like></span>
+  <span>Views: 1,234</span>
+</div>
+
+<!-- Custom styled text likes -->
+<style>
+nostalgic-like {
+  --like-text-color-unliked: #666;
+  --like-text-color-liked: #ff4757;
+  --like-text-hover-color-unliked: #333;
+  --like-text-hover-color-liked: #ff3838;
+}
+</style>
+<nostalgic-like id="post-123" format="text"></nostalgic-like>
 ```
 
 ### Manual Like Control
