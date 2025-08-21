@@ -156,7 +156,7 @@ class NostalgicCounter extends HTMLElement {
             padding: 2px 4px;
           }
         </style>
-        <span class="loading ${style}">Loading...</span>
+        <span class="loading ${theme}">Loading...</span>
       `;
       
       // 最新データがあれば即座に表示
@@ -192,7 +192,7 @@ class NostalgicCounter extends HTMLElement {
                 padding: 2px 4px;
               }
             </style>
-            <span class="${style}">${text}</span>
+            <span class="${theme}">${text}</span>
           `;
         })
         .catch(error => {
