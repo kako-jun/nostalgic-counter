@@ -32,7 +32,8 @@
     "dev": "next dev",
     "dev:debug": "next dev --inspect",
     "dev:open": "next dev",
-    "build": "next build",
+    "build:constants": "tsx src/scripts/generate-constants.ts",
+    "build": "npm run build:constants && next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
@@ -60,6 +61,7 @@
     "autoprefixer": "^10.4.21",
     "dotenv": "^17.2.1",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.11"
+    "tailwindcss": "^4.1.11",
+    "tsx": "^4.20.4"
   }
 }

@@ -3,7 +3,7 @@
  * 365日間非アクティブなサービスを自動削除
  */
 
-import { getRedis } from './db'
+import { getRedis } from '@/lib/core/db'
 import { counterService } from '@/domain/counter/counter.service'
 import { likeService } from '@/domain/like/like.service'
 import { rankingService } from '@/domain/ranking/ranking.service'

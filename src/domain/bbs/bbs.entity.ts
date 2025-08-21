@@ -6,25 +6,47 @@ import { z } from 'zod'
 import { CommonSchemas } from '@/lib/core/validation'
 
 /**
+ * BBS制限値定数
+ */
+export const BBS_LIMITS = {
+  TITLE_MAX: 100,
+  AUTHOR_MAX: 20,
+  MESSAGE_TEXT_MIN: 1,
+  MESSAGE_TEXT_MAX: 200,
+  SELECT_LABEL_MIN: 1,
+  SELECT_LABEL_MAX: 50,
+  SELECT_OPTION_MIN: 1,
+  SELECT_OPTION_MAX: 50,
+  MAX_MESSAGES_MIN: 1,
+  MAX_MESSAGES_MAX: 10000,
+  MESSAGES_PER_PAGE_MIN: 1,
+  MESSAGES_PER_PAGE_MAX: 100,
+  UPDATE_MESSAGES_PER_PAGE_MIN: 1,
+  UPDATE_MESSAGES_PER_PAGE_MAX: 50,
+  UPDATE_MAX_MESSAGES_MIN: 1,
+  UPDATE_MAX_MESSAGES_MAX: 1000,
+} as const
+
+/**
  * BBS固有のフィールドスキーマ
  */
 export const BBSFieldSchemas = {
-  bbsTitle: z.string().max(100),
-  author: z.string().max(20),
-  messageText: z.string().min(1).max(200),
+  bbsTitle: z.string().max(BBS_LIMITS.TITLE_MAX),
+  author: z.string().max(BBS_LIMITS.AUTHOR_MAX),
+  messageText: z.string().min(BBS_LIMITS.MESSAGE_TEXT_MIN).max(BBS_LIMITS.MESSAGE_TEXT_MAX),
   messageId: z.string(),
   authorHash: z.string(),
   icon: z.string().optional(),
   iconForArray: z.string(),
   page: z.coerce.number().int().min(1),
-  maxMessages: z.number().int().min(1).max(10000),
-  messagesPerPage: z.number().int().min(1).max(100),
-  selectLabel: z.string().min(1).max(50),
-  selectOption: z.string().min(1).max(50),
+  maxMessages: z.number().int().min(BBS_LIMITS.MAX_MESSAGES_MIN).max(BBS_LIMITS.MAX_MESSAGES_MAX),
+  messagesPerPage: z.number().int().min(BBS_LIMITS.MESSAGES_PER_PAGE_MIN).max(BBS_LIMITS.MESSAGES_PER_PAGE_MAX),
+  selectLabel: z.string().min(BBS_LIMITS.SELECT_LABEL_MIN).max(BBS_LIMITS.SELECT_LABEL_MAX),
+  selectOption: z.string().min(BBS_LIMITS.SELECT_OPTION_MIN).max(BBS_LIMITS.SELECT_OPTION_MAX),
   format: z.enum(['interactive']),
   enableFlags: z.coerce.boolean(),
-  updateMessagesPerPage: z.coerce.number().int().min(1).max(50),
-  updateMaxMessages: z.coerce.number().int().min(1).max(1000),
+  updateMessagesPerPage: z.coerce.number().int().min(BBS_LIMITS.UPDATE_MESSAGES_PER_PAGE_MIN).max(BBS_LIMITS.UPDATE_MESSAGES_PER_PAGE_MAX),
+  updateMaxMessages: z.coerce.number().int().min(BBS_LIMITS.UPDATE_MAX_MESSAGES_MIN).max(BBS_LIMITS.UPDATE_MAX_MESSAGES_MAX),
   editToken: z.string()
 } as const
 

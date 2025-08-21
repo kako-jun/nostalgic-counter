@@ -6,13 +6,25 @@ import { z } from 'zod'
 import { CommonSchemas } from '@/lib/core/validation'
 
 /**
+ * Ranking制限値定数
+ */
+export const RANKING_LIMITS = {
+  PLAYER_NAME_MIN: 1,
+  PLAYER_NAME_MAX: 50,
+  MAX_ENTRIES_MIN: 1,
+  MAX_ENTRIES_MAX: 10000,
+  LIMIT_MIN: 1,
+  LIMIT_MAX: 1000,
+} as const
+
+/**
  * Ranking固有のフィールドスキーマ
  */
 export const RankingFieldSchemas = {
-  playerName: z.string().min(1).max(50),
+  playerName: z.string().min(RANKING_LIMITS.PLAYER_NAME_MIN).max(RANKING_LIMITS.PLAYER_NAME_MAX),
   score: CommonSchemas.nonNegativeInt,
-  maxEntries: z.number().int().min(1).max(10000),
-  limit: z.number().int().min(1).max(1000),
+  maxEntries: z.number().int().min(RANKING_LIMITS.MAX_ENTRIES_MIN).max(RANKING_LIMITS.MAX_ENTRIES_MAX),
+  limit: z.number().int().min(RANKING_LIMITS.LIMIT_MIN).max(RANKING_LIMITS.LIMIT_MAX),
   format: z.enum(['interactive'])
 } as const
 

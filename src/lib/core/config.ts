@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod'
-import { ValidationFramework } from './validation'
-import { Result, Ok, Err, ValidationError } from './result'
+import { ValidationFramework } from '@/lib/core/validation'
+import { Result, Ok, Err, ValidationError } from '@/lib/core/result'
 
 /**
  * 設定スキーマの定義

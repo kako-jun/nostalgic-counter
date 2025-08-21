@@ -2,9 +2,13 @@
  * Nostalgic Like Web Component
  * 
  * 使用方法:
+ * <script src="/components/validation-constants.js"></script>
  * <script src="/components/like.js"></script>
  * <nostalgic-like id="your-like-id" theme="classic" icon="heart" format="interactive"></nostalgic-like>
  */
+
+// validation-constants.js が読み込まれていることを前提とする
+import { VALIDATION_CONSTANTS, SafeValidator } from './validation-constants.js';
 
 class NostalgicLike extends HTMLElement {
   // スクリプトが読み込まれたドメインを自動検出
@@ -36,6 +40,46 @@ class NostalgicLike extends HTMLElement {
     return ['id', 'theme', 'icon', 'format'];
   }
 
+  // 安全なアトリビュート処理
+  safeGetAttribute(name) {
+    const value = this.getAttribute(name);
+    
+    switch (name) {
+      case 'id':
+        if (!value || typeof value !== 'string' || value.trim() === '') {
+          return null;
+        }
+        return value.trim();
+        
+      case 'theme':
+        return SafeValidator.validateEnum(value, { values: ['classic', 'modern', 'retro'] }).safeValue || 'classic';
+        
+      case 'icon':
+        return SafeValidator.validateEnum(value, VALIDATION_CONSTANTS.LIKE.ICON).safeValue || 'heart';
+        
+      case 'format':
+        return SafeValidator.validateEnum(value, VALIDATION_CONSTANTS.LIKE.FORMAT).safeValue || 'interactive';
+        
+      case 'url':
+        if (!value || typeof value !== 'string') return null;
+        try {
+          new URL(value);
+          return value;
+        } catch {
+          return null;
+        }
+        
+      case 'token':
+        if (!value || typeof value !== 'string' || value.trim() === '') {
+          return null;
+        }
+        return value.trim();
+        
+      default:
+        return value;
+    }
+  }
+
   connectedCallback() {
     this.loadLikeData();
   }
@@ -47,7 +91,7 @@ class NostalgicLike extends HTMLElement {
   }
 
   async loadLikeData() {
-    const id = this.getAttribute('id');
+    const id = this.safeGetAttribute('id');
     if (!id) {
       this.renderError('エラー: id属性が必要です');
       return;
@@ -56,7 +100,7 @@ class NostalgicLike extends HTMLElement {
     this.isLoading = true;
 
     try {
-      const baseUrl = this.getAttribute('api-base') || NostalgicLike.apiBaseUrl;
+      const baseUrl = this.safeGetAttribute('api-base') || NostalgicLike.apiBaseUrl;
       const apiUrl = `${baseUrl}/api/like?action=get&id=${encodeURIComponent(id)}`;
       
       const response = await fetch(apiUrl);
@@ -80,13 +124,13 @@ class NostalgicLike extends HTMLElement {
   }
 
   async toggleLike() {
-    const id = this.getAttribute('id');
+    const id = this.safeGetAttribute('id');
     if (!id || this.isLoading) return;
 
     this.isLoading = true;
 
     try {
-      const baseUrl = this.getAttribute('api-base') || NostalgicLike.apiBaseUrl;
+      const baseUrl = this.safeGetAttribute('api-base') || NostalgicLike.apiBaseUrl;
       const toggleUrl = `${baseUrl}/api/like?action=toggle&id=${encodeURIComponent(id)}`;
       
       const response = await fetch(toggleUrl);
@@ -123,19 +167,19 @@ class NostalgicLike extends HTMLElement {
   }
 
   render() {
-    const theme = this.getAttribute('theme') || 'classic';
-    const icon = this.getAttribute('icon') || 'heart';
-    const format = this.getAttribute('format') || 'interactive';
+    const theme = this.safeGetAttribute('theme');
+    const icon = this.safeGetAttribute('icon');
+    const format = this.safeGetAttribute('format');
     
-    if (!this.getAttribute('id')) {
+    if (!this.safeGetAttribute('id')) {
       this.renderError('エラー: id属性が必要です');
       return;
     }
 
     // SVG画像形式の場合
     if (format === 'image') {
-      const baseUrl = this.getAttribute('api-base') || NostalgicLike.apiBaseUrl;
-      const id = this.getAttribute('id');
+      const baseUrl = this.safeGetAttribute('api-base') || NostalgicLike.apiBaseUrl;
+      const id = this.safeGetAttribute('id');
       const apiUrl = `${baseUrl}/api/like?action=display&id=${encodeURIComponent(id)}&theme=${theme}&format=image`;
       
       this.shadowRoot.innerHTML = `

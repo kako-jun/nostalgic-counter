@@ -8,7 +8,7 @@ import { Result, Ok, Err, ValidationError, StorageError } from './result'
 import {
   TOKEN, PUBLIC_ID, URL, THEMES, DEFAULT_THEME,
   COUNTER, LIKE, RANKING, BBS, LIMITS
-} from '../validation/schema-constants'
+} from '@/lib/validation/schema-constants'
 
 /**
  * ValidationFramework - 統一されたバリデーション処理

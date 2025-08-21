@@ -4,8 +4,8 @@
  */
 
 import { z } from 'zod'
-import { Result, Ok, Err, ValidationError } from './result'
-import { ValidationFramework } from './validation'
+import { Result, Ok, Err, ValidationError } from '@/lib/core/result'
+import { ValidationFramework } from '@/lib/core/validation'
 
 /**
  * イベントの基本型

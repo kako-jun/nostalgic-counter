@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { safeParseRedisData } from './safe-parse'
+import { safeParseRedisData } from '@/lib/validation/safe-parse'
 
 /**
  * Redis操作の完全Zod化ユーティリティ

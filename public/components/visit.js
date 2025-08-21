@@ -2,9 +2,13 @@
  * Nostalgic Counter Web Component
  * 
  * 使用方法:
- * <script src="' + window.location.origin + '/components/visit.js"></script>
+ * <script src="/components/validation-constants.js"></script>
+ * <script src="/components/visit.js"></script>
  * <nostalgic-counter id="your-counter-id" type="total" theme="classic"></nostalgic-counter>
  */
+
+// validation-constants.js が読み込まれていることを前提とする
+import { VALIDATION_CONSTANTS, SafeValidator } from './validation-constants.js';
 
 // デフォルト値（APIスキーマと同期）
 const DEFAULTS = {
@@ -46,6 +50,35 @@ class NostalgicCounter extends HTMLElement {
     return ['id', 'type', 'theme', 'digits'];
   }
 
+  // 安全なアトリビュート処理
+  safeGetAttribute(name) {
+    const value = this.getAttribute(name);
+    
+    switch (name) {
+      case 'id':
+        if (!value || typeof value !== 'string' || value.trim() === '') {
+          return null;
+        }
+        return value.trim();
+        
+      case 'type':
+        return SafeValidator.validateEnum(value, VALIDATION_CONSTANTS.COUNTER.TYPE).safeValue || DEFAULTS.TYPE;
+        
+      case 'theme':
+        return SafeValidator.validateEnum(value, { values: ['classic', 'modern', 'retro'] }).safeValue || DEFAULTS.THEME;
+        
+      case 'digits':
+        if (!value) return null;
+        return SafeValidator.validateNumber(value, VALIDATION_CONSTANTS.COUNTER.DIGITS).safeValue;
+        
+      case 'format':
+        return SafeValidator.validateEnum(value, VALIDATION_CONSTANTS.COUNTER.FORMAT).safeValue || DEFAULTS.FORMAT;
+        
+      default:
+        return value;
+    }
+  }
+
   connectedCallback() {
     // カウントアップを先に実行し、完了を待つ
     this.countUpAndRender();
@@ -56,14 +89,14 @@ class NostalgicCounter extends HTMLElement {
   }
 
   async countUpAndRender() {
-    const id = this.getAttribute('id');
+    const id = this.safeGetAttribute('id');
     if (!id) {
       this.render();
       return;
     }
 
     // フォーマットをチェックして初期表示を設定
-    const format = this.getAttribute('format') || DEFAULTS.FORMAT;
+    const format = this.safeGetAttribute('format') || DEFAULTS.FORMAT;
     
     // 既にカウント済みの場合は即座にレンダリング
     if (NostalgicCounter.counted.has(id)) {
@@ -82,7 +115,7 @@ class NostalgicCounter extends HTMLElement {
   }
 
   async countUp() {
-    const id = this.getAttribute('id');
+    const id = this.safeGetAttribute('id');
     
     if (!id) {
       console.warn('nostalgic-counter: id attribute is required');
@@ -116,7 +149,7 @@ class NostalgicCounter extends HTMLElement {
 
   renderInitialText() {
     // テキスト形式の初期表示（ローディング中表示）
-    const digits = this.getAttribute('digits');
+    const digits = this.safeGetAttribute('digits');
     const formatValue = (value) => {
       if (digits && !isNaN(digits) && digits > 0) {
         return String(value).padStart(parseInt(digits), '0');
@@ -128,15 +161,14 @@ class NostalgicCounter extends HTMLElement {
   }
 
   render() {
-    const id = this.getAttribute('id');
-    const type = this.getAttribute('type') || DEFAULTS.TYPE;
-    const theme = this.getAttribute('theme') || DEFAULTS.THEME;
-    const digits = this.getAttribute('digits');
-    const format = this.getAttribute('format') || DEFAULTS.FORMAT;
+    const id = this.safeGetAttribute('id');
+    const type = this.safeGetAttribute('type');
+    const theme = this.safeGetAttribute('theme');
+    const digits = this.safeGetAttribute('digits');
+    const format = this.safeGetAttribute('format');
     
     if (!id) {
       // IDが無い場合は0を表示
-      const digits = this.getAttribute('digits');
       const formatValue = (value) => {
         if (digits && !isNaN(digits) && digits > 0) {
           return String(value).padStart(parseInt(digits), '0');

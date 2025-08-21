@@ -16,7 +16,7 @@ import {
   CounterEntitySchema,
   CounterDataSchema,
   CounterType
-} from './counter.entity'
+} from '@/domain/counter/counter.entity'
 
 /**
  * カウンターサービスクラス

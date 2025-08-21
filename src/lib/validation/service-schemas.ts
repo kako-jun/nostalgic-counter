@@ -4,15 +4,15 @@
  */
 
 import { z } from 'zod'
-import { CommonSchemas } from '../core/validation'
+import { CommonSchemas } from '@/lib/core/validation'
 import {
   COUNTER, LIKE, RANKING, BBS,
   DEFAULT_THEME
-} from './schema-constants'
-import { CounterFieldSchemas } from '../../domain/counter/counter.entity'
-import { LikeFieldSchemas } from '../../domain/like/like.entity'
-import { RankingFieldSchemas } from '../../domain/ranking/ranking.entity'
-import { BBSFieldSchemas } from '../../domain/bbs/bbs.entity'
+} from '@/lib/validation/schema-constants'
+import { CounterFieldSchemas } from '@/domain/counter/counter.entity'
+import { LikeFieldSchemas } from '@/domain/like/like.entity'
+import { RankingFieldSchemas } from '@/domain/ranking/ranking.entity'
+import { BBSFieldSchemas } from '@/domain/bbs/bbs.entity'
 
 // === Counter Service Schemas ===
 export const CounterSchemas = {

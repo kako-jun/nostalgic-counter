@@ -3,9 +3,9 @@
  * 新アーキテクチャの起動処理
  */
 
-import { config, type Config } from './config'
-import { eventBus, Events } from './event-bus'
-import { Result, Ok, Err, ValidationError } from './result'
+import { config, type Config } from '@/lib/core/config'
+import { eventBus, Events } from '@/lib/core/event-bus'
+import { Result, Ok, Err, ValidationError } from '@/lib/core/result'
 
 /**
  * アプリケーション初期化クラス

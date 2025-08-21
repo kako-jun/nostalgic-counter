@@ -3,9 +3,9 @@
  */
 
 import { z } from 'zod'
-import { Result, Ok, Err, StorageError, NotFoundError, ValidationError } from './result'
-import { ValidationFramework } from './validation'
-import { getRedis } from './db'
+import { Result, Ok, Err, StorageError, NotFoundError, ValidationError } from '@/lib/core/result'
+import { ValidationFramework } from '@/lib/core/validation'
+import { getRedis } from '@/lib/core/db'
 
 /**
  * Redis Repository の基底クラス

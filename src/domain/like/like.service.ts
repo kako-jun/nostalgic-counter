@@ -16,7 +16,7 @@ import {
   LikeToggleParams,
   LikeEntitySchema,
   LikeDataSchema
-} from './like.entity'
+} from '@/domain/like/like.entity'
 
 /**
  * いいねサービスクラス

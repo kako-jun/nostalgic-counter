@@ -3,10 +3,10 @@
  */
 
 import { z } from 'zod'
-import { Result, Ok, Err, ValidationError, NotFoundError, UnauthorizedError } from './result'
-import { ValidationFramework } from './validation'
-import { BaseRepository, UrlMappingRepository, NumberRepository, RepositoryFactory } from './repository'
-import { generatePublicId } from './id'
+import { Result, Ok, Err, ValidationError, NotFoundError, UnauthorizedError } from '@/lib/core/result'
+import { ValidationFramework } from '@/lib/core/validation'
+import { BaseRepository, UrlMappingRepository, NumberRepository, RepositoryFactory } from '@/lib/core/repository'
+import { generatePublicId } from '@/lib/core/id'
 import { createHash } from 'crypto'
 
 /**

@@ -2,9 +2,13 @@
  * Nostalgic BBS Web Component
  * 
  * 使用方法:
+ * <script src="/components/validation-constants.js"></script>
  * <script src="/components/bbs.js"></script>
  * <nostalgic-bbs id="your-bbs-id" page="1" theme="classic"></nostalgic-bbs>
  */
+
+// validation-constants.js が読み込まれていることを前提とする
+import { VALIDATION_CONSTANTS, SafeValidator } from './validation-constants.js';
 
 class NostalgicBBS extends HTMLElement {
   // スクリプトが読み込まれたドメインを自動検出
@@ -40,18 +44,51 @@ class NostalgicBBS extends HTMLElement {
     return ['id', 'page', 'theme', 'format', 'url', 'token'];
   }
 
+  // 安全なアトリビュート処理
+  safeGetAttribute(name) {
+    const value = this.getAttribute(name);
+    
+    switch (name) {
+      case 'page':
+        const pageResult = SafeValidator.validateNumber(value, VALIDATION_CONSTANTS.BBS.MESSAGES_PER_PAGE);
+        return pageResult.safeValue;
+        
+      case 'id':
+        if (!value || typeof value !== 'string' || value.trim() === '') {
+          return null;
+        }
+        return value.trim();
+        
+      case 'theme':
+        return SafeValidator.validateEnum(value, { values: ['classic', 'modern', 'retro'] }).safeValue;
+        
+      case 'format':
+        return SafeValidator.validateEnum(value, { values: ['interactive'] }).safeValue;
+        
+      default:
+        return value;
+    }
+  }
+
   connectedCallback() {
-    this.currentPage = parseInt(this.getAttribute('page') || '1');
+    this.currentPage = this.safeGetAttribute('page', 'number');
     this.loadBBSData();
   }
 
-  attributeChangedCallback() {
-    this.currentPage = parseInt(this.getAttribute('page') || '1');
-    this.loadBBSData();
+  attributeChangedCallback(name, oldValue, newValue) {
+    // 安全な値に変換
+    const safeValue = this.safeGetAttribute(name);
+    
+    if (name === 'page') {
+      this.currentPage = safeValue;
+      this.loadBBSData();
+    } else {
+      this.loadBBSData();
+    }
   }
 
   async loadBBSData() {
-    const id = this.getAttribute('id');
+    const id = this.safeGetAttribute('id');
     if (!id) {
       this.renderError('ID attribute is required');
       return;
@@ -458,7 +495,7 @@ class NostalgicBBS extends HTMLElement {
   }
 
   async postMessage() {
-    const id = this.getAttribute('id');
+    const id = this.safeGetAttribute('id');
     
     if (!id) {
       this.showMessage('エラー: メッセージ投稿にid属性が必要です');
@@ -469,12 +506,34 @@ class NostalgicBBS extends HTMLElement {
     const messageInput = this.shadowRoot.querySelector('#message-content');
     const iconSelect = this.shadowRoot.querySelector('#message-icon');
     
-    const author = authorInput.value.trim() || '名無しさん';
-    const message = messageInput.value.trim();
-    const icon = iconSelect ? iconSelect.value : '';
+    // 安全な入力値検証
+    if (!authorInput || !messageInput) {
+      this.showMessage('エラー: フォーム要素が見つかりません');
+      return;
+    }
 
-    if (!message) {
-      this.showMessage('メッセージを入力してください');
+    let rawAuthor = '';
+    let rawMessage = '';
+    let rawIcon = '';
+
+    // 存在チェックと型チェック
+    try {
+      rawAuthor = (typeof authorInput.value === 'string' ? authorInput.value : '').trim();
+      rawMessage = (typeof messageInput.value === 'string' ? messageInput.value : '').trim();
+      rawIcon = iconSelect && typeof iconSelect.value === 'string' ? iconSelect.value : '';
+    } catch (error) {
+      this.showMessage('エラー: 入力値の取得に失敗しました');
+      return;
+    }
+
+    // 致命的エラー防止のみ（軽微なバリデーションはAPI側に任せる）
+    const author = typeof rawAuthor === 'string' ? rawAuthor || '名無しさん' : '名無しさん';
+    const message = typeof rawMessage === 'string' ? rawMessage : '';
+    const icon = typeof rawIcon === 'string' ? rawIcon : '';
+
+    // 致命的な状態のみチェック
+    if (typeof author !== 'string' || typeof message !== 'string') {
+      console.error('Fatal: author or message is not a string');
       return;
     }
 

@@ -20,7 +20,7 @@ import {
   RankingEntitySchema,
   RankingDataSchema,
   RankingEntrySchema
-} from './ranking.entity'
+} from '@/domain/ranking/ranking.entity'
 
 /**
  * ランキングサービスクラス

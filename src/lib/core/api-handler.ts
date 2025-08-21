@@ -4,9 +4,9 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { z } from 'zod'
-import { Result, Ok, Err, AppError, ValidationError, StorageError, isOk } from './result'
-import { ValidationFramework } from './validation'
-import { getCacheSettings } from './config'
+import { Result, Ok, Err, AppError, ValidationError, StorageError, isOk } from '@/lib/core/result'
+import { ValidationFramework } from '@/lib/core/validation'
+import { getCacheSettings } from '@/lib/core/config'
 
 /**
  * APIハンドラーの設定型

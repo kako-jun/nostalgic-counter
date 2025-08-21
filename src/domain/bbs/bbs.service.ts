@@ -24,7 +24,7 @@ import {
   BBSDataSchema,
   BBSMessageSchema,
   BBSSettingsSchema
-} from './bbs.entity'
+} from '@/domain/bbs/bbs.entity'
 
 type BBSUpdateSettingsParams = BBSUpdateSettingsParamsType
 

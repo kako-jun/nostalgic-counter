@@ -2,9 +2,13 @@
  * Nostalgic Ranking Web Component
  * 
  * 使用方法:
+ * <script src="/components/validation-constants.js"></script>
  * <script src="/components/ranking.js"></script>
  * <nostalgic-ranking id="your-ranking-id" limit="10" theme="classic" format="interactive"></nostalgic-ranking>
  */
+
+// validation-constants.js が読み込まれていることを前提とする
+import { VALIDATION_CONSTANTS, SafeValidator } from './validation-constants.js';
 
 class NostalgicRanking extends HTMLElement {
   // スクリプトが読み込まれたドメインを自動検出
@@ -37,6 +41,46 @@ class NostalgicRanking extends HTMLElement {
     return ['id', 'limit', 'theme', 'format', 'url', 'token'];
   }
 
+  // 安全なアトリビュート処理
+  safeGetAttribute(name) {
+    const value = this.getAttribute(name);
+    
+    switch (name) {
+      case 'id':
+        if (!value || typeof value !== 'string' || value.trim() === '') {
+          return null;
+        }
+        return value.trim();
+        
+      case 'limit':
+        return SafeValidator.validateNumber(value, VALIDATION_CONSTANTS.RANKING.LIMIT).safeValue || 10;
+        
+      case 'theme':
+        return SafeValidator.validateEnum(value, { values: ['classic', 'modern', 'retro'] }).safeValue || 'classic';
+        
+      case 'format':
+        return SafeValidator.validateEnum(value, VALIDATION_CONSTANTS.RANKING.FORMAT).safeValue || 'interactive';
+        
+      case 'url':
+        if (!value || typeof value !== 'string') return null;
+        try {
+          new URL(value);
+          return value;
+        } catch {
+          return null;
+        }
+        
+      case 'token':
+        if (!value || typeof value !== 'string' || value.trim() === '') {
+          return null;
+        }
+        return value.trim();
+        
+      default:
+        return value;
+    }
+  }
+
   connectedCallback() {
     this.loadRankingData();
   }
@@ -46,13 +90,13 @@ class NostalgicRanking extends HTMLElement {
   }
 
   async loadRankingData() {
-    const id = this.getAttribute('id');
+    const id = this.safeGetAttribute('id');
     if (!id) {
       this.renderError('ID attribute is required');
       return;
     }
 
-    const limit = this.getAttribute('limit') || '10';
+    const limit = this.safeGetAttribute('limit');
 
     try {
       this.loading = true;
@@ -78,7 +122,7 @@ class NostalgicRanking extends HTMLElement {
   }
 
   render() {
-    const theme = this.getAttribute('theme') || 'classic';
+    const theme = this.safeGetAttribute('theme');
 
     if (!this.rankingData) {
       this.shadowRoot.innerHTML = `
@@ -287,7 +331,7 @@ class NostalgicRanking extends HTMLElement {
         ` : `
           <div class="empty-message">まだランキングがありません</div>
         `}
-        ${this.getAttribute('url') && this.getAttribute('token') ? `
+        ${this.safeGetAttribute('url') && this.safeGetAttribute('token') ? `
           <div class="submit-form">
             <div class="form-header">スコア送信</div>
             <div class="form-row">
@@ -322,8 +366,8 @@ class NostalgicRanking extends HTMLElement {
   }
 
   async submitScore() {
-    const url = this.getAttribute('url');
-    const token = this.getAttribute('token');
+    const url = this.safeGetAttribute('url');
+    const token = this.safeGetAttribute('token');
     
     if (!url || !token) {
       alert('エラー: url と token 属性がスコア送信に必要です');
@@ -333,11 +377,31 @@ class NostalgicRanking extends HTMLElement {
     const nameInput = this.shadowRoot.querySelector('#score-name');
     const scoreInput = this.shadowRoot.querySelector('#score-value');
     
-    const name = nameInput.value.trim();
-    const score = parseInt(scoreInput.value);
+    // 安全な入力値検証
+    if (!nameInput || !scoreInput) {
+      alert('エラー: フォーム要素が見つかりません');
+      return;
+    }
 
-    if (!name || isNaN(score)) {
-      alert('名前とスコアの両方を入力してください');
+    let rawName = '';
+    let rawScore = '';
+
+    // 存在チェックと型チェック
+    try {
+      rawName = (typeof nameInput.value === 'string' ? nameInput.value : '').trim();
+      rawScore = (typeof scoreInput.value === 'string' ? scoreInput.value : '').trim();
+    } catch (error) {
+      alert('エラー: 入力値の取得に失敗しました');
+      return;
+    }
+
+    // 致命的エラー防止のみ（軽微なバリデーションはAPI側に任せる）
+    const name = typeof rawName === 'string' ? rawName : '';
+    const score = typeof rawScore === 'string' ? parseInt(rawScore, 10) : NaN;
+
+    // 致命的な状態のみチェック
+    if (typeof name !== 'string') {
+      console.error('Fatal: name is not a string');
       return;
     }
 
@@ -345,7 +409,7 @@ class NostalgicRanking extends HTMLElement {
     this.updateSubmitButton();
 
     try {
-      const baseUrl = this.getAttribute('api-base') || NostalgicRanking.apiBaseUrl;
+      const baseUrl = this.safeGetAttribute('api-base') || NostalgicRanking.apiBaseUrl;
       const submitUrl = `${baseUrl}/api/ranking?action=submit&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}&name=${encodeURIComponent(name)}&score=${encodeURIComponent(score)}`;
       
       const response = await fetch(submitUrl);
