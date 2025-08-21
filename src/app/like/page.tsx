@@ -59,7 +59,7 @@ export default function LikePage() {
         setPublicId(data.id);
       }
     } catch (error) {
-      setResponse(`Error: ${error}`);
+      setResponse(`エラー: ${error}`);
     }
   };
 

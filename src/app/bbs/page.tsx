@@ -80,7 +80,7 @@ export default function BBSPage() {
         setPublicId(data.id);
       }
     } catch (error) {
-      setResponse(`Error: ${error}`);
+      setResponse(`エラー: ${error}`);
     }
   };
 

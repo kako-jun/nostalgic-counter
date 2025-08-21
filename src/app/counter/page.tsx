@@ -59,7 +59,7 @@ export default function CounterPage() {
         setPublicId(data.id);
       }
     } catch (error) {
-      setResponse(`Error: ${error}`);
+      setResponse(`エラー: ${error}`);
     }
   };
 

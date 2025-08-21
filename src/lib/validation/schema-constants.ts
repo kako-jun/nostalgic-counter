@@ -115,8 +115,8 @@ export const LIMITS = {
 
 // === Web Component デフォルト ===
 export const WEB_COMPONENT = {
-  LOADING_TEXT: 'Loading...',
-  ERROR_TEXT: 'Error',
+  LOADING_TEXT: '読み込み中...',
+  ERROR_TEXT: 'エラー',
   
   COUNTER: {
     INITIAL_VALUE: '0',
@@ -127,7 +127,7 @@ export const WEB_COMPONENT = {
   },
   
   RANKING: {
-    EMPTY_MESSAGE: 'No rankings yet',
+    EMPTY_MESSAGE: 'まだランキングがありません',
   },
   
   BBS: {
