@@ -15,6 +15,8 @@ WebComponentsでのバリデーションは**致命的エラー防止**のみを
 - ユーザー入力の妥当性チェック（文字数制限等）
 - ビジネスロジックの検証
 - alert()でのエラー表示
+- デフォルト値の補完（API側のスキーマに任せる）
+- 属性の型変換や正規化（スキーマに任せる）
 
 ### 2. エラー表示の責任分担
 
@@ -43,8 +45,8 @@ safeGetAttribute(name) {
       return value.trim();
       
     case 'limit':
-      // SafeValidatorで安全な変換（エラー表示はしない）
-      return SafeValidator.validateNumber(value, VALIDATION_CONSTANTS.RANKING.LIMIT).safeValue || 10;
+      // デフォルト値補完は行わない（API側のスキーマに任せる）
+      return value;
       
     default:
       return value;
@@ -159,11 +161,33 @@ if (!response.ok) {
 }
 ```
 
+## URL生成時の注意点
+
+### 属性が未指定の場合の処理
+```javascript
+// ✅ OK: 未指定属性はURLから除外
+const format = this.safeGetAttribute('format');
+let url = `${baseUrl}/api/service?action=display&id=${id}`;
+if (format) {
+  url += `&format=${format}`;
+}
+
+// ❌ NG: nullやundefinedをURLに含める
+const format = this.safeGetAttribute('format') || 'default';
+const url = `${baseUrl}/api/service?action=display&id=${id}&format=${format}`;
+// → format=nullのようなURLになる危険性
+```
+
+### API側との責任分担
+- **WebComponents側**：属性が存在する場合のみURLパラメータに含める
+- **API側**：パラメータが未指定の場合、スキーマで定義されたデフォルト値を適用
+
 ## まとめ
 
 WebComponentsでのJavaScriptバリデーションは：
 - **防御的プログラミング**：クラッシュを防ぐ
 - **型安全性**：実行時エラーを防ぐ  
 - **API連携**：ユーザーエラーはサーバー側に任せる
+- **スキーマ尊重**：デフォルト値やバリデーションはAPI側のスキーマに任せる
 
-この方針により、堅牢性とUXを両立させる。
+この方針により、堅牢性とUXを両立させ、単一の真実の源泉を維持する。

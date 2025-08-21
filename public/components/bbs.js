@@ -268,19 +268,6 @@ class NostalgicBBS extends HTMLElement {
           font-family: 'Courier New', 'MS Gothic', 'ＭＳ ゴシック', monospace;
           white-space: pre-wrap;
           overflow-wrap: break-word;
-          /* 全角スペースの可視化を無効にする */
-          -webkit-text-fill-color: inherit;
-          text-rendering: optimizeLegibility;
-          -webkit-font-feature-settings: "kern" off;
-          font-feature-settings: "kern" off;
-          -webkit-text-decoration-skip: objects;
-          text-decoration-skip: objects;
-          /* ブラウザの全角スペース表示設定を強制的に無効化 */
-          unicode-bidi: normal;
-          direction: ltr;
-          /* 開発者ツールやデバッグモードでの全角スペース表示も抑制 */
-          -webkit-text-stroke: 0;
-          text-stroke: 0;
         }
         .message-meta {
           font-size: 10px;
@@ -744,7 +731,8 @@ class NostalgicBBS extends HTMLElement {
   escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
-    return div.innerHTML;
+    // 全角スペースを半角スペース2つに変換
+    return div.innerHTML.replace(/　/g, '  ');
   }
 }
 

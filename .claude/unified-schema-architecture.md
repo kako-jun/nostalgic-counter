@@ -200,12 +200,57 @@ src/
 4. **型安全性**: TypeScriptの型推論が効率的
 5. **一貫性**: 全サービスで統一されたパターン
 
+## デフォルト値とルーティング処理
+
+### スキーマデフォルト値の尊重
+```typescript
+// ✅ スキーマでデフォルト値を定義
+export const CounterDisplaySchema = z.object({
+  id: CommonSchemas.publicId,
+  type: CounterFieldSchemas.counterType.default('total'),
+  theme: CommonSchemas.theme.default('classic'),
+  format: CounterFieldSchemas.counterFormat.default('image')
+})
+
+// ❌ API層でのデフォルト値重複定義
+async function routeRequest(request: NextRequest) {
+  const format = searchParams.get('format') || 'image' // NG: スキーマと重複
+  // ...
+}
+```
+
+### APIルーティング層の責務
+- **やること**: アクションに応じた適切なハンドラー呼び出し
+- **やらないこと**: パラメータのデフォルト値設定、手動変換
+- **原則**: スキーマで定義された処理はスキーマに任せる
+
+### ハンドラー設計パターン
+```typescript
+// ✅ OK: スキーマの条件を尊重
+const svgHandler = ApiHandler.createSpecialResponse(
+  CounterSchemas.display, // そのまま使用
+  async ({ id, type, theme, format }) => {
+    // ハンドラー内でパラメータは既に正規化済み
+  }
+)
+
+// ❌ NG: スキーマ条件を上書き
+const svgHandler = ApiHandler.createSpecialResponse(
+  CounterSchemas.display.extend({
+    format: z.literal('image') // スキーマのデフォルト値を無効化
+  }),
+  // ...
+)
+```
+
 ## 注意事項
 
 - **CommonSchemas拡張時**: 本当に全サービスで必要かを慎重に検討
 - **FieldSchemas追加時**: 他サービスとの重複がないかを確認
 - **破壊的変更時**: 依存関係の影響を事前に調査
 - **新規参加者**: この設計書を必読として遵守を徹底
+- **デフォルト値**: スキーマで設定したデフォルト値を API層で上書きしない
+- **ハンドラー設計**: 不要な条件追加でスキーマの意図を歪めない
 
 ---
 

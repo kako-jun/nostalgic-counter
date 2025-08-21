@@ -46,6 +46,27 @@ https://nostalgic.llll-ll.com/api
 | `BUSINESS_LOGIC_ERROR` | 422 | ビジネスロジックエラー |
 | `STORAGE_ERROR` | 500 | ストレージエラー |
 
+### パラメータの仕様
+
+#### 必須・任意パラメータ
+- **必須パラメータ**: 省略時はバリデーションエラー
+- **任意パラメータ**: 省略時はスキーマで定義されたデフォルト値が適用
+
+#### デフォルト値の適用
+任意パラメータが未指定の場合、以下のデフォルト値が自動適用される：
+
+| パラメータ | デフォルト値 | 対象サービス |
+|-----------|------------|-------------|
+| `type` | `total` | Counter |
+| `theme` | `classic` | Counter, Like, Ranking, BBS |
+| `format` | `image` | Counter |
+| `format` | `interactive` | Like |
+| `page` | `1` | BBS |
+| `limit` | `10` | Ranking, BBS |
+
+**重要**: WebComponentsからパラメータを送信しない場合、上記デフォルト値が自動的に適用される。
+クライアント側でのデフォルト値設定は不要。
+
 ---
 
 ## Counter Service API
