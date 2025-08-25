@@ -39,7 +39,6 @@ export default function HomePage() {
   }, []);
 
   const voteForService = async (serviceName: string) => {
-    console.log('Voting for:', serviceName); // デバッグ用
     try {
       const rankingId = "nostalgic-9c044ad0";
       
@@ -49,51 +48,44 @@ export default function HomePage() {
       
       if (getCurrentResponse.ok) {
         const currentData = await getCurrentResponse.json();
-        const currentEntry = currentData.entries?.find((entry: any) => entry.name === serviceName);
+        const currentEntry = currentData.data?.entries?.find((entry: any) => entry.name === serviceName);
         if (currentEntry) {
           currentScore = currentEntry.score + 1;
         }
       }
       
-      // 正しいAPI呼び出し: 公開IDのみ使用
+      // 投票を送信
       const voteResponse = await fetch(`/api/ranking?action=submit&id=${rankingId}&name=${encodeURIComponent(serviceName)}&score=${currentScore}`);
-      console.log('Vote response status:', voteResponse.status); // デバッグ用
       
       if (voteResponse.ok) {
-        const responseData = await voteResponse.json();
-        console.log('Vote response data:', responseData); // デバッグ用
         setVotingMessage(`${serviceName}に投票しました！ありがとうございます 🎉`);
         setTimeout(() => setVotingMessage(''), 3000);
-        // 結果を自動更新
-        setTimeout(() => loadVotingResults(), 500);
+        
+        // WebComponentsを再読み込み
+        const rankingComponents = document.querySelectorAll('nostalgic-ranking');
+        rankingComponents.forEach(component => {
+          if (component.loadRankingData) {
+            component.loadRankingData();
+          }
+        });
       } else {
-        const errorData = await voteResponse.text();
-        console.error('Vote failed:', errorData);
         setVotingMessage('投票に失敗しました。もう一度お試しください。');
       }
     } catch (error) {
       setVotingMessage('エラーが発生しました。');
-      console.error('Vote error:', error);
     }
   };
   
   const loadVotingResults = async () => {
-    console.log('Loading voting results...'); // デバッグ用
     try {
       const rankingId = "nostalgic-9c044ad0";
-      
       const response = await fetch(`/api/ranking?action=get&id=${rankingId}&limit=4`);
-      console.log('Load results response status:', response.status); // デバッグ用
       if (response.ok) {
         const data = await response.json();
-        console.log('Load results data:', data); // デバッグ用
-        setVotingResults(data.entries || []);
-      } else {
-        const errorText = await response.text();
-        console.error('Failed to load results:', errorText);
+        setVotingResults(data.data?.entries || []);
       }
     } catch (error) {
-      console.error('Failed to load voting results:', error);
+      // エラーは無視
     }
   };
 

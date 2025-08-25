@@ -95,14 +95,18 @@ export default function RankingPage() {
         console.log('Current ranking data:', currentData);
         const currentEntry = currentData.data?.entries?.find((entry: any) => entry.name === serviceName);
         console.log('Found current entry:', currentEntry);
+        console.log('serviceName:', serviceName);
+        console.log('currentEntry truthy?', !!currentEntry);
         if (currentEntry) {
-          newScore = currentEntry.score + 1;
+          newScore = Number(currentEntry.score) + 1;
           console.log('New score will be:', newScore);
         } else {
           console.log('No existing entry found for:', serviceName);
+          newScore = 1; // 新規エントリの場合は1から開始
         }
       } else {
         console.log('Failed to get current ranking');
+        newScore = 1; // エラーの場合も1から開始
       }
       
       console.log('Submitting vote with score:', newScore);
