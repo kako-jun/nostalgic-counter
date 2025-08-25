@@ -92,16 +92,25 @@ export default function RankingPage() {
       let newScore = 1;
       if (getCurrentResponse.ok) {
         const currentData = await getCurrentResponse.json();
-        const currentEntry = currentData.entries?.find((entry: any) => entry.name === serviceName);
+        console.log('Current ranking data:', currentData);
+        const currentEntry = currentData.data?.entries?.find((entry: any) => entry.name === serviceName);
+        console.log('Found current entry:', currentEntry);
         if (currentEntry) {
           newScore = currentEntry.score + 1;
+          console.log('New score will be:', newScore);
+        } else {
+          console.log('No existing entry found for:', serviceName);
         }
+      } else {
+        console.log('Failed to get current ranking');
       }
       
+      console.log('Submitting vote with score:', newScore);
       const voteResponse = await fetch(`/api/ranking?action=submit&id=${rankingId}&name=${encodeURIComponent(serviceName)}&score=${newScore}`);
       
       if (voteResponse.ok) {
         const voteData = await voteResponse.json();
+        console.log('Vote response data:', voteData);
         setVotingMessage(`${serviceName}に投票しました！ありがとうございます 🎉`);
         setTimeout(() => setVotingMessage(''), 3000);
         // APIレスポンスから直接最新のランキングデータを取得して表示
