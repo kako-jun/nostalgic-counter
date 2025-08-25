@@ -109,6 +109,7 @@ ranking:{id} → JSON {
   id: string,
   url: string,
   created: ISO8601,
+  lastSubmit: ISO8601 | null,
   maxEntries: number,
   owner: hashed_token | null
 }

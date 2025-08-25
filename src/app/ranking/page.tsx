@@ -103,10 +103,16 @@ export default function RankingPage() {
       const voteResponse = await fetch(`/api/ranking?action=submit&id=${rankingId}&name=${encodeURIComponent(serviceName)}&score=${currentScore}`);
       
       if (voteResponse.ok) {
+        const voteData = await voteResponse.json();
         setVotingMessage(`${serviceName}に投票しました！ありがとうございます 🎉`);
         setTimeout(() => setVotingMessage(''), 3000);
-        // 結果を自動更新
-        loadVotingResults();
+        // APIレスポンスから直接最新のランキングデータを取得して表示
+        if (voteData.rankings) {
+          setVotingResults(voteData.rankings.slice(0, 4));
+        } else {
+          // フォールバック: 少し遅延を入れてリロード
+          setTimeout(() => loadVotingResults(), 100);
+        }
       } else {
         setVotingMessage('投票に失敗しました。もう一度お試しください。');
       }

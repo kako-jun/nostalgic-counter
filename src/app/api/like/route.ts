@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { ApiHandler } from '@/lib/core/api-handler'
 import { Ok, Err, map, ValidationError } from '@/lib/core/result'
 import { likeService } from '@/domain/like/like.service'
+import { generatePublicId } from '@/lib/core/id'
 import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
 import { getCacheSettings } from '@/lib/core/config'
 import { getClientIP, getUserAgent } from '@/lib/utils/api'
@@ -222,13 +223,14 @@ const deleteHandler = ApiHandler.create({
   paramsSchema: LikeSchemas.delete,
   resultSchema: UnifiedAPISchemas.deleteSuccess,
   handler: async ({ url, token }) => {
+    const publicId = generatePublicId(url)
     const deleteResult = await likeService.delete(url, token)
     
     if (!deleteResult.success) {
       return deleteResult
     }
 
-    return Ok({ success: true as const, message: 'Like deleted successfully' })
+    return Ok({ success: true as const, message: 'Like deleted successfully', id: publicId })
   }
 })
 

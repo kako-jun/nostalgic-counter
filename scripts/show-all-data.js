@@ -33,15 +33,18 @@ async function showAllData() {
       const id = parts[1];
       
       if (key.includes(':total')) {
-        if (!counters.has(id)) counters.set(id, { total: 0, dailyData: new Map() });
+        if (!counters.has(id)) counters.set(id, { total: 0, dailyData: new Map(), lastVisit: null });
         counters.get(id).total = parseInt(await redis.get(key) || 0);
       } else if (key.includes(':daily:')) {
         const date = parts[3];
-        if (!counters.has(id)) counters.set(id, { total: 0, dailyData: new Map() });
+        if (!counters.has(id)) counters.set(id, { total: 0, dailyData: new Map(), lastVisit: null });
         counters.get(id).dailyData.set(date, parseInt(await redis.get(key)));
-      } else if (!key.includes(':owner') && !key.includes(':lastVisit')) {
+      } else if (key.includes(':lastVisit')) {
+        if (!counters.has(id)) counters.set(id, { total: 0, dailyData: new Map(), lastVisit: null });
+        counters.get(id).lastVisit = await redis.get(key);
+      } else if (!key.includes(':owner')) {
         if (!counters.has(id)) {
-          counters.set(id, { metadata: null, total: 0, dailyData: new Map() });
+          counters.set(id, { metadata: null, total: 0, dailyData: new Map(), lastVisit: null });
         }
         counters.get(id).metadata = JSON.parse(await redis.get(key));
       }
@@ -50,7 +53,7 @@ async function showAllData() {
       const id = parts[1];
       
       if (key.includes(':total')) {
-        if (!likes.has(id)) likes.set(id, { total: 0 });
+        if (!likes.has(id)) likes.set(id, { total: 0, metadata: null });
         likes.get(id).total = parseInt(await redis.get(key) || 0);
       } else if (!key.includes(':owner') && !key.includes(':users')) {
         if (!likes.has(id)) likes.set(id, { metadata: null, total: 0 });
@@ -61,7 +64,7 @@ async function showAllData() {
       const id = parts[1];
       
       if (key.includes(':scores')) {
-        if (!rankings.has(id)) rankings.set(id, { entries: 0 });
+        if (!rankings.has(id)) rankings.set(id, { entries: 0, metadata: null });
         rankings.get(id).entries = await redis.zcard(key);
       } else if (!key.includes(':owner') && !key.includes(':meta')) {
         if (!rankings.has(id)) rankings.set(id, { metadata: null, entries: 0 });
@@ -72,7 +75,7 @@ async function showAllData() {
       const id = parts[1];
       
       if (key.includes(':messages')) {
-        if (!bbses.has(id)) bbses.set(id, { messages: 0 });
+        if (!bbses.has(id)) bbses.set(id, { messages: 0, metadata: null });
         bbses.get(id).messages = await redis.llen(key);
       } else if (!key.includes(':owner')) {
         if (!bbses.has(id)) bbses.set(id, { metadata: null, messages: 0 });
@@ -118,20 +121,17 @@ async function showAllData() {
     const url = data.metadata.url.length > 58 ? data.metadata.url.substring(0, 55) + '...' : data.metadata.url;
     const created = new Date(data.metadata.created).toISOString().substring(0, 19);
     
-    // 最終アクセス日の計算（最新の日別データから）
+    // 最終アクセス日の計算（lastVisitフィールドから）
     let lastAccess = 'Never';
     let daysIdle = '-';
     let daysToDel = '-';
     
-    if (data.dailyData.size > 0) {
-      const dates = Array.from(data.dailyData.keys()).sort();
-      const lastDate = dates[dates.length - 1];
-      lastAccess = lastDate;
+    if (data.lastVisit) {
+      lastAccess = data.lastVisit.substring(0, 10); // YYYY-MM-DD形式
       
-      const today = new Date().toISOString().substring(0, 10);
-      const lastAccessDate = new Date(lastDate);
-      const todayDate = new Date(today);
-      const diffTime = todayDate.getTime() - lastAccessDate.getTime();
+      const today = new Date();
+      const lastAccessDate = new Date(data.lastVisit);
+      const diffTime = today.getTime() - lastAccessDate.getTime();
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
       
       daysIdle = String(diffDays);
@@ -174,15 +174,22 @@ async function showAllData() {
     const url = data.metadata.url.length > 58 ? data.metadata.url.substring(0, 55) + '...' : data.metadata.url;
     const created = new Date(data.metadata.created).toISOString().substring(0, 19);
     
-    // いいねサービスは日別データがないので、作成日からの計算
-    const createdDate = new Date(data.metadata.created);
-    const today = new Date();
-    const diffTime = today.getTime() - createdDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    // 最終アクセス日の計算（lastLikeフィールドから）
+    let lastAccess = 'Never';
+    let daysIdle = '-';
+    let daysToDel = '-';
     
-    const lastAccess = data.total > 0 ? 'Unknown' : 'Never';
-    const daysIdle = String(diffDays);
-    const daysToDel = String(Math.max(0, 365 - diffDays));
+    if (data.metadata.lastLike) {
+      lastAccess = data.metadata.lastLike.substring(0, 10); // YYYY-MM-DD形式
+      
+      const today = new Date();
+      const lastAccessDate = new Date(data.metadata.lastLike);
+      const diffTime = today.getTime() - lastAccessDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      daysIdle = String(diffDays);
+      daysToDel = String(Math.max(0, 365 - diffDays));
+    }
     
     totalLikes += data.total;
     console.log(`| ${id.padEnd(19)} | ${url.padEnd(58)} | ${String(data.total).padStart(5)} | ${lastAccess.padEnd(11)} | ${String(daysIdle).padStart(9)} | ${String(daysToDel).padStart(11)} | ${created} |`);
@@ -219,15 +226,22 @@ async function showAllData() {
     const url = data.metadata.url.length > 58 ? data.metadata.url.substring(0, 55) + '...' : data.metadata.url;
     const created = new Date(data.metadata.created).toISOString().substring(0, 19);
     
-    // ランキングサービスも日別データがないので、作成日からの計算
-    const createdDate = new Date(data.metadata.created);
-    const today = new Date();
-    const diffTime = today.getTime() - createdDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    // 最終アクセス日の計算（lastSubmitフィールドから）
+    let lastAccess = 'Never';
+    let daysIdle = '-';
+    let daysToDel = '-';
     
-    const lastAccess = data.entries > 0 ? 'Unknown' : 'Never';
-    const daysIdle = String(diffDays);
-    const daysToDel = String(Math.max(0, 365 - diffDays));
+    if (data.metadata.lastSubmit) {
+      lastAccess = data.metadata.lastSubmit.substring(0, 10); // YYYY-MM-DD形式
+      
+      const today = new Date();
+      const lastAccessDate = new Date(data.metadata.lastSubmit);
+      const diffTime = today.getTime() - lastAccessDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      daysIdle = String(diffDays);
+      daysToDel = String(Math.max(0, 365 - diffDays));
+    }
     
     totalRankingEntries += data.entries;
     const maxEntries = data.metadata?.maxEntries || 'N/A';
@@ -265,15 +279,22 @@ async function showAllData() {
     const url = data.metadata.url.length > 58 ? data.metadata.url.substring(0, 55) + '...' : data.metadata.url;
     const created = new Date(data.metadata.created).toISOString().substring(0, 19);
     
-    // BBSも日別データがないので、作成日からの計算
-    const createdDate = new Date(data.metadata.created);
-    const today = new Date();
-    const diffTime = today.getTime() - createdDate.getTime();
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    // 最終アクセス日の計算（lastPostフィールドから）
+    let lastAccess = 'Never';
+    let daysIdle = '-';
+    let daysToDel = '-';
     
-    const lastAccess = data.messages > 0 ? 'Unknown' : 'Never';
-    const daysIdle = String(diffDays);
-    const daysToDel = String(Math.max(0, 365 - diffDays));
+    if (data.metadata.lastPost) {
+      lastAccess = data.metadata.lastPost.substring(0, 10); // YYYY-MM-DD形式
+      
+      const today = new Date();
+      const lastAccessDate = new Date(data.metadata.lastPost);
+      const diffTime = today.getTime() - lastAccessDate.getTime();
+      const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      
+      daysIdle = String(diffDays);
+      daysToDel = String(Math.max(0, 365 - diffDays));
+    }
     
     totalBbsMessages += data.messages;
     const maxMessages = data.metadata?.settings?.maxMessages || 'N/A';

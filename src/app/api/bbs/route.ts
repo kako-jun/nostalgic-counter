@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { ApiHandler } from '@/lib/core/api-handler'
 import { Ok, map } from '@/lib/core/result'
 import { bbsService } from '@/domain/bbs/bbs.service'
+import { generatePublicId } from '@/lib/core/id'
 import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
 import { getClientIP, getUserAgent } from '@/lib/utils/api'
 import {
@@ -216,13 +217,14 @@ const deleteHandler = ApiHandler.create({
   paramsSchema: BBSSchemas.delete,
   resultSchema: UnifiedAPISchemas.deleteSuccess,
   handler: async ({ url, token }) => {
+    const publicId = generatePublicId(url)
     const deleteResult = await bbsService.delete(url, token)
     
     if (!deleteResult.success) {
       return deleteResult
     }
 
-    return Ok({ success: true as const, message: 'BBS deleted successfully' })
+    return Ok({ success: true as const, message: 'BBS deleted successfully', id: publicId })
   }
 })
 

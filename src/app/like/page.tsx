@@ -77,7 +77,7 @@ export default function LikePage() {
         return (
           <>
             <div className="nostalgic-title-bar">
-              ★ Nostalgic Counter ★
+              ★ Nostalgic Like ★
               <br />
               使い方
             </div>
@@ -86,7 +86,7 @@ export default function LikePage() {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆STEP 1: カウンター作成◆</b>
+                  <b>◆STEP 1: いいねボタン作成◆</b>
                 </span>
               </p>
               <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
@@ -99,11 +99,11 @@ export default function LikePage() {
                   wordBreak: "break-all",
                 }}
               >
-                https://nostalgic.llll-ll.com/api/visit?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                https://nostalgic.llll-ll.com/api/like?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
                 &token=<span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <p>
-                ※サイトURLには、カウンターを設置する予定のサイトを指定してください。「https://」から始まっている必要があります。
+                ※サイトURLには、いいねボタンを設置する予定のサイトを指定してください。「https://」から始まっている必要があります。
                 <br />
                 ※オーナートークンに、
                 <span style={{ color: "#ff0000" }}>ほかのサイトでのパスワードを使い回さないでください</span>
@@ -207,33 +207,31 @@ export default function LikePage() {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆STEP 2: カウンター表示◆</b>
+                  <b>◆STEP 2: いいねボタン表示◆</b>
                 </span>
               </p>
               <p>あなたのサイトのHTMLに以下のコードを追加してください。</p>
               <pre style={{ backgroundColor: "#f0f0f0", padding: "10px", overflow: "auto", fontSize: "14px", margin: "10px 0" }}>
-                {`<script src="https://nostalgic.llll-ll.com/components/visit.js"></script>
-<nostalgic-counter id="`}
+                {`<script src="https://nostalgic.llll-ll.com/components/like.js"></script>
+<nostalgic-like id="`}
                 <span style={{ color: "#008000" }}>公開ID</span>
-                {`" type="`}
-                <span style={{ color: "#008000" }}>total</span>
                 {`" theme="`}
                 <span style={{ color: "#008000" }}>classic</span>
-                {`"></nostalgic-counter>`}
+                {`" icon="`}
+                <span style={{ color: "#008000" }}>heart</span>
+                {`"></nostalgic-like>`}
               </pre>
               
               <div className="nostalgic-section">
                 <p>
                   <span className="nostalgic-section-title">
-                    <b>◆type 期間タイプ◆</b>
+                    <b>◆format 表示形式◆</b>
                   </span>
                 </p>
                 <p>
-                  • <span style={{ color: "#008000" }}>total</span> - 累計訪問数
-                  <br />• <span style={{ color: "#008000" }}>today</span> - 今日の訪問数
-                  <br />• <span style={{ color: "#008000" }}>yesterday</span> - 昨日の訪問数
-                  <br />• <span style={{ color: "#008000" }}>week</span> - 今週の訪問数
-                  <br />• <span style={{ color: "#008000" }}>month</span> - 今月の訪問数
+                  • <span style={{ color: "#008000" }}>interactive</span> - インタラクティブボタン（デフォルト）
+                  <br />• <span style={{ color: "#008000" }}>text</span> - 数値のみ表示
+                  <br />• <span style={{ color: "#008000" }}>image</span> - SVG画像形式
                 </p>
               </div>
 
@@ -290,44 +288,6 @@ declare module 'react' {
                   ※この設定により、TypeScriptでWeb Componentsを使用してもビルドエラーが発生しません。
                 </p>
               </div>
-
-              {publicId && (
-                <div className="nostalgic-section">
-                  <p>
-                    <span className="nostalgic-section-title">
-                      <b>◆このように表示されます◆</b>
-                    </span>
-                  </p>
-                  <div style={{ textAlign: "center", margin: "20px 0" }}>
-                    <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
-                      <div style={{ textAlign: "center" }}>
-                        <p style={{ fontSize: "14px", marginBottom: "10px" }}>Classic</p>
-                        <img 
-                          src={`/api/visit?action=display&id=${publicId}&type=total&theme=classic`}
-                          alt="Classic Counter"
-                          style={{ border: "1px solid #ccc" }}
-                        />
-                      </div>
-                      <div style={{ textAlign: "center" }}>
-                        <p style={{ fontSize: "14px", marginBottom: "10px" }}>Modern</p>
-                        <img 
-                          src={`/api/visit?action=display&id=${publicId}&type=total&theme=modern`}
-                          alt="Modern Counter"
-                          style={{ border: "1px solid #ccc" }}
-                        />
-                      </div>
-                      <div style={{ textAlign: "center" }}>
-                        <p style={{ fontSize: "14px", marginBottom: "10px" }}>Retro</p>
-                        <img 
-                          src={`/api/visit?action=display&id=${publicId}&type=total&theme=retro`}
-                          alt="Retro Counter"
-                          style={{ border: "1px solid #ccc" }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
             </div>
 
             <div className="nostalgic-section">
@@ -346,7 +306,7 @@ declare module 'react' {
                   wordBreak: "break-all",
                 }}
               >
-                https://nostalgic.llll-ll.com/api/visit?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                https://nostalgic.llll-ll.com/api/like?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
                 &token=<span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
@@ -412,7 +372,7 @@ declare module 'react' {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆カウンター値を設定したいときは？◆</b>
+                  <b>◆いいね数を設定したいときは？◆</b>
                 </span>
               </p>
               <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
@@ -425,7 +385,7 @@ declare module 'react' {
                   wordBreak: "break-all",
                 }}
               >
-                https://nostalgic.llll-ll.com/api/visit?action=set&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                https://nostalgic.llll-ll.com/api/like?action=set&url=<span style={{ color: "#008000" }}>サイトURL</span>
                 &token=<span style={{ color: "#008000" }}>オーナートークン</span>&total=<span style={{ color: "#008000" }}>数値</span>
               </p>
               <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
@@ -501,7 +461,7 @@ declare module 'react' {
                     }}
                     onClick={() => setMode("set")}
                   >
-                    値設定
+                    いいね数設定
                   </button>
                 </p>
               </form>
@@ -771,22 +731,17 @@ declare module 'react' {
               )}
             </div>
 
-
             {publicId && (
-              <div className="nostalgic-counter-section">
+              <div className="nostalgic-section">
                 <p>
                   <span style={{ color: "#ff8c00" }}>
-                    <b>◆カウンター設置方法◆</b>
+                    <b>◆いいねボタン設置方法◆</b>
                   </span>
                 </p>
                 <p>公開ID: <span style={{ backgroundColor: "#ffff00", padding: "2px 4px", fontFamily: "monospace" }}>{publicId}</span></p>
                 <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px", wordBreak: "break-all" }}>
-{`<script src="https://nostalgic.llll-ll.com/components/visit.js"></script>
-<nostalgic-counter id="${publicId}" type="total" theme="classic"></nostalgic-counter>`}
-                </p>
-                <p>表示URL:</p>
-                <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px", wordBreak: "break-all" }}>
-                  {`https://nostalgic.llll-ll.com/api/visit?action=display&id=${publicId}&type=total&theme=classic`}
+{`<script src="https://nostalgic.llll-ll.com/components/like.js"></script>
+<nostalgic-like id="${publicId}" theme="classic" icon="heart"></nostalgic-like>`}
                 </p>
               </div>
             )}
@@ -799,14 +754,14 @@ declare module 'react' {
         return (
           <>
             <div className="nostalgic-title-bar">
-              ★ Nostalgic Counter ★
+              ★ Nostalgic Like ★
               <br />
               機能一覧
             </div>
 
             <div className="nostalgic-marquee-box">
               <div className="nostalgic-marquee-text">
-                懐かしのアクセスカウンターがここに復活！累計・今日・昨日・週間・月間のカウントを表示できます！
+                懐かしのいいねボタンがここに復活！ハート・星・サムズアップのアイコンでサイトを盛り上げましょう！
               </div>
             </div>
 
@@ -817,11 +772,13 @@ declare module 'react' {
                 </span>
               </p>
               <p>
-                <span>●</span> 累計・日別・週別・月別カウント
+                <span>●</span> トグル型いいね・いいね取り消し機能
                 <br />
-                <span>●</span> 24時間重複カウント防止
+                <span>●</span> 24時間ユーザー状態記憶
                 <br />
                 <span>●</span> 3種類のデザインテーマ
+                <br />
+                <span>●</span> 3種類のアイコン（ハート・星・サムズアップ）
                 <br />
                 <span>●</span> Web Componentsで簡単設置
               </p>
@@ -838,8 +795,7 @@ declare module 'react' {
                 <br />
                 <span>●</span> バレてもかまわない「公開ID」で表示専用アクセス
                 <br />
-                <span>●</span> カウンター値の手動設定（
-                <span style={{ textDecoration: "line-through" }}>訪問者数を水増し可能</span> リセットされても再開可能）
+                <span>●</span> いいね数の手動設定（リセットされても再開可能）
               </p>
             </div>
 
@@ -854,7 +810,7 @@ declare module 'react' {
                 <br />
                 • Redis でデータ保存
                 <br />
-                • SVG画像で美しい表示
+                • インタラクティブボタンで即座のフィードバック
                 <br />• 必要なすべての要素が無料プランの範囲で動作するため、完全無料・広告なしを実現
               </p>
             </div>
@@ -866,7 +822,7 @@ declare module 'react' {
         return (
           <>
             <div className="nostalgic-title-bar">
-              ★ Nostalgic Counter ★
+              ★ Nostalgic Like ★
               <br />
               API仕様
             </div>
@@ -874,15 +830,15 @@ declare module 'react' {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆カウンター作成◆</b>
+                  <b>◆いいねボタン作成◆</b>
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/visit?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                GET /api/like?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
                 <span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <p style={{ lineHeight: "1.2" }}>
-                新しいカウンターを作成し、公開IDを取得します。
+                新しいいいねボタンを作成し、公開IDを取得します。
                 <br />
                 レスポンス:{" "}
                 <span
@@ -894,83 +850,70 @@ declare module 'react' {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆カウントアップ◆</b>
+                  <b>◆いいねトグル◆</b>
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/visit?action=increment&id=<span style={{ color: "#008000" }}>公開ID</span>
+                GET /api/like?action=toggle&id=<span style={{ color: "#008000" }}>公開ID</span>
               </p>
               <p style={{ lineHeight: "1.2" }}>
-                カウンターの値を1増加します。24時間重複防止機能付き。
+                いいねの状態をトグル（オン/オフ切り替え）します。24時間ユーザー記憶機能付き。
                 <br />
                 <br />
-                ※Web Componentsを使用している場合は自動でカウントアップされるため、通常は直接呼ぶ必要はありません。
+                ※Web Componentsを使用している場合は自動でトグルされるため、通常は直接呼ぶ必要はありません。
                 <br />
                 <br />
                 レスポンス:{" "}
                 <span
                   style={{ backgroundColor: "#000000", color: "#ffffff", padding: "2px 4px", fontFamily: "monospace" }}
-                >{`{ "total": 数値, "today": 数値, "yesterday": 数値, ... }`}</span>
+                >{`{ "total": 数値, "userLiked": true/false }`}</span>
               </p>
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆カウンター画像取得◆</b>
+                  <b>◆いいね数取得◆</b>
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/visit?action=display&id=<span style={{ color: "#008000" }}>公開ID</span>&type=
-                <span style={{ color: "#008000" }}>期間タイプ</span>&theme=
-                <span style={{ color: "#008000" }}>デザインテーマ</span>
+                GET /api/like?action=get&id=<span style={{ color: "#008000" }}>公開ID</span>
               </p>
-              <p>
-                SVG画像を返します。img タグの src に直接指定可能。
-              </p>
-              <p>
-                ※typeとthemeは省略可能（type=total, theme=classicがデフォルト）
+              <p style={{ lineHeight: "1.2" }}>
+                現在のいいね数とユーザーのいいね状態を取得します。
+                <br />
+                レスポンス:{" "}
+                <span
+                  style={{ backgroundColor: "#000000", color: "#ffffff", padding: "2px 4px", fontFamily: "monospace" }}
+                >{`{ "total": 数値, "userLiked": true/false }`}</span>
               </p>
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆カウンターテキスト取得◆</b>
+                  <b>◆いいね数設定◆</b>
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/visit?action=display&id=<span style={{ color: "#008000" }}>公開ID</span>&format=
-                <span style={{ color: "#008000" }}>text</span>
-              </p>
-              <p>数値のみをテキスト形式で返します。JavaScriptでの処理に便利。</p>
-            </div>
-
-            <div className="nostalgic-section">
-              <p>
-                <span className="nostalgic-section-title">
-                  <b>◆カウンター値設定◆</b>
-                </span>
-              </p>
-              <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/visit?action=set&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                GET /api/like?action=set&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
                 <span style={{ color: "#008000" }}>オーナートークン</span>&total=
                 <span style={{ color: "#008000" }}>数値</span>
               </p>
-              <p>カウンター値を手動で設定します。オーナートークンが必要。</p>
+              <p>いいね数を手動で設定します。オーナートークンが必要。</p>
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆カウンター削除◆</b>
+                  <b>◆いいね削除◆</b>
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/visit?action=delete&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
+                GET /api/like?action=delete&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
                 <span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
-              <p>カウンターを完全に削除します。オーナートークンが必要。</p>
+              <p>いいねを完全に削除します。オーナートークンが必要。</p>
             </div>
 
             <hr />
@@ -994,19 +937,19 @@ declare module 'react' {
     <>
       {/* 構造化データ */}
       <ServiceStructuredData 
-        name="Nostalgic Counter"
-        description="懐かしいアクセスカウンターサービス。24時間重複防止機能付き、累計・日別・週別・月別カウントに対応。"
-        url="https://nostalgic.llll-ll.com/counter"
-        serviceType="Web Counter Service"
+        name="Nostalgic Like"
+        description="懐かしいいいねボタンサービス。トグル型いいね・いいね取り消し機能、ユーザー状態管理、3種類のアイコンに対応。"
+        url="https://nostalgic.llll-ll.com/like"
+        serviceType="Web Like Service"
       />
       <BreadcrumbStructuredData 
         items={[
           { name: "Nostalgic", url: "https://nostalgic.llll-ll.com" },
-          { name: "Counter", url: "https://nostalgic.llll-ll.com/counter" }
+          { name: "Like", url: "https://nostalgic.llll-ll.com/like" }
         ]}
       />
       
-      <NostalgicLayout serviceName="Counter" serviceIcon="📊">
+      <NostalgicLayout serviceName="Like" serviceIcon="💖">
         {renderContent()}
       </NostalgicLayout>
     </>

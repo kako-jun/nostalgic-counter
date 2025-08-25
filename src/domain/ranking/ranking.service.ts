@@ -79,7 +79,6 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
       totalEntries: entity.totalEntries,
       maxEntries: entity.maxEntries,
       title: entity.title,
-      lastUpdate: entity.lastUpdate
     }
 
     return ValidationFramework.output(RankingDataSchema, data)
@@ -158,7 +157,7 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
     await this.enforceMaxEntries(entity.id, limits.maxEntries)
 
     // エンティティ更新
-    entity.lastUpdate = new Date()
+    entity.lastSubmit = new Date()
     const totalResult = await this.sortedSetRepository.count(`${entity.id}:scores`)
     if (totalResult.success) {
       entity.totalEntries = totalResult.data
@@ -241,7 +240,7 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
     await this.enforceMaxEntries(entity.id, limits.maxEntries)
 
     // エンティティ更新
-    entity.lastUpdate = new Date()
+    entity.lastSubmit = new Date()
     const totalResult = await this.sortedSetRepository.count(`${entity.id}:scores`)
     if (totalResult.success) {
       entity.totalEntries = totalResult.data
@@ -286,7 +285,7 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
     }
 
     // エンティティ更新
-    entity.lastUpdate = new Date()
+    entity.lastSubmit = new Date()
     const saveResult = await this.entityRepository.save(entity.id, entity)
     if (!saveResult.success) {
       return Err(new ValidationError('Failed to save entity', { error: saveResult.error }))
@@ -322,7 +321,7 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
     }
 
     // エンティティ更新
-    entity.lastUpdate = new Date()
+    entity.lastSubmit = new Date()
     const totalResult = await this.sortedSetRepository.count(`${entity.id}:scores`)
     if (totalResult.success) {
       entity.totalEntries = totalResult.data
@@ -363,7 +362,7 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
 
     // エンティティ更新
     entity.totalEntries = 0
-    entity.lastUpdate = new Date()
+    entity.lastSubmit = new Date()
 
     const saveResult = await this.entityRepository.save(entity.id, entity)
     if (!saveResult.success) {
@@ -435,7 +434,6 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
       totalEntries: entity.totalEntries,
       maxEntries: entity.maxEntries,
       title: entity.title,
-      lastUpdate: entity.lastUpdate
     }
 
     return ValidationFramework.output(RankingDataSchema, data)

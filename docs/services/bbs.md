@@ -91,8 +91,23 @@ GET /api/bbs?action=update&url={URL}&messageId={MESSAGE_ID}&message={NEW_MESSAGE
 **Response:**
 ```json
 {
-  "success": true,
-  "message": "Message updated successfully"
+  "id": "yoursite-a7b9c3d4",
+  "url": "https://yoursite.com",
+  "messages": [
+    {
+      "id": "msg_123456789",
+      "author": "User",
+      "message": "Updated message content",
+      "timestamp": "2024-01-15T10:30:00.000Z",
+      "dropdown1": "Option A",
+      "dropdown2": "Option B",
+      "dropdown3": "Option C",
+      "icon": "smile"
+    }
+  ],
+  "page": 1,
+  "hasMore": false,
+  "totalMessages": 1
 }
 ```
 
@@ -111,8 +126,12 @@ GET /api/bbs?action=remove&url={URL}&token={TOKEN}&messageId={MESSAGE_ID}
 **Response:**
 ```json
 {
-  "success": true,
-  "message": "Message removed successfully"
+  "id": "yoursite-a7b9c3d4",
+  "url": "https://yoursite.com",
+  "messages": [],
+  "page": 1,
+  "hasMore": false,
+  "totalMessages": 0
 }
 ```
 
@@ -130,8 +149,12 @@ GET /api/bbs?action=clear&url={URL}&token={TOKEN}
 **Response:**
 ```json
 {
-  "success": true,
-  "message": "BBS for https://yoursite.com has been cleared"
+  "id": "yoursite-a7b9c3d4",
+  "url": "https://yoursite.com",
+  "messages": [],
+  "page": 1,
+  "hasMore": false,
+  "totalMessages": 0
 }
 ```
 

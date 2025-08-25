@@ -7,6 +7,7 @@ import { z } from 'zod'
 import { ApiHandler } from '@/lib/core/api-handler'
 import { Ok, map } from '@/lib/core/result'
 import { rankingService } from '@/domain/ranking/ranking.service'
+import { generatePublicId } from '@/lib/core/id'
 import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
 import { getClientIP } from '@/lib/utils/api'
 import { createHash } from 'crypto'
@@ -116,13 +117,14 @@ const deleteHandler = ApiHandler.create({
   paramsSchema: RankingSchemas.delete,
   resultSchema: UnifiedAPISchemas.deleteSuccess,
   handler: async ({ url, token }) => {
+    const publicId = generatePublicId(url)
     const deleteResult = await rankingService.delete(url, token)
     
     if (!deleteResult.success) {
       return deleteResult
     }
 
-    return Ok({ success: true as const, message: 'Ranking deleted successfully' })
+    return Ok({ success: true as const, message: 'Ranking deleted successfully', id: publicId })
   }
 })
 

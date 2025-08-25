@@ -75,8 +75,14 @@ GET /api/ranking?action=update&url={URL}&token={TOKEN}&name={PLAYER_NAME}&score=
 **Response:**
 ```json
 {
-  "success": true,
-  "message": "Score for Player1 has been updated to 1500"
+  "id": "yoursite-a7b9c3d4",
+  "url": "https://yoursite.com",
+  "rankings": [
+    { "name": "Player1", "score": 1500 },
+    { "name": "Player2", "score": 900 },
+    { "name": "Player3", "score": 500 }
+  ],
+  "maxEntries": 100
 }
 ```
 
@@ -95,8 +101,13 @@ GET /api/ranking?action=remove&url={URL}&token={TOKEN}&name={PLAYER_NAME}
 **Response:**
 ```json
 {
-  "success": true,
-  "message": "Score for Player1 has been removed"
+  "id": "yoursite-a7b9c3d4",
+  "url": "https://yoursite.com",
+  "rankings": [
+    { "name": "Player2", "score": 900 },
+    { "name": "Player3", "score": 500 }
+  ],
+  "maxEntries": 100
 }
 ```
 
@@ -114,8 +125,10 @@ GET /api/ranking?action=clear&url={URL}&token={TOKEN}
 **Response:**
 ```json
 {
-  "success": true,
-  "message": "Ranking for https://yoursite.com has been cleared"
+  "id": "yoursite-a7b9c3d4",
+  "url": "https://yoursite.com",
+  "rankings": [],
+  "maxEntries": 100
 }
 ```
 

@@ -92,8 +92,13 @@ GET /api/visit?action=set&url={URL}&token={TOKEN}&total={VALUE}
 **Response:**
 ```json
 {
-  "success": true,
-  "message": "Counter value set to 12345"
+  "id": "yoursite-a7b9c3d4",
+  "url": "https://yoursite.com",
+  "total": 12345,
+  "today": 0,
+  "yesterday": 0,
+  "week": 0,
+  "month": 0
 }
 ```
 
