@@ -307,13 +307,16 @@ class NostalgicBBS extends HTMLElement {
           padding: 10px;
           text-align: center;
           border-top: 1px solid ${style.borderColor};
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
         }
         .pagination button {
           background: ${style.headerBg};
           color: ${style.headerColor};
           border: 1px solid ${style.borderColor};
           padding: 4px 8px;
-          margin: 0 2px;
           cursor: pointer;
           font-family: inherit;
           font-size: 12px;
@@ -326,7 +329,10 @@ class NostalgicBBS extends HTMLElement {
           cursor: default;
         }
         .pagination .current-page {
-          margin: 0 8px;
+          font-size: 12px;
+          font-family: inherit;
+          color: ${style.textColor};
+          padding: 4px 8px;
         }
         .empty-message {
           text-align: center;
