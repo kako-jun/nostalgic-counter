@@ -7,6 +7,13 @@
 - [**Redis Database Structure**](.claude/redis-database-structure.md) - DB構造の完全仕様書（削除時は必読）
 - [**統一スキーマアーキテクチャ**](.claude/unified-schema-architecture.md) - スキーマ設計原則（新機能追加時は必読）
 
+## 🛠️ 設計ドキュメント（開発用）
+- [**DDD Architecture**](.claude/architecture.md) - ドメイン駆動設計の詳細仕様
+- [**API Specification**](.claude/api-specification.md) - APIの完全仕様書
+- [**BBS Design**](.claude/bbs-design.md) - BBS機能の設計書
+- [**WebComponents Design**](.claude/webcomponents-defensive-programming.md) - WebComponentsの設計方針
+- [**Tasks Management**](.claude/tasks.md) - プロジェクトタスク管理
+
 ## 実装済み機能（4サービス）
 
 ### 📊 Counter Service
@@ -106,8 +113,10 @@ bbs:{id}                       → メタデータ
 - `public/components/visit.js` - カウンター Web Component
 
 ### Documentation
-- `docs/API.md` - 総合API仕様
+- `docs/api.md` - 総合API仕様
 - `docs/services/` - サービス別詳細文書（英語・日本語）
+- `docs/customization.md` - カスタマイズガイド
+- `.claude/` - 開発用設計ドキュメント
 
 ## メンテナンス・管理
 

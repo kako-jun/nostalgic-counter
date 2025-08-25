@@ -99,10 +99,12 @@ classDiagram
 src/
 ├── app/                      # Next.js App Router
 │   ├── api/                  # API Routes
-│   │   ├── counter/
-│   │   ├── like/
-│   │   ├── ranking/
-│   │   └── bbs/
+│   │   ├── visit/            # Counter API
+│   │   ├── like/             # Like API
+│   │   ├── ranking/          # Ranking API
+│   │   ├── bbs/              # BBS API
+│   │   └── admin/            # Admin API
+│   │       └── cleanup/
 │   └── (pages)/             # フロントエンドページ
 │
 ├── domain/                   # ドメイン層
@@ -132,6 +134,9 @@ src/
 │   │   ├── repository.ts   # リポジトリパターン
 │   │   ├── result.ts       # Result型
 │   │   └── validation.ts   # バリデーション
+│   │
+│   ├── validation/         # バリデーション関連
+│   │   └── service-schemas.ts # サービス別アクションスキーマ
 │   │
 │   └── utils/              # ユーティリティ
 │       ├── api.ts

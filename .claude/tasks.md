@@ -1,71 +1,70 @@
 # Nostalgic - 実装タスク
 
-## 🚨 緊急タスク（動作確認・修正必要）
+## ✅ 実装済みサービス
 
-### 1. DDD化後の動作確認 🔥
-- [ ] **Counter Service**: リファクタリング後の動作確認
-  - [ ] 作成（create）
-  - [ ] カウントアップ（increment）
-  - [ ] 値設定（set）
-  - [ ] 表示（display）- SVG、JSON、テキスト
-  - [ ] 重複防止機能
-  - [ ] 日別統計の正常動作
-- [ ] **Like Service**: 初回動作確認
-  - [ ] 作成（create）
-  - [ ] いいね切り替え（toggle）
-  - [ ] 状態取得（get）
-  - [ ] ユーザー状態の24時間保持
-- [ ] **Ranking Service**: 初回動作確認
-  - [ ] 作成（create）
-  - [ ] スコア送信（submit）
-  - [ ] スコア更新（update）
-  - [ ] エントリー削除（remove）
-  - [ ] ランキング取得（get）
-  - [ ] 全クリア（clear）
-- [ ] **BBS Service**: 初回動作確認
-  - [ ] 作成（create）
-  - [ ] メッセージ投稿（post）
-  - [ ] メッセージ編集（update）
-  - [ ] メッセージ削除（remove）
-  - [ ] メッセージ一覧（get）
-  - [ ] ページネーション
-  - [ ] カスタムドロップダウン・アイコン
+### 1. Counter Service ✅
+- [x] **API実装**: `/api/visit`
+  - [x] 作成（create）
+  - [x] カウントアップ（increment）
+  - [x] 値設定（set）
+  - [x] 表示（display）- SVG、JSON、テキスト
+  - [x] 削除（delete）
+  - [x] 重複防止機能（24時間）
+  - [x] 日別統計の自動集計
 
-### 2. デモページの仕様確認・改善 🔥
-- [ ] 各サービスデモページのUIレビュー
-  - [ ] ボタン操作での作成機能の是非
-  - [ ] エラーハンドリングの改善
-  - [ ] ユーザビリティの向上
-- [ ] APIエンドポイントの正しいパス確認
-  - [ ] `/api/visit` （旧 `/api/v2/counter`）
-  - [ ] `/api/like` （実装必要）
-  - [ ] `/api/ranking` （実装必要）
-  - [ ] `/api/bbs` （実装必要）
+### 2. Like Service ✅
+- [x] **API実装**: `/api/like`
+  - [x] 作成（create）
+  - [x] いいね切り替え（toggle）
+  - [x] 状態取得（get）
+  - [x] 表示（display）
+  - [x] 値設定（set）
+  - [x] 削除（delete）
+  - [x] ユーザー状態の24時間保持
 
-### 3. ドキュメント更新 🔥
-- [ ] **README.md**
-  - [ ] DDD化後のプロジェクト構造説明
-  - [ ] APIエンドポイントの更新（v2削除）
-  - [ ] 削除されたファイルの参照削除
-- [ ] **docs/API.md**
-  - [ ] 新しいAPIパス反映
-  - [ ] サンプルコードの更新
-- [ ] **docs/services/**
-  - [ ] 各サービスドキュメントの技術仕様更新
-  - [ ] アーキテクチャ変更の反映
+### 3. Ranking Service ✅
+- [x] **API実装**: `/api/ranking`
+  - [x] 作成（create）
+  - [x] スコア送信（submit）
+  - [x] スコア更新（update）
+  - [x] エントリー削除（remove）
+  - [x] ランキング取得（get）
+  - [x] 表示（display）
+  - [x] 全クリア（clear）
+  - [x] 削除（delete）
 
-### 4. DDD設計ドキュメント作成 🔥
-- [ ] `.claude/architecture.md` 作成
-  - [ ] ドメイン駆動設計の概要
-  - [ ] ディレクトリ構造説明
-  - [ ] 各層の責務
-  - [ ] Result型パターンの説明
-  - [ ] Repository パターンの説明
-  - [ ] BaseService の設計思想
+### 4. BBS Service ✅
+- [x] **API実装**: `/api/bbs`
+  - [x] 作成（create）
+  - [x] メッセージ投稿（post）
+  - [x] メッセージ編集（editMessage, editMessageById）
+  - [x] メッセージ削除（deleteMessage, deleteMessageById）
+  - [x] メッセージ一覧（get）
+  - [x] 表示（display）
+  - [x] 全クリア（clear）
+  - [x] 設定更新（updateSettings）
+  - [x] 削除（delete）
+  - [x] ページネーション
+  - [x] カスタムドロップダウン・アイコン
+
+### 5. Admin Service ✅
+- [x] **API実装**: `/api/admin/cleanup`
+  - [x] サービス削除（cleanup）
+  - [x] 自動クリーンアップ（autoCleanup）
+  - [x] URL指定削除（cleanupByUrl）
+
+## 🚨 動作確認が必要なタスク
+
+### 本番環境での動作確認
+- [ ] **Counter Service**: 全アクションの動作確認
+- [ ] **Like Service**: 全アクションの動作確認
+- [ ] **Ranking Service**: 全アクションの動作確認
+- [ ] **BBS Service**: 全アクションの動作確認
+- [ ] **Web Components**: visit.js, like.js の動作確認
 
 ## ✅ 完了済み（DDD化・型安全化）
 
-### アーキテクチャ大規模リファクタリング ✅ 完了
+### アーキテクチャ大規模リファクタリング ✅
 - [x] **ドメイン駆動設計（DDD）への移行**
   - [x] `/src/domain/` 構造の実装
   - [x] Result型パターンの導入
@@ -76,20 +75,36 @@
   - [x] 全ての `: any` 型注釈を除去
   - [x] 全ての型アサーション（as）を最小限に
   - [x] Zod による完全な実行時型検証
+- [x] **統一スキーマアーキテクチャの導入**
+  - [x] CommonSchemas と FieldSchemas の分離
+  - [x] 各ドメインエンティティでのスキーマ一元管理
+  - [x] API層でのスキーマ参照統一
 - [x] **旧実装の完全削除**
   - [x] `/src/lib/services/` フォルダ削除
   - [x] 旧APIエンドポイント削除
   - [x] レガシーサポートコード削除
 
-### Redis Show改善 ✅ 完了
-- [x] 日別データの日付順ソート実装
+### 管理ツール実装 ✅
+- [x] Redis Show改善（日別データの日付順ソート）
+- [x] Service別データ表示（`npm run redis:service`）
+- [x] サービス削除スクリプト（`npm run cleanup:service`）
+- [x] データ修正スクリプト（`npm run redis:fix`）
+
+### ドキュメント整備 ✅
+- [x] `.claude/unified-schema-architecture.md` - 統一スキーマ設計
+- [x] `.claude/redis-database-structure.md` - Redis構造仕様
+- [x] `.claude/architecture.md` - DDDアーキテクチャ説明
+- [x] `.claude/api-specification.md` - API仕様書
+- [x] `.claude/webcomponents-defensive-programming.md` - WebComponents設計方針
+- [x] `.claude/bbs-design.md` - BBS機能設計
 
 ## 📋 今後のタスク（優先度：中）
 
-### Web Components の実装
-- [ ] Like用Web Component (`/components/like.js`)
-- [ ] Ranking用Web Component (`/components/ranking.js`)
-- [ ] BBS用Web Component (`/components/bbs.js`)
+### Web Components の実装 ✅
+- [x] Counter用Web Component (`/components/visit.js`) - 237行
+- [x] Like用Web Component (`/components/like.js`) - 389行 
+- [x] Ranking用Web Component (`/components/ranking.js`) - 458行
+- [x] BBS用Web Component (`/components/bbs.js`) - 748行
 
 ### パフォーマンス最適化
 - [ ] Redis接続プーリング
@@ -148,19 +163,21 @@
 ## 🎯 現在の状態
 
 ### 完了
-- DDD アーキテクチャへの完全移行
-- 100% 型安全性の達成
-- 旧実装の完全削除
-- Result型によるエラーハンドリング統一
+- [x] DDDアーキテクチャへの完全移行
+- [x] 100%型安全性の達成
+- [x] 統一スキーマアーキテクチャの導入
+- [x] 全サービスのAPI実装
+- [x] Result型によるエラーハンドリング統一
+- [x] 管理ツール・スクリプトの整備
+- [x] ドキュメントの整備
 
-### 未確認・要対応
-- **全サービスの動作確認が未実施**
-- **ドキュメントが古い状態**
-- **デモページの仕様レビューが必要**
-- **DDD設計ドキュメントが未作成**
+### 残タスク
+- [ ] 本番環境での全サービス動作確認
+- [ ] パフォーマンス最適化
+- [ ] テストの追加
 
 ### 次のステップ
-1. 各サービスの動作確認（最優先）
-2. APIエンドポイントの実装確認
-3. ドキュメントの更新
-4. 設計ドキュメントの作成
+1. 本番環境での動作確認（最優先）
+2. パフォーマンス測定と最適化
+3. ユニットテスト・統合テストの追加
+4. 監視・ログシステムの導入

@@ -126,8 +126,21 @@ https://nostalgic.llll-ll.com/api/bbs?action=post&url=https://yoursite.com&token
 
 ## 📖 ドキュメント
 
-- **[API リファレンス](docs/API_ja.md)** - 完全なAPI仕様書
-- **[ライブデモ](https://nostalgic.llll-ll.com)** - 懐かしいホームページで実際に体験
+### APIドキュメント
+- **[完全APIリファレンス](docs/api_ja.md)** - 全サービスの完全なAPIドキュメント
+- **[English API Documentation](docs/api.md)** - Complete API documentation (English)
+
+### サービス別ガイド
+- **[カウンターサービス](docs/services/counter_ja.md)** - 訪問者カウンターの実装
+- **[いいねサービス](docs/services/like_ja.md)** - いいね/取り消しボタン機能
+- **[ランキングサービス](docs/services/ranking_ja.md)** - リーダーボードとスコア管理
+- **[BBSサービス](docs/services/bbs_ja.md)** - メッセージボードシステム
+
+### カスタマイズ
+- **[カスタマイズガイド](docs/customization.md)** - テーマ、スタイル、設定方法
+
+### ライブデモ
+- **[インタラクティブデモ](https://nostalgic.llll-ll.com)** - 懐かしいホームページでお試しください
 
 ## 🛡️ セキュリティとプライバシー
 

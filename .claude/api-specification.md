@@ -372,7 +372,7 @@ curl "https://nostalgic.llll-ll.com/api/visit?action=set&url=https://example.com
 | `action` | string | Yes | - | `"create"` |
 | `url` | string | Yes | - | サイトのURL |
 | `token` | string | Yes | - | オーナートークン |
-| `messagesPerPage` | number | No | `10` | 1ページの表示件数（1-50） |
+| `perPage` | number | No | `10` | 1ページの表示件数（1-50） |
 | `maxMessages` | number | No | `100` | 最大メッセージ数（1-1000） |
 | `enableIcons` | boolean | No | `true` | アイコン機能の有効化 |
 | `iconOptions` | string[] | No | デフォルトセット | 選択可能なアイコン |
@@ -418,15 +418,32 @@ curl "https://nostalgic.llll-ll.com/api/visit?action=set&url=https://example.com
 
 ### 3. メッセージ編集
 
-自分が投稿したメッセージを編集します。
+メッセージを編集します（投稿者またはオーナー権限必要）。
 
-**Endpoint**: `GET /api/bbs?action=update`
+#### 投稿者による編集
+**Endpoint**: `GET /api/bbs?action=editMessageById`
 
 **Parameters**:
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `action` | string | Yes | `"update"` |
+| `action` | string | Yes | `"editMessageById"` |
 | `id` | string | Yes | 掲示板ID |
+| `messageId` | string | Yes | メッセージID |
+| `message` | string | No | 新しいメッセージ |
+| `icon` | string | No | 新しいアイコン |
+| `select1` | string | No | 新しい選択1 |
+| `select2` | string | No | 新しい選択2 |
+| `select3` | string | No | 新しい選択3 |
+
+#### オーナーによる編集
+**Endpoint**: `GET /api/bbs?action=editMessage`
+
+**Parameters**:
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `action` | string | Yes | `"editMessage"` |
+| `url` | string | Yes | サイトのURL |
+| `token` | string | Yes | オーナートークン |
 | `messageId` | string | Yes | メッセージID |
 | `message` | string | No | 新しいメッセージ |
 | `icon` | string | No | 新しいアイコン |
@@ -438,18 +455,26 @@ curl "https://nostalgic.llll-ll.com/api/visit?action=set&url=https://example.com
 
 メッセージを削除します（投稿者またはオーナー権限必要）。
 
-**Endpoint**: `GET /api/bbs?action=remove`
+#### 投稿者による削除
+**Endpoint**: `GET /api/bbs?action=deleteMessageById`
 
 **Parameters**:
 | Name | Type | Required | Description |
 |------|------|----------|-------------|
-| `action` | string | Yes | `"remove"` |
+| `action` | string | Yes | `"deleteMessageById"` |
 | `id` | string | Yes | 掲示板ID |
 | `messageId` | string | Yes | メッセージID |
-| `url` | string | No* | サイトのURL（オーナー削除時） |
-| `token` | string | No* | オーナートークン（オーナー削除時） |
 
-*投稿者による削除の場合は不要
+#### オーナーによる削除
+**Endpoint**: `GET /api/bbs?action=deleteMessage`
+
+**Parameters**:
+| Name | Type | Required | Description |
+|------|------|----------|-------------|
+| `action` | string | Yes | `"deleteMessage"` |
+| `url` | string | Yes | サイトのURL |
+| `token` | string | Yes | オーナートークン |
+| `messageId` | string | Yes | メッセージID |
 
 ### 5. メッセージ一覧取得
 
@@ -489,7 +514,7 @@ curl "https://nostalgic.llll-ll.com/api/visit?action=set&url=https://example.com
       "hasPrev": false
     },
     "settings": {
-      "messagesPerPage": 10,
+      "perPage": 10,
       "maxMessages": 100,
       "enableIcons": true,
       "enableSelects": true
@@ -547,7 +572,7 @@ curl "https://nostalgic.llll-ll.com/api/visit?action=set&url=https://example.com
 
 ```html
 <!-- カウンター表示 -->
-<script src="https://nostalgic.llll-ll.com/components/display.js"></script>
+<script src="https://nostalgic.llll-ll.com/components/visit.js"></script>
 <nostalgic-counter id="blog-a7b9c3d4" type="total" theme="retro"></nostalgic-counter>
 ```
 

@@ -126,8 +126,21 @@ Just like the original 1990s web tools, everything can be operated directly from
 
 ## 📖 Documentation
 
-- **[API Reference](docs/API.md)** - Complete API documentation
-- **[Live Demo](https://nostalgic.llll-ll.com)** - Try it on our nostalgic homepage
+### API Documentation
+- **[Complete API Reference](docs/api.md)** - Full API documentation for all services
+- **[Japanese API Documentation](docs/api_ja.md)** - APIドキュメント（日本語）
+
+### Service-Specific Guides
+- **[Counter Service](docs/services/counter.md)** - Visitor counter implementation
+- **[Like Service](docs/services/like.md)** - Like/unlike button functionality
+- **[Ranking Service](docs/services/ranking.md)** - Leaderboard and scoring
+- **[BBS Service](docs/services/bbs.md)** - Message board system
+
+### Customization
+- **[Customization Guide](docs/customization.md)** - Themes, styling, and configuration
+
+### Live Demo
+- **[Interactive Demo](https://nostalgic.llll-ll.com)** - Try it on our nostalgic homepage
 
 ## 🛡️ Security & Privacy
 
