@@ -109,6 +109,48 @@ await fetch('/api/ranking?action=clear&url=https://mygame.com&token=game-secret'
 - 最大エントリー数を超えると最低スコアが削除
 - スコア操作はO(log N)性能
 
+## Web Component 統合
+
+```html
+<script src="https://nostalgic.llll-ll.com/components/ranking.js"></script>
+
+<!-- インタラクティブランキング表示 -->
+<nostalgic-ranking id="yoursite-a7b9c3d4" theme="classic" limit="10"></nostalgic-ranking>
+
+<!-- テキスト形式ランキング -->
+<nostalgic-ranking id="yoursite-a7b9c3d4" format="text" theme="modern" limit="5"></nostalgic-ranking>
+```
+
+**属性:**
+- `id`: 公開ランキングID
+- `theme`: 表示スタイル（classic, modern, retro）
+- `limit`: 表示エントリー数（1-100、デフォルト: 10）
+- `format`: 表示形式（interactive, text）- デフォルト: interactive
+- `api-base`: カスタムAPIベースURL（オプション）
+
+## TypeScript サポート
+
+TypeScriptプロジェクトでWeb Componentsを使用する場合、プロジェクトルートに `types.d.ts` ファイルを作成してください：
+
+```typescript
+// types.d.ts
+import 'react'
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'nostalgic-ranking': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        id?: string;
+        theme?: 'classic' | 'modern' | 'retro';
+        limit?: string;
+      };
+    }
+  }
+}
+```
+
+これにより、React/Next.jsプロジェクトでWeb Componentsを使用してもTypeScriptビルドエラーが発生しません。
+
 ## セキュリティ注意事項
 
 - ランキングオーナーのみがスコア送信/変更可能

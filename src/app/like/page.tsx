@@ -42,12 +42,20 @@ export default function LikePage() {
     const token = tokenRef.current?.value;
     const value = valueRef.current?.value;
 
-    if (!url || !token) return;
+    let apiUrl = '';
 
-    let apiUrl = `/api/like?action=${mode}&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}`;
-    
-    if (mode === "set" && value) {
-      apiUrl += `&value=${encodeURIComponent(value)}`;
+    if (mode === "get") {
+      // getモードでは公開IDを使用
+      if (!publicId) return;
+      apiUrl = `/api/like?action=get&id=${encodeURIComponent(publicId)}`;
+    } else {
+      // その他のモードでは従来通りurl+tokenを使用
+      if (!url || !token) return;
+      apiUrl = `/api/like?action=${mode}&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}`;
+      
+      if (mode === "set" && value) {
+        apiUrl += `&value=${encodeURIComponent(value)}`;
+      }
     }
 
     try {
@@ -150,9 +158,9 @@ export default function LikePage() {
                     style={{
                       marginLeft: "10px",
                       padding: "4px 12px",
-                      backgroundColor: "#4CAF50",
+                      backgroundColor: "#2196F3",
                       color: "white",
-                      border: "2px outset #4CAF50",
+                      border: "2px outset #2196F3",
                       fontSize: "16px",
                       fontWeight: "bold",
                       cursor: "pointer",
@@ -236,9 +244,50 @@ export default function LikePage() {
                   </span>
                 </p>
                 <p>
-                  • <span style={{ color: "#008000" }}>classic</span> - クラシック（緑のデジタル）
-                  <br />• <span style={{ color: "#008000" }}>modern</span> - モダン（青のデジタル）
-                  <br />• <span style={{ color: "#008000" }}>retro</span> - レトロ（赤のドット）
+                  • <span style={{ color: "#008000" }}>classic</span> - クラシック（グレー系）
+                  <br />• <span style={{ color: "#008000" }}>modern</span> - モダン（白系）
+                  <br />• <span style={{ color: "#008000" }}>retro</span> - レトロ（黄系）
+                </p>
+              </div>
+
+              <div className="nostalgic-section">
+                <p>
+                  <span className="nostalgic-section-title">
+                    <b>◆icon アイコンタイプ◆</b>
+                  </span>
+                </p>
+                <p>
+                  • <span style={{ color: "#008000" }}>heart</span> - ハート（♥）
+                  <br />• <span style={{ color: "#008000" }}>star</span> - スター（★）
+                  <br />• <span style={{ color: "#008000" }}>thumb</span> - サムズアップ（👍）
+                </p>
+              </div>
+
+              <div className="nostalgic-section">
+                <p>
+                  <span className="nostalgic-section-title">
+                    <b>◆TypeScript使用時の設定◆</b>
+                  </span>
+                </p>
+                <p>TypeScriptプロジェクトでWeb Componentsを使用する場合、プロジェクトルートに <code>types.d.ts</code> ファイルを作成してください。</p>
+                <pre style={{ backgroundColor: "#f0f0f0", padding: "10px", overflow: "auto", fontSize: "12px", margin: "10px 0" }}>
+{`// types.d.ts
+import 'react'
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'nostalgic-like': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        id?: string;
+        theme?: 'classic' | 'modern' | 'retro';
+        icon?: 'heart' | 'star' | 'thumb';
+      };
+    }
+  }
+}`}
+                </pre>
+                <p style={{ fontSize: "14px", color: "#666" }}>
+                  ※この設定により、TypeScriptでWeb Componentsを使用してもビルドエラーが発生しません。
                 </p>
               </div>
 
@@ -344,9 +393,9 @@ export default function LikePage() {
                     style={{
                       marginLeft: "10px",
                       padding: "4px 12px",
-                      backgroundColor: "#4CAF50",
+                      backgroundColor: "#2196F3",
                       color: "white",
-                      border: "2px outset #4CAF50",
+                      border: "2px outset #2196F3",
                       fontSize: "16px",
                       fontWeight: "bold",
                       cursor: "pointer",
@@ -442,9 +491,9 @@ export default function LikePage() {
                     style={{
                       marginLeft: "10px",
                       padding: "4px 12px",
-                      backgroundColor: "#4CAF50",
+                      backgroundColor: "#2196F3",
                       color: "white",
-                      border: "2px outset #4CAF50",
+                      border: "2px outset #2196F3",
                       fontSize: "16px",
                       fontWeight: "bold",
                       cursor: "pointer",
@@ -474,7 +523,7 @@ export default function LikePage() {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆カウンターを削除したいときは？◆</b>
+                  <b>◆いいねをトグルしたいときは？◆</b>
                 </span>
               </p>
               <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
@@ -487,7 +536,163 @@ export default function LikePage() {
                   wordBreak: "break-all",
                 }}
               >
-                https://nostalgic.llll-ll.com/api/visit?action=delete&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                https://nostalgic.llll-ll.com/api/like?action=toggle&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                &token=<span style={{ color: "#008000" }}>オーナートークン</span>
+              </p>
+              <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
+              
+              <p>または、以下のフォームでトグルできます。</p>
+              
+              <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
+                <p>
+                  <b>サイトURL：</b>
+                  <input
+                    ref={urlRef}
+                    type="url"
+                    placeholder="https://example.com"
+                    style={{
+                      marginLeft: "10px",
+                      width: "60%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                </p>
+
+                <p>
+                  <b>オーナートークン：</b>
+                  <input
+                    ref={tokenRef}
+                    type="text"
+                    placeholder="8-16文字"
+                    style={{
+                      marginLeft: "10px",
+                      width: "30%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      marginLeft: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#2196F3",
+                      color: "white",
+                      border: "2px outset #2196F3",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                    onClick={() => setMode("toggle")}
+                  >
+                    いいねトグル
+                  </button>
+                </p>
+              </form>
+
+              {response && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆APIレスポンス◆</b>
+                    </span>
+                  </p>
+                  <pre style={{ backgroundColor: "#000000", color: "#00ff00", padding: "10px", overflow: "auto", fontSize: "14px" }}>
+                    {response}
+                  </pre>
+                </div>
+              )}
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆いいねデータを取得したいときは？◆</b>
+                </span>
+              </p>
+              <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
+              <p
+                style={{
+                  backgroundColor: "#f0f0f0",
+                  padding: "10px",
+                  fontFamily: "monospace",
+                  fontSize: "14px",
+                  wordBreak: "break-all",
+                }}
+              >
+                https://nostalgic.llll-ll.com/api/like?action=get&id=<span style={{ color: "#008000" }}>公開ID</span>
+              </p>
+              <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
+              
+              <p>または、以下のフォームで取得できます。</p>
+              
+              <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
+                <p>
+                  <b>公開ID：</b>
+                  <span style={{ marginLeft: "10px", fontFamily: "monospace", fontSize: "16px", fontWeight: "bold", color: publicId ? "#008000" : "#999" }}>
+                    {publicId || "STEP 1で作成後に表示されます"}
+                  </span>
+                  {publicId && (
+                    <button
+                      type="submit"
+                      style={{
+                        marginLeft: "10px",
+                        padding: "4px 12px",
+                        backgroundColor: "#2196F3",
+                        color: "white",
+                        border: "2px outset #2196F3",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        fontFamily: "inherit"
+                      }}
+                      onClick={() => setMode("get")}
+                    >
+                      データ取得
+                    </button>
+                  )}
+                </p>
+              </form>
+
+              {response && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆APIレスポンス◆</b>
+                    </span>
+                  </p>
+                  <pre style={{ backgroundColor: "#000000", color: "#00ff00", padding: "10px", overflow: "auto", fontSize: "14px" }}>
+                    {response}
+                  </pre>
+                </div>
+              )}
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆いいねを削除したいときは？◆</b>
+                </span>
+              </p>
+              <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
+              <p
+                style={{
+                  backgroundColor: "#f0f0f0",
+                  padding: "10px",
+                  fontFamily: "monospace",
+                  fontSize: "14px",
+                  wordBreak: "break-all",
+                }}
+              >
+                https://nostalgic.llll-ll.com/api/like?action=delete&url=<span style={{ color: "#008000" }}>サイトURL</span>
                 &token=<span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
               <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />

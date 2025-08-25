@@ -147,6 +147,29 @@ console.log('現在のいいね数:', state.total)
 - **即座のフィードバック**: 新しい状態で即座にレスポンス
 - **公開アクセス**: 公開IDで誰でもいいね数閲覧可能
 
+## TypeScript サポート
+
+TypeScriptプロジェクトでWeb Componentsを使用する場合、プロジェクトルートに `types.d.ts` ファイルを作成してください：
+
+```typescript
+// types.d.ts
+import 'react'
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'nostalgic-like': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        id?: string;
+        theme?: 'classic' | 'modern' | 'retro';
+        icon?: 'heart' | 'star' | 'thumb';
+      };
+    }
+  }
+}
+```
+
+これにより、React/Next.jsプロジェクトでWeb Componentsを使用してもTypeScriptビルドエラーが発生しません。
+
 ## セキュリティ注意事項
 
 - IP+UserAgentハッシュによるユーザー識別

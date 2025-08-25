@@ -141,6 +141,48 @@ await fetch('/api/bbs?action=clear&url=https://mysite.com&token=my-secret')
 - 最大メッセージ数を超えると自動トリム
 - IP+UserAgentハッシュによる投稿者確認
 
+## Web Component 統合
+
+```html
+<script src="https://nostalgic.llll-ll.com/components/bbs.js"></script>
+
+<!-- インタラクティブBBS表示 -->
+<nostalgic-bbs id="yoursite-a7b9c3d4" theme="classic" page="1"></nostalgic-bbs>
+
+<!-- テキスト形式BBS -->
+<nostalgic-bbs id="yoursite-a7b9c3d4" format="text" theme="modern" page="1"></nostalgic-bbs>
+```
+
+**属性:**
+- `id`: 公開BBS ID
+- `theme`: 表示スタイル（classic, modern, retro）
+- `page`: 表示ページ番号（デフォルト: 1）
+- `format`: 表示形式（interactive, text）- デフォルト: interactive
+- `api-base`: カスタムAPIベースURL（オプション）
+
+## TypeScript サポート
+
+TypeScriptプロジェクトでWeb Componentsを使用する場合、プロジェクトルートに `types.d.ts` ファイルを作成してください：
+
+```typescript
+// types.d.ts
+import 'react'
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'nostalgic-bbs': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        id?: string;
+        theme?: 'classic' | 'modern' | 'retro';
+        page?: string;
+      };
+    }
+  }
+}
+```
+
+これにより、React/Next.jsプロジェクトでWeb Componentsを使用してもTypeScriptビルドエラーが発生しません。
+
 ## セキュリティ注意事項
 
 - IP+UserAgentハッシュによるメッセージ投稿者確認

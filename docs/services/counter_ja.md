@@ -72,6 +72,31 @@ GET /api/visit?action=display&id={ID}&type={TYPE}&theme={THEME}&format={FORMAT}
 GET /api/visit?action=set&url={URL}&token={TOKEN}&total={VALUE}
 ```
 
+## TypeScript サポート
+
+TypeScript プロジェクトで Web Components を使用する場合、プロジェクトルートに `types.d.ts` ファイルを作成してください：
+
+```typescript
+// types.d.ts
+import 'react'
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'nostalgic-counter': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        id?: string;
+        type?: 'total' | 'today' | 'yesterday' | 'week' | 'month';
+        theme?: 'classic' | 'modern' | 'retro';
+        digits?: string;
+        scale?: string;
+      };
+    }
+  }
+}
+```
+
+これにより、React/Next.js プロジェクトで Web Components を使用する際の TypeScript ビルドエラーを防止できます。
+
 ## Web Component 統合
 
 ```html

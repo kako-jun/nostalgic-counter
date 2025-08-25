@@ -90,6 +90,29 @@ GET /api/like?action=get&id={ID}
 - `format`: Display format (interactive, text, image) - default: interactive
 - `api-base`: Custom API base URL (optional)
 
+## TypeScript Support
+
+For TypeScript projects using Web Components, create a `types.d.ts` file in your project root:
+
+```typescript
+// types.d.ts
+import 'react'
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'nostalgic-like': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        id?: string;
+        theme?: 'classic' | 'modern' | 'retro';
+        icon?: 'heart' | 'star' | 'thumb';
+      };
+    }
+  }
+}
+```
+
+This prevents TypeScript build errors when using Web Components in React/Next.js projects.
+
 ## Usage Examples
 
 ### Basic Like Button Setup

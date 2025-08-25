@@ -239,6 +239,48 @@ Messages are stored as JSON in Redis Lists:
 - Automatic trimming when max messages exceeded
 - Author verification via IP+UserAgent hash
 
+## Web Component Integration
+
+```html
+<script src="https://nostalgic.llll-ll.com/components/bbs.js"></script>
+
+<!-- Interactive BBS display -->
+<nostalgic-bbs id="yoursite-a7b9c3d4" theme="classic" page="1"></nostalgic-bbs>
+
+<!-- Text format BBS -->
+<nostalgic-bbs id="yoursite-a7b9c3d4" format="text" theme="modern" page="1"></nostalgic-bbs>
+```
+
+**Attributes:**
+- `id`: BBS public ID
+- `theme`: Visual style (classic, modern, retro)
+- `page`: Page number to display (default: 1)
+- `format`: Display format (interactive, text) - default: interactive
+- `api-base`: Custom API base URL (optional)
+
+## TypeScript Support
+
+For TypeScript projects using Web Components, create a `types.d.ts` file in your project root:
+
+```typescript
+// types.d.ts
+import 'react'
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'nostalgic-bbs': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        id?: string;
+        theme?: 'classic' | 'modern' | 'retro';
+        page?: string;
+      };
+    }
+  }
+}
+```
+
+This prevents TypeScript build errors when using Web Components in React/Next.js projects.
+
 ## Security Notes
 
 - Message authorship verified by IP+UserAgent hash

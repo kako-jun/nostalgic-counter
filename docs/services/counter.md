@@ -133,6 +133,31 @@ GET /api/visit?action=set&url={URL}&token={TOKEN}&total={VALUE}
 - `digits`: Zero-padding digits (only when specified)
 - `api-base`: Custom API base URL (optional)
 
+## TypeScript Support
+
+For TypeScript projects using Web Components, create a `types.d.ts` file in your project root:
+
+```typescript
+// types.d.ts
+import 'react'
+
+declare module 'react' {
+  namespace JSX {
+    interface IntrinsicElements {
+      'nostalgic-counter': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
+        id?: string;
+        type?: 'total' | 'today' | 'yesterday' | 'week' | 'month';
+        theme?: 'classic' | 'modern' | 'retro';
+        digits?: string;
+        scale?: string;
+      };
+    }
+  }
+}
+```
+
+This prevents TypeScript build errors when using Web Components in React/Next.js projects.
+
 ## Usage Examples
 
 ### Basic Counter Setup
