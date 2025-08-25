@@ -962,7 +962,7 @@ declare module 'react' {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆BBS全削除したいときは？◆</b>
+                  <b>◆メッセージを全削除したいときは？◆</b>
                 </span>
               </p>
               <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
@@ -1318,7 +1318,7 @@ declare module 'react' {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆BBS全削除◆</b>
+                  <b>◆メッセージ全削除◆</b>
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>

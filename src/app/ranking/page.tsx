@@ -87,28 +87,26 @@ export default function RankingPage() {
     try {
       const rankingId = "nostalgic-9c044ad0";
       
-      // 現在の票数を取得
+      // 現在のスコアを取得してインクリメント
       const getCurrentResponse = await fetch(`/api/ranking?action=get&id=${rankingId}`);
-      let currentScore = 1;
-      
+      let newScore = 1;
       if (getCurrentResponse.ok) {
         const currentData = await getCurrentResponse.json();
         const currentEntry = currentData.entries?.find((entry: any) => entry.name === serviceName);
         if (currentEntry) {
-          currentScore = currentEntry.score + 1;
+          newScore = currentEntry.score + 1;
         }
       }
       
-      // 正しいAPI呼び出し: 公開IDのみ使用
-      const voteResponse = await fetch(`/api/ranking?action=submit&id=${rankingId}&name=${encodeURIComponent(serviceName)}&score=${currentScore}`);
+      const voteResponse = await fetch(`/api/ranking?action=submit&id=${rankingId}&name=${encodeURIComponent(serviceName)}&score=${newScore}`);
       
       if (voteResponse.ok) {
         const voteData = await voteResponse.json();
         setVotingMessage(`${serviceName}に投票しました！ありがとうございます 🎉`);
         setTimeout(() => setVotingMessage(''), 3000);
         // APIレスポンスから直接最新のランキングデータを取得して表示
-        if (voteData.rankings) {
-          setVotingResults(voteData.rankings.slice(0, 4));
+        if (voteData.data && voteData.data.entries) {
+          setVotingResults(voteData.data.entries.slice(0, 4));
         } else {
           // フォールバック: 少し遅延を入れてリロード
           setTimeout(() => loadVotingResults(), 100);
@@ -529,11 +527,6 @@ declare module 'react' {
                 </span>
               </p>
               <p>作成したランキングの公開IDを使用してスコアを送信できます。</p>
-              {!publicId && (
-                <div style={{ backgroundColor: "#fffacd", border: "2px solid #ffa500", padding: "10px", marginBottom: "10px", fontSize: "14px" }}>
-                  <b>⚠️ 注意：</b>STEP 1でランキングを作成して公開IDを取得してください。
-                </div>
-              )}
               <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
                 <input type="hidden" name="mode" value="submit" />
                 <p>
@@ -854,7 +847,7 @@ declare module 'react' {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆ランキング全削除したいときは？◆</b>
+                  <b>◆エントリーを全削除したいときは？◆</b>
                 </span>
               </p>
               <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
@@ -874,7 +867,7 @@ declare module 'react' {
               
               <p>または、以下のフォームでクリアできます。</p>
               <p style={{ color: "#ff0000", fontWeight: "bold" }}>
-                ※全エントリーが削除されます。十分にご注意ください。
+                ※すべてのエントリーが削除されます。十分にご注意ください。
               </p>
               
               <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
@@ -1193,14 +1186,14 @@ declare module 'react' {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆ランキングクリア◆</b>
+                  <b>◆エントリークリア◆</b>
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
                 GET /api/ranking?action=clear&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
                 <span style={{ color: "#008000" }}>オーナートークン</span>
               </p>
-              <p>ランキングをすべてクリアします。</p>
+              <p>すべてのエントリーをクリアします。</p>
             </div>
 
             <div className="nostalgic-section">

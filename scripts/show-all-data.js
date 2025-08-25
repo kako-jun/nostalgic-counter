@@ -126,11 +126,11 @@ async function showAllData() {
     let daysIdle = '-';
     let daysToDel = '-';
     
-    if (data.lastVisit) {
-      lastAccess = data.lastVisit.substring(0, 10); // YYYY-MM-DD形式
+    if (data.metadata.lastVisit) {
+      lastAccess = data.metadata.lastVisit.substring(0, 10); // YYYY-MM-DD形式
       
       const today = new Date();
-      const lastAccessDate = new Date(data.lastVisit);
+      const lastAccessDate = new Date(data.metadata.lastVisit);
       const diffTime = today.getTime() - lastAccessDate.getTime();
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
       
@@ -284,11 +284,11 @@ async function showAllData() {
     let daysIdle = '-';
     let daysToDel = '-';
     
-    if (data.metadata.lastPost) {
-      lastAccess = data.metadata.lastPost.substring(0, 10); // YYYY-MM-DD形式
+    if (data.metadata.lastMessage) {
+      lastAccess = data.metadata.lastMessage.substring(0, 10); // YYYY-MM-DD形式
       
       const today = new Date();
-      const lastAccessDate = new Date(data.metadata.lastPost);
+      const lastAccessDate = new Date(data.metadata.lastMessage);
       const diffTime = today.getTime() - lastAccessDate.getTime();
       const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
       

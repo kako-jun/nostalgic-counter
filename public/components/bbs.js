@@ -236,15 +236,16 @@ class NostalgicBBS extends HTMLElement {
         .message-header {
           display: flex;
           justify-content: space-between;
-          align-items: center;
+          align-items: flex-start;
           margin-bottom: 4px;
           font-size: 12px;
           color: #666;
         }
         .message-time-actions {
           display: flex;
-          gap: 8px;
-          align-items: center;
+          flex-direction: column;
+          gap: 4px;
+          align-items: flex-end;
         }
         .message-actions {
           display: flex;
