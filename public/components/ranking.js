@@ -250,7 +250,7 @@ class NostalgicRanking extends HTMLElement {
         }
         .name {
           flex: 1;
-          margin: 0 25px;
+          margin: 0 40px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;
