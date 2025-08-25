@@ -36,6 +36,7 @@
 - [x] 統一スキーマでid追加（CounterSchemas.data, LikeSchemas.data, RankingSchemas.data）
 - [x] 不要な型削除（updateSuccess, setSuccess, removeSuccess, clearSuccess）
 - [x] 基本的なAPIハンドラー修正（一部）
+- [x] サイドバーのナビゲーションバグ修正（他サービスの使い方がクリックできない問題）
 
 ## 🎯 目標
 全てのAPIフォーム実行後に：
