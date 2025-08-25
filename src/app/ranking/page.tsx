@@ -248,7 +248,7 @@ export default function RankingPage() {
                     }}
                   />
                   <button
-                    type="submit"
+                    type="button"
                     style={{
                       marginLeft: "10px",
                       padding: "4px 12px",
@@ -260,7 +260,10 @@ export default function RankingPage() {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("create")}
+                    onClick={(e) => {
+                      setMode("create");
+                      handleSubmit(e);
+                    }}
                   >
                     作成
                   </button>
@@ -500,7 +503,7 @@ declare module 'react' {
                     required
                   />
                   <button
-                    type="submit"
+                    type="button"
                     style={{
                       marginLeft: "10px",
                       padding: "4px 12px",
@@ -512,7 +515,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("create")}
+                    onClick={(e) => {
+                      setMode("create");
+                      handleSubmit(e);
+                    }}
                   >
                     確認
                   </button>
@@ -585,7 +591,7 @@ declare module 'react' {
                     required
                   />
                   <button
-                    type="submit"
+                    type="button"
                     style={{
                       marginLeft: "10px",
                       padding: "4px 12px",
@@ -597,7 +603,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("submit")}
+                    onClick={(e) => {
+                      setMode("submit");
+                      handleSubmit(e);
+                    }}
                   >
                     スコア送信
                   </button>
@@ -714,7 +723,7 @@ declare module 'react' {
                     required
                   />
                   <button
-                    type="submit"
+                    type="button"
                     style={{
                       marginLeft: "10px",
                       padding: "4px 12px",
@@ -726,7 +735,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("update")}
+                    onClick={(e) => {
+                      setMode("update");
+                      handleSubmit(e);
+                    }}
                   >
                     更新
                   </button>
@@ -824,7 +836,7 @@ declare module 'react' {
                     required
                   />
                   <button
-                    type="submit"
+                    type="button"
                     style={{
                       marginLeft: "10px",
                       padding: "4px 12px",
@@ -836,7 +848,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("remove")}
+                    onClick={(e) => {
+                      setMode("remove");
+                      handleSubmit(e);
+                    }}
                   >
                     削除
                   </button>
@@ -919,7 +934,7 @@ declare module 'react' {
                     required
                   />
                   <button
-                    type="submit"
+                    type="button"
                     style={{
                       marginLeft: "10px",
                       padding: "4px 12px",
@@ -931,7 +946,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("clear")}
+                    onClick={(e) => {
+                      setMode("clear");
+                      handleSubmit(e);
+                    }}
                   >
                     全削除
                   </button>
@@ -1014,7 +1032,7 @@ declare module 'react' {
                     required
                   />
                   <button
-                    type="submit"
+                    type="button"
                     style={{
                       marginLeft: "10px",
                       padding: "4px 12px",
@@ -1026,7 +1044,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("delete")}
+                    onClick={(e) => {
+                      setMode("delete");
+                      handleSubmit(e);
+                    }}
                   >
                     完全削除
                   </button>

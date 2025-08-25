@@ -166,7 +166,10 @@ export default function LikePage() {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("create")}
+                    onClick={(e) => {
+                      setMode("create");
+                      handleSubmit(e);
+                    }}
                   >
                     作成
                   </button>
@@ -361,7 +364,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("create")}
+                    onClick={(e) => {
+                      setMode("create");
+                      handleSubmit(e);
+                    }}
                   >
                     公開ID確認
                   </button>
@@ -459,7 +465,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("set")}
+                    onClick={(e) => {
+                      setMode("set");
+                      handleSubmit(e);
+                    }}
                   >
                     いいね数設定
                   </button>
@@ -551,7 +560,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("toggle")}
+                    onClick={(e) => {
+                      setMode("toggle");
+                      handleSubmit(e);
+                    }}
                   >
                     いいねトグル
                   </button>
@@ -614,7 +626,10 @@ declare module 'react' {
                         cursor: "pointer",
                         fontFamily: "inherit"
                       }}
-                      onClick={() => setMode("get")}
+                      onClick={(e) => {
+                        setMode("get");
+                        handleSubmit(e);
+                      }}
                     >
                       データ取得
                     </button>
@@ -710,7 +725,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("delete")}
+                    onClick={(e) => {
+                      setMode("delete");
+                      handleSubmit(e);
+                    }}
                   >
                     削除
                   </button>

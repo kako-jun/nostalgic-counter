@@ -185,7 +185,10 @@ export default function BBSPage() {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("create")}
+                    onClick={(e) => {
+                      setMode("create");
+                      handleSubmit(e);
+                    }}
                   >
                     作成
                   </button>
@@ -483,7 +486,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("create")}
+                    onClick={(e) => {
+                      setMode("create");
+                      handleSubmit(e);
+                    }}
                   >
                     確認
                   </button>
@@ -598,7 +604,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("post")}
+                    onClick={(e) => {
+                      setMode("post");
+                      handleSubmit(e);
+                    }}
                   >
                     投稿
                   </button>
@@ -661,7 +670,10 @@ declare module 'react' {
                         cursor: "pointer",
                         fontFamily: "inherit"
                       }}
-                      onClick={() => setMode("get")}
+                      onClick={(e) => {
+                        setMode("get");
+                        handleSubmit(e);
+                      }}
                     >
                       メッセージ取得
                     </button>
@@ -810,7 +822,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("update")}
+                    onClick={(e) => {
+                      setMode("update");
+                      handleSubmit(e);
+                    }}
                   >
                     編集
                   </button>
@@ -938,7 +953,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("remove")}
+                    onClick={(e) => {
+                      setMode("remove");
+                      handleSubmit(e);
+                    }}
                   >
                     削除
                   </button>
@@ -1033,7 +1051,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("clear")}
+                    onClick={(e) => {
+                      setMode("clear");
+                      handleSubmit(e);
+                    }}
                   >
                     全削除
                   </button>
@@ -1128,7 +1149,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("delete")}
+                    onClick={(e) => {
+                      setMode("delete");
+                      handleSubmit(e);
+                    }}
                   >
                     完全削除
                   </button>

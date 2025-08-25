@@ -166,7 +166,10 @@ export default function CounterPage() {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("create")}
+                    onClick={(e) => {
+                      setMode("create");
+                      handleSubmit(e);
+                    }}
                   >
                     作成
                   </button>
@@ -390,7 +393,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("create")}
+                    onClick={(e) => {
+                      setMode("create");
+                      handleSubmit(e);
+                    }}
                   >
                     公開ID確認
                   </button>
@@ -488,7 +494,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("set")}
+                    onClick={(e) => {
+                      setMode("set");
+                      handleSubmit(e);
+                    }}
                   >
                     値設定
                   </button>
@@ -554,7 +563,10 @@ declare module 'react' {
                         cursor: "pointer",
                         fontFamily: "inherit"
                       }}
-                      onClick={() => setMode("increment")}
+                      onClick={(e) => {
+                        setMode("increment");
+                        handleSubmit(e);
+                      }}
                     >
                       手動カウントアップ
                     </button>
@@ -650,7 +662,10 @@ declare module 'react' {
                       cursor: "pointer",
                       fontFamily: "inherit"
                     }}
-                    onClick={() => setMode("delete")}
+                    onClick={(e) => {
+                      setMode("delete");
+                      handleSubmit(e);
+                    }}
                   >
                     削除
                   </button>
