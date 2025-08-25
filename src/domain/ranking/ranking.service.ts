@@ -8,6 +8,7 @@ import { BaseService } from '@/lib/core/base-service'
 import { ValidationFramework } from '@/lib/core/validation'
 import { getRankingLimits } from '@/lib/core/config'
 import { RepositoryFactory, SortedSetRepository } from '@/lib/core/repository'
+import { getRedis } from '@/lib/core/db'
 import { createHash } from 'crypto'
 import {
   RankingEntity,
@@ -27,6 +28,7 @@ import {
  */
 export class RankingService extends BaseService<RankingEntity, RankingData, RankingCreateParams> {
   private readonly sortedSetRepository: SortedSetRepository
+  private readonly redis = getRedis()
 
   constructor() {
     const limits = getRankingLimits()
@@ -143,7 +145,7 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
       }
     }
 
-    // スコアを追加
+    // スコアを追加（数値でソート用）
     const addResult = await this.sortedSetRepository.add(`${entity.id}:scores`, params.name, params.score)
     if (!addResult.success) {
       // ロールバック: 連投防止マークを削除
@@ -151,6 +153,20 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
         await this.removeSubmitMark(entity.id, userHash)
       }
       return Err(new ValidationError('Failed to add score', { error: addResult.error }))
+    }
+
+    // 表示用スコアを保存（文字列）
+    if (params.displayScore) {
+      try {
+        await this.redis.hset(`${entity.id}:display_scores`, params.name, params.displayScore)
+      } catch (error) {
+        // ロールバック: スコアと連投防止マークを削除
+        await this.sortedSetRepository.remove(`${entity.id}:scores`, params.name)
+        if (userHash) {
+          await this.removeSubmitMark(entity.id, userHash)
+        }
+        return Err(new ValidationError('Failed to save display score', { error: error instanceof Error ? error.message : String(error) }))
+      }
     }
 
     // エントリー数制限チェック
@@ -381,9 +397,19 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
       return Ok([]) // エラーの場合は空配列を返す
     }
 
+    // 表示用スコアを取得
+    let displayScores: Record<string, string> = {}
+    try {
+      displayScores = await this.redis.hgetall(`${id}:display_scores`)
+    } catch (error) {
+      // エラーの場合は空オブジェクトを使用
+      displayScores = {}
+    }
+
     const entries: RankingEntry[] = entriesResult.data.map((entry, index) => ({
       name: entry.member,
       score: entry.score,
+      displayScore: displayScores[entry.member] || entry.score.toString(),
       rank: index + 1, // Web Components用にランク番号を追加（1から開始）
       timestamp: new Date() // 実際には保存時のタイムスタンプを使用
     }))
@@ -497,6 +523,7 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
       .digest('hex')
       .substring(0, 16)
   }
+
 }
 
 // シングルトンインスタンス

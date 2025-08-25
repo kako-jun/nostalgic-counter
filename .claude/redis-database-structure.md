@@ -38,6 +38,8 @@ counter:{id} → JSON {
   id: string,
   url: string,
   created: ISO8601,
+  lastVisit: ISO8601 | null,
+  totalCount: number,
   owner: hashed_token | null
 }
 
@@ -75,6 +77,7 @@ like:{id} → JSON {
   url: string,
   created: ISO8601,
   lastLike: ISO8601 | null,
+  totalLikes: number,
   owner: hashed_token | null
 }
 
@@ -110,6 +113,7 @@ ranking:{id} → JSON {
   url: string,
   created: ISO8601,
   lastSubmit: ISO8601 | null,
+  totalEntries: number,
   maxEntries: number,
   owner: hashed_token | null
 }
@@ -151,12 +155,14 @@ bbs:{id} → JSON {
   id: string,
   url: string,
   created: ISO8601,
-  lastPost: ISO8601 | null,
+  lastMessage: ISO8601 | null,
+  totalMessages: number,
   settings: {
     title?: string,
     maxMessages?: number,
-    allowImages?: boolean,
-    fields?: object
+    messagesPerPage?: number,
+    icons?: string[],
+    selects?: object[]
   },
   owner: hashed_token | null
 }

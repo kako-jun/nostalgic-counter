@@ -27,6 +27,11 @@ interface RedisLike {
   zremrangebyrank(key: string, start: number, end: number): Promise<any>
   zrem(key: string, member: string): Promise<number>
   zscore(key: string, member: string): Promise<string | null>
+  // Hash operations
+  hset(key: string, field: string, value: string): Promise<any>
+  hget(key: string, field: string): Promise<string | null>
+  hgetall(key: string): Promise<Record<string, string>>
+  hdel(key: string, field: string): Promise<number>
 }
 
 export function getRedis(): RedisLike {

@@ -137,7 +137,8 @@ export const RankingSchemas = {
     action: z.literal('submit'),
     id: CommonSchemas.publicId,
     name: RankingFieldSchemas.playerName,
-    score: RankingFieldSchemas.score
+    score: RankingFieldSchemas.score,
+    displayScore: RankingFieldSchemas.displayScore.optional()
   }),
 
   // スコア更新用パラメータ

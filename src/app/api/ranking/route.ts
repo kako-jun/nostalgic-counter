@@ -46,12 +46,12 @@ const createHandler = ApiHandler.create({
 const submitHandler = ApiHandler.create({
   paramsSchema: RankingSchemas.submit,
   resultSchema: RankingSchemas.data,
-  handler: async ({ id, name, score }, request) => {
+  handler: async ({ id, name, score, displayScore }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = request.headers.get('user-agent') || ''
     const userHash = createHash('sha256').update(`${clientIP}:${userAgent}:${new Date().toDateString()}`).digest('hex').slice(0, 8)
     
-    return await rankingService.submitScoreById(id, { name, score }, userHash)
+    return await rankingService.submitScoreById(id, { name, score, displayScore }, userHash)
   }
 })
 

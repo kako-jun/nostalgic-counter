@@ -23,6 +23,7 @@ export const RANKING_LIMITS = {
 export const RankingFieldSchemas = {
   playerName: z.string().min(RANKING_LIMITS.PLAYER_NAME_MIN).max(RANKING_LIMITS.PLAYER_NAME_MAX),
   score: CommonSchemas.nonNegativeInt,
+  displayScore: z.string().min(1).max(100),
   maxEntries: z.coerce.number().int().min(RANKING_LIMITS.MAX_ENTRIES_MIN).max(RANKING_LIMITS.MAX_ENTRIES_MAX),
   limit: z.coerce.number().int().min(RANKING_LIMITS.LIMIT_MIN).max(RANKING_LIMITS.LIMIT_MAX),
   format: z.enum(['interactive'])
@@ -47,6 +48,7 @@ export interface RankingEntity {
 export interface RankingEntry {
   name: string
   score: number
+  displayScore?: string
   rank: number // Web Components用にランク番号を追加
   timestamp: Date
 }
@@ -77,6 +79,7 @@ export interface RankingCreateParams {
 export interface RankingSubmitParams {
   name: string
   score: number
+  displayScore?: string
 }
 
 /**
@@ -118,6 +121,7 @@ export const RankingEntitySchema = z.object({
 export const RankingEntrySchema = z.object({
   name: RankingFieldSchemas.playerName,
   score: RankingFieldSchemas.score,
+  displayScore: RankingFieldSchemas.displayScore.optional(),
   rank: CommonSchemas.positiveInt, // Web Components用にランク番号を追加
   timestamp: CommonSchemas.date
 })
@@ -138,7 +142,8 @@ export const RankingCreateParamsSchema = z.object({
 
 export const RankingSubmitParamsSchema = z.object({
   name: RankingFieldSchemas.playerName,
-  score: RankingFieldSchemas.score
+  score: RankingFieldSchemas.score,
+  displayScore: RankingFieldSchemas.displayScore.optional()
 })
 
 export const RankingUpdateParamsSchema = z.object({
