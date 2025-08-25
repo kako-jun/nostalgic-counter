@@ -192,7 +192,8 @@ export const RankingSchemas = {
   entry: z.object({
     rank: CommonSchemas.positiveInt,
     name: RankingFieldSchemas.playerName,
-    score: RankingFieldSchemas.score
+    score: RankingFieldSchemas.score,
+    displayScore: RankingFieldSchemas.displayScore.optional()
   }),
 
   // データ形式
