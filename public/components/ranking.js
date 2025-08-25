@@ -137,7 +137,7 @@ class NostalgicRanking extends HTMLElement {
             padding: 10px;
             border-radius: 4px;
             box-shadow: 3px 3px 0px #333;
-            min-width: 200px;
+            min-width: 300px;
           }
           .loading {
             color: #666;
@@ -194,8 +194,8 @@ class NostalgicRanking extends HTMLElement {
           --ranking-text-color: ${style.textColor};
           --ranking-padding: 10px;
           --ranking-border-radius: 4px;
-          --ranking-min-width: 200px;
-          --ranking-max-width: 400px;
+          --ranking-min-width: 300px;
+          --ranking-max-width: 500px;
           --ranking-item-padding: 6px 10px;
         }
         .ranking-container {
@@ -250,7 +250,7 @@ class NostalgicRanking extends HTMLElement {
         }
         .name {
           flex: 1;
-          margin: 0 8px;
+          margin: 0 15px;
           overflow: hidden;
           text-overflow: ellipsis;
           white-space: nowrap;

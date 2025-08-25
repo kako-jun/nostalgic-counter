@@ -67,9 +67,17 @@ class NostalgicBBS extends HTMLElement {
     }
   }
 
-  connectedCallback() {
-    this.currentPage = this.safeGetAttribute('page') || 1;
-    this.loadBBSData();
+  async connectedCallback() {
+    // 最初にBBSデータを読み込んで最終ページを取得
+    await this.loadBBSData();
+    // 最終ページに設定（最新の投稿を表示）
+    const lastPage = this.bbsData?.totalPages || 1;
+    this.currentPage = this.safeGetAttribute('page') || lastPage;
+    this.setAttribute('page', this.currentPage.toString());
+    // 最終ページのデータを再読み込み
+    if (this.currentPage !== 1) {
+      await this.loadBBSData();
+    }
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -223,7 +231,9 @@ class NostalgicBBS extends HTMLElement {
           border-bottom: 2px solid var(--bbs-border-color);
         }
         .bbs-messages {
-          max-height: var(--bbs-max-height);
+          height: 400px;
+          min-height: 400px;
+          max-height: 400px;
           overflow-y: auto;
         }
         .message-item {
@@ -447,13 +457,7 @@ class NostalgicBBS extends HTMLElement {
         </div>
         ${pagination.totalPages > 1 ? `
           <div class="pagination">
-            <button ${!pagination.hasPrev ? 'disabled' : ''} onclick="this.getRootNode().host.changePage(${pagination.page - 1})">
-              &lt; 前へ
-            </button>
-            <span class="current-page">${pagination.page}/${pagination.totalPages}</span>
-            <button ${!pagination.hasNext ? 'disabled' : ''} onclick="this.getRootNode().host.changePage(${pagination.page + 1})">
-              次へ &gt;
-            </button>
+            ${this.generatePageButtons(pagination)}
           </div>
         ` : ''}
         <div class="post-form">
@@ -671,6 +675,40 @@ class NostalgicBBS extends HTMLElement {
     if (postButton) {
       postButton.textContent = '投稿';
     }
+  }
+
+  // ページングボタン生成
+  generatePageButtons(pagination) {
+    const messagesPerPage = this.bbsData.messagesPerPage || 10;
+    const totalPages = pagination.totalPages;
+    const currentPage = pagination.page;
+    
+    let buttons = [];
+    
+    for (let page = 1; page <= totalPages; page++) {
+      const startNum = (page - 1) * messagesPerPage + 1;
+      const endNum = Math.min(page * messagesPerPage, this.bbsData.totalMessages || 0);
+      
+      let label;
+      if (page === totalPages && endNum === startNum) {
+        // 最終ページで1つだけの場合
+        label = `${startNum}-`;
+      } else if (page === totalPages) {
+        // 最終ページの場合
+        label = `${startNum}-${endNum}`;
+      } else {
+        // 通常のページ
+        label = `${startNum}-${endNum}`;
+      }
+      
+      if (page === currentPage) {
+        buttons.push(`<span class="current-page">${label}</span>`);
+      } else {
+        buttons.push(`<button onclick="this.getRootNode().host.changePage(${page})">${label}</button>`);
+      }
+    }
+    
+    return buttons.join(' ');
   }
 
   // メッセージ編集
