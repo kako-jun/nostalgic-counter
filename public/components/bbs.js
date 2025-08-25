@@ -210,8 +210,9 @@ class NostalgicBBS extends HTMLElement {
           border: 2px solid var(--bbs-border-color);
           border-radius: var(--bbs-border-radius);
           box-shadow: 3px 3px 0px var(--bbs-border-color);
+          width: var(--bbs-max-width);
           min-width: var(--bbs-min-width);
-          max-width: var(--bbs-max-width);
+          box-sizing: border-box;
         }
         .bbs-header {
           background: var(--bbs-header-bg);
@@ -315,9 +316,7 @@ class NostalgicBBS extends HTMLElement {
           cursor: default;
         }
         .pagination .current-page {
-          font-weight: bold;
-          background: ${style.textColor};
-          color: ${style.bgColor};
+          margin: 0 8px;
         }
         .empty-message {
           text-align: center;
@@ -451,7 +450,7 @@ class NostalgicBBS extends HTMLElement {
             <button ${!pagination.hasPrev ? 'disabled' : ''} onclick="this.getRootNode().host.changePage(${pagination.page - 1})">
               &lt; 前へ
             </button>
-            <span class="current-page">${pagination.page} / ${pagination.totalPages} ページ</span>
+            <span class="current-page">${pagination.page}/${pagination.totalPages}</span>
             <button ${!pagination.hasNext ? 'disabled' : ''} onclick="this.getRootNode().host.changePage(${pagination.page + 1})">
               次へ &gt;
             </button>
