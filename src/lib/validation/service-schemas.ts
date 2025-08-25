@@ -204,7 +204,8 @@ export const RankingSchemas = {
     entries: z.array(z.object({
       rank: CommonSchemas.positiveInt,
       name: RankingFieldSchemas.playerName,
-      score: RankingFieldSchemas.score
+      score: RankingFieldSchemas.score,
+      displayScore: RankingFieldSchemas.displayScore.optional()
     })),
     maxEntries: RankingFieldSchemas.maxEntries
   })
