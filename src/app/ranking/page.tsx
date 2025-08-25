@@ -74,8 +74,7 @@ export default function RankingPage() {
 
   const voteForService = async (serviceName: string) => {
     try {
-      // TODO: 実際の公開IDに置き換える（ランキング作成後）
-      const rankingId = "ranking-xxxxxxxx"; // プレースホルダー
+      const rankingId = "nostalgic-9c044ad0";
       
       // 現在の票数を取得
       const getCurrentResponse = await fetch(`/api/ranking?action=get&id=${rankingId}`);
@@ -108,8 +107,7 @@ export default function RankingPage() {
   
   const loadVotingResults = async () => {
     try {
-      // TODO: 実際の公開IDに置き換える（ランキング作成後）
-      const rankingId = "ranking-xxxxxxxx"; // プレースホルダー
+      const rankingId = "nostalgic-9c044ad0";
       
       const response = await fetch(`/api/ranking?action=get&id=${rankingId}&limit=4`);
       if (response.ok) {
@@ -477,157 +475,6 @@ export default function RankingPage() {
               <div className="nostalgic-marquee-text">
                 🏆 究極のランキングシステム！ゲームスコア・人気投票・何でもランキング化できます！ 🏆
               </div>
-            </div>
-
-            <div className="nostalgic-section">
-              <p>
-                <span className="nostalgic-section-title">
-                  <b>◆体験デモ：4サービス人気投票◆</b>
-                </span>
-              </p>
-              <p>どのサービスが一番人気か投票してみよう！</p>
-              
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', margin: '15px 0' }}>
-                <button
-                  onClick={() => voteForService('Counter')}
-                  style={{
-                    padding: '15px',
-                    backgroundColor: '#e3f2fd',
-                    border: '2px solid #1976d2',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    transition: 'all 0.2s',
-                    fontFamily: 'inherit'
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#bbdefb'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#e3f2fd'; }}
-                >
-                  📊 Counter<br/>
-                  <small style={{fontWeight: 'normal'}}>アクセス数カウンター</small>
-                </button>
-                
-                <button
-                  onClick={() => voteForService('Like')}
-                  style={{
-                    padding: '15px',
-                    backgroundColor: '#fce4ec',
-                    border: '2px solid #c2185b',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    transition: 'all 0.2s',
-                    fontFamily: 'inherit'
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#f8bbd9'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#fce4ec'; }}
-                >
-                  💖 Like<br/>
-                  <small style={{fontWeight: 'normal'}}>いいねボタン</small>
-                </button>
-                
-                <button
-                  onClick={() => voteForService('Ranking')}
-                  style={{
-                    padding: '15px',
-                    backgroundColor: '#fff3e0',
-                    border: '2px solid #f57c00',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    transition: 'all 0.2s',
-                    fontFamily: 'inherit'
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ffe0b2'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#fff3e0'; }}
-                >
-                  🏆 Ranking<br/>
-                  <small style={{fontWeight: 'normal'}}>ランキングシステム</small>
-                </button>
-                
-                <button
-                  onClick={() => voteForService('BBS')}
-                  style={{
-                    padding: '15px',
-                    backgroundColor: '#e8f5e8',
-                    border: '2px solid #388e3c',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    fontSize: '16px',
-                    fontWeight: 'bold',
-                    transition: 'all 0.2s',
-                    fontFamily: 'inherit'
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#c8e6c9'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#e8f5e8'; }}
-                >
-                  💬 BBS<br/>
-                  <small style={{fontWeight: 'normal'}}>掲示板システム</small>
-                </button>
-              </div>
-              
-              <div style={{ textAlign: 'center', margin: '15px 0' }}>
-                <button
-                  onClick={loadVotingResults}
-                  style={{
-                    padding: '8px 20px',
-                    backgroundColor: '#4caf50',
-                    color: 'white',
-                    border: '2px outset #4caf50',
-                    borderRadius: '4px',
-                    cursor: 'pointer',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    fontFamily: 'inherit'
-                  }}
-                >
-                  📈 投票結果を見る
-                </button>
-              </div>
-              
-              {votingMessage && (
-                <div style={{
-                  backgroundColor: votingMessage.includes('失敗') || votingMessage.includes('エラー') ? '#ffebee' : '#e8f5e8',
-                  color: votingMessage.includes('失敗') || votingMessage.includes('エラー') ? '#c62828' : '#2e7d32',
-                  border: `2px solid ${votingMessage.includes('失敗') || votingMessage.includes('エラー') ? '#ef5350' : '#4caf50'}`,
-                  borderRadius: '8px',
-                  padding: '10px',
-                  margin: '10px 0',
-                  textAlign: 'center',
-                  fontWeight: 'bold'
-                }}>
-                  {votingMessage}
-                </div>
-              )}
-              
-              {votingResults.length > 0 && (
-                <div style={{
-                  backgroundColor: '#f5f5f5',
-                  border: '2px solid #ddd',
-                  borderRadius: '8px',
-                  padding: '15px',
-                  margin: '10px 0'
-                }}>
-                  <h4 style={{ margin: '0 0 10px 0', textAlign: 'center' }}>📈 現在の人気ランキング</h4>
-                  <ol style={{ margin: 0, paddingLeft: '20px' }}>
-                    {votingResults.map((entry: any, index: number) => (
-                      <li key={entry.name} style={{ margin: '8px 0' }}>
-                        <strong>{entry.name}</strong>: {entry.score}票
-                        {index === 0 && ' 🏆'}
-                        {index === 1 && ' 🏅'}
-                        {index === 2 && ' 🏉'}
-                      </li>
-                    ))}
-                  </ol>
-                </div>
-              )}
-              
-              <p style={{ fontSize: '14px', color: '#666', textAlign: 'center', marginTop: '15px' }}>
-                ※ このデモでは、実際にNostalgicランキングAPIを使用して投票しています
-              </p>
             </div>
 
             <div className="nostalgic-section">

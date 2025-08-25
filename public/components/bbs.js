@@ -181,6 +181,11 @@ class NostalgicBBS extends HTMLElement {
     // メッセージを逆順ソート（新しいものが下に表示される）
     const messages = (this.bbsData.messages || []).slice().reverse();
     const pagination = this.bbsData.pagination || {};
+    
+    // 連番計算：現在のページの開始番号を計算
+    const currentPage = pagination.page || 1;
+    const perPage = pagination.perPage || 10;
+    const startNumber = (currentPage - 1) * perPage;
 
     this.shadowRoot.innerHTML = `
       <style>
@@ -230,11 +235,22 @@ class NostalgicBBS extends HTMLElement {
         }
         .message-header {
           display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 4px;
+          flex-direction: column;
+          gap: 4px;
+          margin-bottom: 8px;
           font-size: 12px;
           color: #666;
+        }
+        .message-header-top {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .message-time-actions {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 2px;
         }
         .message-actions {
           display: flex;
@@ -305,9 +321,9 @@ class NostalgicBBS extends HTMLElement {
         }
         .empty-message {
           text-align: center;
-          padding: 40px 20px;
+          padding: 20px;
           color: #666;
-          font-style: italic;
+          font-size: 14px;
         }
         .post-form {
           border-top: 2px solid var(--bbs-border-color);
@@ -399,14 +415,18 @@ class NostalgicBBS extends HTMLElement {
         ` : ''}
         <div class="bbs-messages">
           ${messages.length > 0 ? 
-            messages.map(message => `
+            messages.map((message, index) => `
               <div class="message-item">
                 <div class="message-header">
-                  <span class="message-author">${this.escapeHtml(message.author || 'Anonymous')}${message.icon ? ` ${message.icon}` : ''}</span>
-                  <div class="message-actions">
-                    <span class="message-time">${this.formatDate(message.timestamp)}</span>
-                    <button class="edit-btn" onclick="this.getRootNode().host.editMessage('${message.id}')">編集</button>
-                    <button class="delete-btn" onclick="this.getRootNode().host.deleteMessage('${message.id}')">削除</button>
+                  <div class="message-header-top">
+                    <span class="message-author">${startNumber + index + 1}. ${this.escapeHtml(message.author || 'Anonymous')}${message.icon ? ` ${message.icon}` : ''}</span>
+                    <div class="message-time-actions">
+                      <span class="message-time">${this.formatDate(message.timestamp)}</span>
+                      <div class="message-actions">
+                        <button class="edit-btn" onclick="this.getRootNode().host.editMessage('${message.id}')">編集</button>
+                        <button class="delete-btn" onclick="this.getRootNode().host.deleteMessage('${message.id}')">削除</button>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="message-content">${this.escapeHtml(message.message || '')}</div>
@@ -632,8 +652,7 @@ class NostalgicBBS extends HTMLElement {
       const day = String(date.getDate()).padStart(2, '0');
       const hours = String(date.getHours()).padStart(2, '0');
       const minutes = String(date.getMinutes()).padStart(2, '0');
-      const seconds = String(date.getSeconds()).padStart(2, '0');
-      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
     } catch (e) {
       return dateString;
     }

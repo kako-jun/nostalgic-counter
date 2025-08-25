@@ -337,11 +337,6 @@ class NostalgicLike extends HTMLElement {
           box-shadow: 4px 4px 0px ${style.shadowColor};
         }
         
-        .like-button:active:not(.loading) {
-          transform: translate(1px, 1px);
-          box-shadow: 2px 2px 0px ${style.shadowColor};
-        }
-        
         .heart-icon {
           font-size: 16px;
           line-height: 1;

@@ -15,6 +15,8 @@ export default function HomePage() {
   const [currentPage, setCurrentPage] = useState("home");
   const [visitedPages, setVisitedPages] = useState<Set<string>>(new Set(["home"]));
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [votingResults, setVotingResults] = useState<any[]>([]);
+  const [votingMessage, setVotingMessage] = useState("");
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -31,7 +33,69 @@ export default function HomePage() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isMobileSidebarOpen]);
 
+  useEffect(() => {
+    // 初期ランキングデータを読み込み
+    loadVotingResults();
+  }, []);
 
+  const voteForService = async (serviceName: string) => {
+    console.log('Voting for:', serviceName); // デバッグ用
+    try {
+      const rankingId = "nostalgic-9c044ad0";
+      
+      // 現在の票数を取得
+      const getCurrentResponse = await fetch(`/api/ranking?action=get&id=${rankingId}`);
+      let currentScore = 1;
+      
+      if (getCurrentResponse.ok) {
+        const currentData = await getCurrentResponse.json();
+        const currentEntry = currentData.entries?.find((entry: any) => entry.name === serviceName);
+        if (currentEntry) {
+          currentScore = currentEntry.score + 1;
+        }
+      }
+      
+      // 正しいAPI呼び出し: 公開IDのみ使用
+      const voteResponse = await fetch(`/api/ranking?action=submit&id=${rankingId}&name=${encodeURIComponent(serviceName)}&score=${currentScore}`);
+      console.log('Vote response status:', voteResponse.status); // デバッグ用
+      
+      if (voteResponse.ok) {
+        const responseData = await voteResponse.json();
+        console.log('Vote response data:', responseData); // デバッグ用
+        setVotingMessage(`${serviceName}に投票しました！ありがとうございます 🎉`);
+        setTimeout(() => setVotingMessage(''), 3000);
+        // 結果を自動更新
+        setTimeout(() => loadVotingResults(), 500);
+      } else {
+        const errorData = await voteResponse.text();
+        console.error('Vote failed:', errorData);
+        setVotingMessage('投票に失敗しました。もう一度お試しください。');
+      }
+    } catch (error) {
+      setVotingMessage('エラーが発生しました。');
+      console.error('Vote error:', error);
+    }
+  };
+  
+  const loadVotingResults = async () => {
+    console.log('Loading voting results...'); // デバッグ用
+    try {
+      const rankingId = "nostalgic-9c044ad0";
+      
+      const response = await fetch(`/api/ranking?action=get&id=${rankingId}&limit=4`);
+      console.log('Load results response status:', response.status); // デバッグ用
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Load results data:', data); // デバッグ用
+        setVotingResults(data.entries || []);
+      } else {
+        const errorText = await response.text();
+        console.error('Failed to load results:', errorText);
+      }
+    } catch (error) {
+      console.error('Failed to load voting results:', error);
+    }
+  };
 
   const renderContent = () => {
     switch (currentPage) {
@@ -85,23 +149,23 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div className="nostalgic-counter-section">
+            <div className="nostalgic-section">
               <p>
-                <span style={{ color: "#ff8c00" }}>
-                  <b>◆このサイトのアクセスカウンター◆</b>
+                <span className="nostalgic-section-title">
+                  <b>◆カウンターのサンプル◆</b>
                 </span>
               </p>
-              <div style={{ textAlign: "center", marginBottom: "20px", marginTop: "30px" }}>
-                <p style={{ fontSize: "20px", fontWeight: "bold", textAlign: "center" }}>
-                  ようこそ！
-                  <br />
-                  <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
-                    <nostalgic-counter id="nostalgic-b89803bb" type="total" theme="classic" />
-                    回も閲覧されました！
-                  </span>
-                </p>
-              </div>
-              <div>
+              <div className="nostalgic-counter-section">
+                <div style={{ textAlign: "center", marginBottom: "20px" }}>
+                  <p style={{ fontSize: "20px", fontWeight: "bold", textAlign: "center", margin: "0" }}>
+                    ようこそ！
+                    <br />
+                    <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "4px" }}>
+                      <nostalgic-counter id="nostalgic-b89803bb" type="total" theme="classic" />
+                      回も閲覧されました！
+                    </span>
+                  </p>
+                </div>
                 <div className="nostalgic-counter-item">
                   <b>今日</b>
                   <br />
@@ -132,6 +196,14 @@ export default function HomePage() {
                   </div>
                 </div>
               </div>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆いいねボタンのサンプル◆</b>
+                </span>
+              </p>
               <div style={{ textAlign: "center", margin: "20px 0" }}>
                 <p style={{ marginBottom: "10px" }}>このサイトが気に入ったら、いいねを押してください！</p>
                 <nostalgic-like id="nostalgic-b89803bb" theme="classic" />
@@ -139,21 +211,152 @@ export default function HomePage() {
             </div>
 
             <div className="nostalgic-section">
-              <p style={{ textAlign: "center" }}>
-                <span style={{ color: "#ff8c00" }}>
-                  <b>◆4サービス人気ランキング◆</b>
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆4サービス人気投票◆</b>
+                </span>
+              </p>
+              
+              <div style={{ margin: "20px 0" }}>
+                <nostalgic-ranking id="nostalgic-9c044ad0" theme="classic" />
+              </div>
+              
+              <p>どのサービスが一番人気か投票してみよう！</p>
+              
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '10px', margin: '15px 0' }}>
+                <button
+                  onClick={() => voteForService('Counter')}
+                  style={{
+                    padding: '15px',
+                    backgroundColor: '#e3f2fd',
+                    border: '2px solid #1976d2',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    transition: 'all 0.2s',
+                    fontFamily: 'inherit'
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#bbdefb'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#e3f2fd'; }}
+                >
+                  📊 Counter<br/>
+                  <small style={{fontWeight: 'normal'}}>アクセス数カウンター</small>
+                </button>
+                
+                <button
+                  onClick={() => voteForService('Like')}
+                  style={{
+                    padding: '15px',
+                    backgroundColor: '#fce4ec',
+                    border: '2px solid #c2185b',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    transition: 'all 0.2s',
+                    fontFamily: 'inherit'
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#f8bbd9'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#fce4ec'; }}
+                >
+                  💖 Like<br/>
+                  <small style={{fontWeight: 'normal'}}>いいねボタン</small>
+                </button>
+                
+                <button
+                  onClick={() => voteForService('Ranking')}
+                  style={{
+                    padding: '15px',
+                    backgroundColor: '#fff3e0',
+                    border: '2px solid #f57c00',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    transition: 'all 0.2s',
+                    fontFamily: 'inherit'
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#ffe0b2'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#fff3e0'; }}
+                >
+                  🏆 Ranking<br/>
+                  <small style={{fontWeight: 'normal'}}>ランキングシステム</small>
+                </button>
+                
+                <button
+                  onClick={() => voteForService('BBS')}
+                  style={{
+                    padding: '15px',
+                    backgroundColor: '#e8f5e8',
+                    border: '2px solid #388e3c',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '16px',
+                    fontWeight: 'bold',
+                    transition: 'all 0.2s',
+                    fontFamily: 'inherit'
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#c8e6c9'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#e8f5e8'; }}
+                >
+                  💬 BBS<br/>
+                  <small style={{fontWeight: 'normal'}}>掲示板システム</small>
+                </button>
+              </div>
+              
+              {votingMessage && (
+                <div style={{
+                  backgroundColor: votingMessage.includes('失敗') || votingMessage.includes('エラー') ? '#ffebee' : '#e8f5e8',
+                  color: votingMessage.includes('失敗') || votingMessage.includes('エラー') ? '#c62828' : '#2e7d32',
+                  border: `2px solid ${votingMessage.includes('失敗') || votingMessage.includes('エラー') ? '#ef5350' : '#4caf50'}`,
+                  borderRadius: '8px',
+                  padding: '10px',
+                  margin: '10px 0',
+                  textAlign: 'center',
+                  fontWeight: 'bold'
+                }}>
+                  {votingMessage}
+                </div>
+              )}
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆ナンバークリックゲーム ハイスコア◆</b>
                 </span>
               </p>
               <div style={{ margin: "20px 0" }}>
-                <p style={{ marginBottom: "10px", textAlign: "center" }}>どのサービスが一番人気でしょうか？<a href="/ranking" className="nostalgic-old-link">ランキングページ</a>で投票できます！</p>
-                <nostalgic-ranking id="ranking-xxxxxxxx" theme="classic" />
+                <nostalgic-ranking id="llll-ll-a235b610" theme="modern" />
+              </div>
+              <div style={{ textAlign: "center", marginTop: "15px" }}>
+                <a href="https://llll-ll.com/easter-egg" className="nostalgic-old-link" target="_blank" rel="noopener noreferrer">
+                  🔢 ナンバークリックゲームをプレイ
+                </a>
               </div>
             </div>
 
             <div className="nostalgic-section">
-              <p style={{ textAlign: "center" }}>
-                <span style={{ color: "#ff8c00" }}>
-                  <b>◆ゲストブック◆</b>
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆名詞性別クイズ ハイスコア◆</b>
+                </span>
+              </p>
+              <div style={{ margin: "20px 0" }}>
+                <nostalgic-ranking id="noun-gender-d0bb6d1f" theme="retro" />
+              </div>
+              <div style={{ textAlign: "center", marginTop: "15px" }}>
+                <a href="https://noun-gender.llll-ll.com/quiz" className="nostalgic-old-link" target="_blank" rel="noopener noreferrer">
+                  📝 名詞性別クイズをプレイ
+                </a>
+              </div>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆ゲストブックのサンプル◆</b>
                 </span>
               </p>
               <div style={{ margin: "20px 0", display: "flex", justifyContent: "center" }}>

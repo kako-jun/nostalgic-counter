@@ -262,9 +262,9 @@ class NostalgicRanking extends HTMLElement {
         }
         .empty-message {
           text-align: center;
-          padding: 20px;
+          padding: 15px;
           color: #666;
-          font-style: italic;
+          font-size: 14px;
         }
         .submit-form {
           border-top: 2px solid var(--ranking-border-color);
