@@ -48,15 +48,19 @@ export default function RankingPage() {
     const score = scoreRef.current?.value;
     const max = maxRef.current?.value;
 
-    if (!url || !token) return;
+    let apiUrl = '';
 
-    let apiUrl = `/api/ranking?action=${mode}&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}`;
-
-    if (mode === "submit" && name && score) {
-      apiUrl += `&name=${encodeURIComponent(name)}&score=${score}`;
-    }
-    if (mode === "create" && max) {
-      apiUrl += `&max=${max}`;
+    if (mode === "submit") {
+      // submitモードでは公開IDを使用
+      if (!publicId || !name || !score) return;
+      apiUrl = `/api/ranking?action=submit&id=${encodeURIComponent(publicId)}&name=${encodeURIComponent(name)}&score=${score}`;
+    } else {
+      // その他のモードでは従来通りurl+tokenを使用
+      if (!url || !token) return;
+      apiUrl = `/api/ranking?action=${mode}&url=${encodeURIComponent(url)}&token=${encodeURIComponent(token)}`;
+      if (mode === "create" && max) {
+        apiUrl += `&max=${max}`;
+      }
     }
 
     try {
@@ -281,20 +285,21 @@ export default function RankingPage() {
                 {`<script src="https://nostalgic.llll-ll.com/components/ranking.js"></script>
 <nostalgic-ranking id="`}
                 <span style={{ color: "#008000" }}>公開ID</span>
+                {`" theme="`}
+                <span style={{ color: "#008000" }}>classic</span>
                 {`"></nostalgic-ranking>`}
               </pre>
               
               <div className="nostalgic-section">
                 <p>
                   <span className="nostalgic-section-title">
-                    <b>◆動作仕様◆</b>
+                    <b>◆theme デザインテーマ◆</b>
                   </span>
                 </p>
                 <p>
-                  • 名前とスコアを入力してランキングに参加
-                  <br />• 自動でスコア順にソート
-                  <br />• 最大エントリー数で制限可能
-                  <br />• リアルタイムでランキングが更新
+                  • <span style={{ color: "#008000" }}>classic</span> - クラシック（シンプル）
+                  <br />• <span style={{ color: "#008000" }}>modern</span> - モダン（青系）
+                  <br />• <span style={{ color: "#008000" }}>retro</span> - レトロ（黄系）
                 </p>
               </div>
 
@@ -344,17 +349,69 @@ export default function RankingPage() {
                   </div>
                 </div>
               )}
+
+              {publicId && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆このように表示されます◆</b>
+                    </span>
+                  </p>
+                  <div style={{ textAlign: "center", margin: "20px 0" }}>
+                    <div style={{ backgroundColor: "#fffacd", border: "2px solid #ffa500", padding: "20px", borderRadius: "4px" }}>
+                      <p style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "15px" }}>◆デモ用ランキング◆</p>
+                      <p style={{ marginBottom: "15px" }}>このデモページのランキング（実際に動作します）：</p>
+                      
+                      <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
+                        <div>
+                          <p style={{ fontSize: "14px", marginBottom: "10px", fontWeight: "bold" }}>Classic</p>
+                          <nostalgic-ranking id={publicId} theme="classic" limit="5" />
+                        </div>
+                        
+                        <div>
+                          <p style={{ fontSize: "14px", marginBottom: "10px", fontWeight: "bold" }}>Modern</p>
+                          <nostalgic-ranking id={publicId} theme="modern" limit="5" />
+                        </div>
+                        
+                        <div>
+                          <p style={{ fontSize: "14px", marginBottom: "10px", fontWeight: "bold" }}>Retro</p>
+                          <nostalgic-ranking id={publicId} theme="retro" limit="5" />
+                        </div>
+                      </div>
+                      
+                      <p style={{ fontSize: "12px", color: "#666", marginTop: "15px" }}>
+                        ※スコア投稿フォームからテストデータを送信してください！
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆STEP 3: スコア送信テスト◆</b>
+                  <b>◆公開IDを再確認したいときは？◆</b>
                 </span>
               </p>
-              <p>作成したランキングにテストスコアを送信できます。</p>
+              <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
+              <p
+                style={{
+                  backgroundColor: "#f0f0f0",
+                  padding: "10px",
+                  fontFamily: "monospace",
+                  fontSize: "14px",
+                  wordBreak: "break-all",
+                }}
+              >
+                https://nostalgic.llll-ll.com/api/ranking?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                &token=<span style={{ color: "#008000" }}>オーナートークン</span>
+              </p>
+              <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
+              
+              <p>または、以下のフォームで確認できます。</p>
+              
               <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
-                <input type="hidden" name="mode" value="submit" />
                 <p>
                   <b>サイトURL：</b>
                   <input
@@ -363,7 +420,7 @@ export default function RankingPage() {
                     placeholder="https://example.com"
                     style={{
                       marginLeft: "10px",
-                      width: "50%",
+                      width: "60%",
                       padding: "4px",
                       border: "1px solid #666",
                       fontFamily: "inherit",
@@ -389,6 +446,59 @@ export default function RankingPage() {
                     }}
                     required
                   />
+                  <button
+                    type="submit"
+                    style={{
+                      marginLeft: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "2px outset #4CAF50",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                    onClick={() => setMode("create")}
+                  >
+                    確認
+                  </button>
+                </p>
+              </form>
+
+              {response && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆APIレスポンス◆</b>
+                    </span>
+                  </p>
+                  <pre style={{ backgroundColor: "#000000", color: "#00ff00", padding: "10px", overflow: "auto", fontSize: "14px" }}>
+                    {response}
+                  </pre>
+                </div>
+              )}
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆スコアを送信したいときは？◆</b>
+                </span>
+              </p>
+              <p>作成したランキングの公開IDを使用してスコアを送信できます。</p>
+              {!publicId && (
+                <div style={{ backgroundColor: "#fffacd", border: "2px solid #ffa500", padding: "10px", marginBottom: "10px", fontSize: "14px" }}>
+                  <b>⚠️ 注意：</b>STEP 1でランキングを作成して公開IDを取得してください。
+                </div>
+              )}
+              <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
+                <input type="hidden" name="mode" value="submit" />
+                <p>
+                  <b>公開ID：</b>
+                  <span style={{ marginLeft: "10px", fontFamily: "monospace", fontSize: "16px", fontWeight: "bold", color: publicId ? "#008000" : "#999" }}>
+                    {publicId || "STEP 1で作成後に表示されます"}
+                  </span>
                 </p>
 
                 <p>
@@ -563,17 +673,16 @@ export default function RankingPage() {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆スコア送信◆</b>
+                  <b>◆スコア送信（公開アクセス）◆</b>
                 </span>
               </p>
               <p style={{ backgroundColor: "#f0f0f0", padding: "10px", fontFamily: "monospace", fontSize: "14px" }}>
-                GET /api/ranking?action=submit&url=<span style={{ color: "#008000" }}>サイトURL</span>&token=
-                <span style={{ color: "#008000" }}>オーナートークン</span>&name=
+                GET /api/ranking?action=submit&id=<span style={{ color: "#008000" }}>公開ID</span>&name=
                 <span style={{ color: "#008000" }}>プレイヤー名</span>&score=
                 <span style={{ color: "#008000" }}>スコア</span>
               </p>
               <p>
-                新しいスコアをランキングに追加します。既存の名前の場合は更新されます。
+                公開IDを使用してスコアを送信します。トークン不要で誰でもスコア登録可能。
               </p>
             </div>
 

@@ -99,6 +99,84 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
   }
 
   /**
+   * 公開IDでスコアを送信
+   */
+  async submitScoreById(
+    publicId: string,
+    params: RankingSubmitParams,
+    userHash?: string
+  ): Promise<Result<RankingData, ValidationError | NotFoundError>> {
+    // エンティティ取得
+    const entityResult = await this.entityRepository.find(publicId)
+    if (!entityResult.success) {
+      return Err(new NotFoundError('Ranking not found'))
+    }
+
+    const entity = entityResult.data
+
+    // 連投防止チェック（userHashが提供された場合）
+    if (userHash) {
+      const cooldownResult = await this.checkSubmitCooldown(entity.id, userHash)
+      if (!cooldownResult.success) {
+        return cooldownResult
+      }
+      
+      if (!cooldownResult.data) {
+        return Err(new ValidationError('Please wait before submitting another score (60 seconds cooldown)'))
+      }
+    }
+
+    // スコア制限チェック
+    const limits = getRankingLimits()
+    if (params.score > limits.maxScore) {
+      return Err(new ValidationError(`Score exceeds maximum of ${limits.maxScore}`))
+    }
+
+    if (params.name.length > limits.maxNameLength) {
+      return Err(new ValidationError(`Name exceeds maximum length of ${limits.maxNameLength}`))
+    }
+
+    // 連投防止マーク（userHashが提供された場合）
+    if (userHash) {
+      const markResult = await this.markSubmitTime(entity.id, userHash)
+      if (!markResult.success) {
+        return Err(new ValidationError('Failed to mark submit time', { error: markResult.error }))
+      }
+    }
+
+    // スコアを追加
+    const addResult = await this.sortedSetRepository.add(`${entity.id}:scores`, params.name, params.score)
+    if (!addResult.success) {
+      // ロールバック: 連投防止マークを削除
+      if (userHash) {
+        await this.removeSubmitMark(entity.id, userHash)
+      }
+      return Err(new ValidationError('Failed to add score', { error: addResult.error }))
+    }
+
+    // エントリー数制限チェック
+    await this.enforceMaxEntries(entity.id, limits.maxEntries)
+
+    // エンティティ更新
+    entity.lastUpdate = new Date()
+    const totalResult = await this.sortedSetRepository.count(`${entity.id}:scores`)
+    if (totalResult.success) {
+      entity.totalEntries = totalResult.data
+    }
+
+    const saveResult = await this.entityRepository.save(entity.id, entity)
+    if (!saveResult.success) {
+      // ロールバック処理
+      if (userHash) {
+        await this.removeSubmitMark(entity.id, userHash)
+      }
+      return Err(new ValidationError('Failed to save entity', { error: saveResult.error }))
+    }
+
+    return await this.transformEntityToData(entity)
+  }
+
+  /**
    * スコアを送信
    */
   async submitScore(

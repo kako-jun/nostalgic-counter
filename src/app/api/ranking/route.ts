@@ -8,6 +8,7 @@ import { ApiHandler } from '@/lib/core/api-handler'
 import { Ok, map } from '@/lib/core/result'
 import { rankingService } from '@/domain/ranking/ranking.service'
 import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
+import { getClientIP, createUserHash } from '@/lib/core/client-info'
 import {
   RankingSchemas,
   UnifiedAPISchemas,
@@ -43,8 +44,12 @@ const createHandler = ApiHandler.create({
 const submitHandler = ApiHandler.create({
   paramsSchema: RankingSchemas.submit,
   resultSchema: RankingSchemas.data,
-  handler: async ({ url, token, name, score }) => {
-    return await rankingService.submitScore(url, token, { name, score })
+  handler: async ({ id, name, score }, request) => {
+    const clientIP = getClientIP(request)
+    const userAgent = request.headers.get('user-agent') || ''
+    const userHash = createUserHash(clientIP, userAgent)
+    
+    return await rankingService.submitScoreById(id, { name, score }, userHash)
   }
 })
 

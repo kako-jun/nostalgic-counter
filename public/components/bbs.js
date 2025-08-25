@@ -235,22 +235,16 @@ class NostalgicBBS extends HTMLElement {
         }
         .message-header {
           display: flex;
-          flex-direction: column;
-          gap: 4px;
-          margin-bottom: 8px;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 4px;
           font-size: 12px;
           color: #666;
         }
-        .message-header-top {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
         .message-time-actions {
           display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-          gap: 2px;
+          gap: 8px;
+          align-items: center;
         }
         .message-actions {
           display: flex;
@@ -258,16 +252,22 @@ class NostalgicBBS extends HTMLElement {
           align-items: center;
         }
         .edit-btn, .delete-btn {
-          font-size: 11px;
-          padding: 2px 6px;
-          border: 1px solid var(--bbs-border-color);
-          background: var(--bbs-bg-color);
-          color: var(--bbs-text-color);
+          font-size: 14px;
+          padding: 4px;
+          border: none;
+          background: transparent;
+          color: #666;
           cursor: pointer;
           border-radius: 2px;
+          line-height: 1;
+          width: 20px;
+          height: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
         .edit-btn:hover, .delete-btn:hover {
-          opacity: 0.8;
+          opacity: 0.6;
         }
         .message-author {
           font-weight: bold;
@@ -276,7 +276,6 @@ class NostalgicBBS extends HTMLElement {
         }
         .message-time {
           font-size: 12px;
-          margin-right: 8px;
           font-family: 'Courier New', 'MS Gothic', 'ＭＳ ゴシック', monospace;
         }
         .message-content {
@@ -418,14 +417,20 @@ class NostalgicBBS extends HTMLElement {
             messages.map((message, index) => `
               <div class="message-item">
                 <div class="message-header">
-                  <div class="message-header-top">
-                    <span class="message-author">${startNumber + index + 1}. ${this.escapeHtml(message.author || 'Anonymous')}${message.icon ? ` ${message.icon}` : ''}</span>
-                    <div class="message-time-actions">
-                      <span class="message-time">${this.formatDate(message.timestamp)}</span>
-                      <div class="message-actions">
-                        <button class="edit-btn" onclick="this.getRootNode().host.editMessage('${message.id}')">編集</button>
-                        <button class="delete-btn" onclick="this.getRootNode().host.deleteMessage('${message.id}')">削除</button>
-                      </div>
+                  <span class="message-author">${startNumber + index + 1}. ${this.escapeHtml(message.author || 'Anonymous')}${message.icon ? ` ${message.icon}` : ''}</span>
+                  <div class="message-time-actions">
+                    <span class="message-time">${this.formatDate(message.timestamp)}</span>
+                    <div class="message-actions">
+                      <button class="edit-btn" onclick="this.getRootNode().host.editMessage('${message.id}')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+                        </svg>
+                      </button>
+                      <button class="delete-btn" onclick="this.getRootNode().host.deleteMessage('${message.id}')">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -467,7 +472,7 @@ class NostalgicBBS extends HTMLElement {
                 </select>
               </div>
               <div class="form-row">
-                <textarea id="message-content" placeholder="メッセージを入力（200文字まで）" maxlength="200" rows="4"></textarea>
+                <textarea id="message-content" placeholder="メッセージを入力（200文字まで）" maxlength="200" rows="5"></textarea>
               </div>
               <div class="message-area" id="form-message"></div>
               <div class="form-row" style="justify-content: flex-end;">

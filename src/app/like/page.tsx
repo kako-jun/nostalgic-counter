@@ -206,23 +206,36 @@ export default function LikePage() {
                 {`<script src="https://nostalgic.llll-ll.com/components/like.js"></script>
 <nostalgic-like id="`}
                 <span style={{ color: "#008000" }}>公開ID</span>
-                {`" icon="heart"></nostalgic-like>`}
+                {`" theme="`}
+                <span style={{ color: "#008000" }}>classic</span>
+                {`" icon="`}
+                <span style={{ color: "#008000" }}>heart</span>
+                {`"></nostalgic-like>`}
               </pre>
-              <p style={{ fontSize: "14px", color: "#666" }}>
-                ※ icon属性で表示を変更できます: "heart"（ハート）, "star"（スター）, "thumbup"（サムズアップ）
-              </p>
               
               <div className="nostalgic-section">
                 <p>
                   <span className="nostalgic-section-title">
-                    <b>◆動作仕様◆</b>
+                    <b>◆theme デザインテーマ◆</b>
                   </span>
                 </p>
                 <p>
-                  • クリックで「いいね」と「取り消し」が切り替わります
-                  <br />• ユーザーごとに状態を管理（IP+UserAgent）
-                  <br />• 24時間で状態がリセットされます
-                  <br />• リアルタイムで数値が更新されます
+                  • <span style={{ color: "#008000" }}>classic</span> - クラシック（グレー系）
+                  <br />• <span style={{ color: "#008000" }}>modern</span> - モダン（白系）
+                  <br />• <span style={{ color: "#008000" }}>retro</span> - レトロ（黄系）
+                </p>
+              </div>
+
+              <div className="nostalgic-section">
+                <p>
+                  <span className="nostalgic-section-title">
+                    <b>◆icon アイコンタイプ◆</b>
+                  </span>
+                </p>
+                <p>
+                  • <span style={{ color: "#008000" }}>heart</span> - ハート（♥）
+                  <br />• <span style={{ color: "#008000" }}>star</span> - スター（★）
+                  <br />• <span style={{ color: "#008000" }}>thumb</span> - サムズアップ（👍）
                 </p>
               </div>
 
@@ -234,8 +247,138 @@ export default function LikePage() {
                     </span>
                   </p>
                   <div style={{ textAlign: "center", margin: "20px 0" }}>
-                    <div style={{ backgroundColor: "#f0f0f0", border: "1px solid #ccc", padding: "15px", borderRadius: "4px" }}>
-                      <p style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "10px" }}>JavaScript APIデモ</p>
+                    <div style={{ backgroundColor: "#fffacd", border: "2px solid #ffa500", padding: "20px", borderRadius: "4px" }}>
+                      <p style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "15px" }}>◆デモ用いいねボタン◆</p>
+                      <p style={{ marginBottom: "15px" }}>このデモページのいいねボタン（実際に動作します）：</p>
+                      
+                      <div style={{ display: "flex", flexDirection: "column", gap: "15px", alignItems: "center" }}>
+                        <div>
+                          <p style={{ fontSize: "14px", marginBottom: "5px", fontWeight: "bold" }}>ハート</p>
+                          <nostalgic-like id={publicId} theme="classic" icon="heart" />
+                        </div>
+                        
+                        <div>
+                          <p style={{ fontSize: "14px", marginBottom: "5px", fontWeight: "bold" }}>スター</p>
+                          <nostalgic-like id={publicId} theme="modern" icon="star" />
+                        </div>
+                        
+                        <div>
+                          <p style={{ fontSize: "14px", marginBottom: "5px", fontWeight: "bold" }}>サムズアップ</p>
+                          <nostalgic-like id={publicId} theme="retro" icon="thumb" />
+                        </div>
+                      </div>
+                      
+                      <p style={{ fontSize: "12px", color: "#666", marginTop: "15px" }}>
+                        ※クリックしてお試しください！状態が即座に切り替わります
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆公開IDを再確認したいときは？◆</b>
+                </span>
+              </p>
+              <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
+              <p
+                style={{
+                  backgroundColor: "#f0f0f0",
+                  padding: "10px",
+                  fontFamily: "monospace",
+                  fontSize: "14px",
+                  wordBreak: "break-all",
+                }}
+              >
+                https://nostalgic.llll-ll.com/api/like?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                &token=<span style={{ color: "#008000" }}>オーナートークン</span>
+              </p>
+              <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
+              
+              <p>または、以下のフォームで確認できます。</p>
+              
+              <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
+                <p>
+                  <b>サイトURL：</b>
+                  <input
+                    ref={urlRef}
+                    type="url"
+                    placeholder="https://example.com"
+                    style={{
+                      marginLeft: "10px",
+                      width: "60%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                </p>
+
+                <p>
+                  <b>オーナートークン：</b>
+                  <input
+                    ref={tokenRef}
+                    type="text"
+                    placeholder="8-16文字"
+                    style={{
+                      marginLeft: "10px",
+                      width: "30%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      marginLeft: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "2px outset #4CAF50",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                    onClick={() => setMode("create")}
+                  >
+                    確認
+                  </button>
+                </p>
+              </form>
+
+              {response && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆APIレスポンス◆</b>
+                    </span>
+                  </p>
+                  <pre style={{ backgroundColor: "#000000", color: "#00ff00", padding: "10px", overflow: "auto", fontSize: "14px" }}>
+                    {response}
+                  </pre>
+                </div>
+              )}
+            </div>
+
+            {publicId && (
+              <div className="nostalgic-section">
+                <p>
+                  <span className="nostalgic-section-title">
+                    <b>◆JavaScript APIテストしたいときは？◆</b>
+                  </span>
+                </p>
+                <div style={{ textAlign: "center", margin: "20px 0" }}>
+                  <div style={{ backgroundColor: "#f0f0f0", border: "1px solid #ccc", padding: "15px", borderRadius: "4px" }}>
+                    <p style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "10px" }}>JavaScript APIデモ</p>
                       <div style={{ display: "flex", justifyContent: "center", gap: "10px", marginBottom: "10px" }}>
                         <button
                           onClick={async () => {

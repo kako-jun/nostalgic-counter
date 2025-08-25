@@ -133,8 +133,7 @@ export const RankingSchemas = {
   // スコア送信用パラメータ
   submit: z.object({
     action: z.literal('submit'),
-    url: CommonSchemas.url,
-    token: CommonSchemas.token,
+    id: CommonSchemas.publicId,
     name: RankingFieldSchemas.playerName,
     score: RankingFieldSchemas.score
   }),

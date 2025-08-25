@@ -19,15 +19,14 @@ GET /api/ranking?action=create&url={URL}&token={TOKEN}&max={MAX_ENTRIES}
 - `max` (オプション): 最大エントリー数（1-1000、デフォルト: 100）
 
 ### submit
-ランキングに新しいスコアを送信。
+ランキングに新しいスコアを送信（公開アクセス）。
 
 ```
-GET /api/ranking?action=submit&url={URL}&token={TOKEN}&name={PLAYER_NAME}&score={SCORE}
+GET /api/ranking?action=submit&id={ID}&name={PLAYER_NAME}&score={SCORE}
 ```
 
 **パラメータ:**
-- `url` (必須): 対象URL
-- `token` (必須): オーナートークン
+- `id` (必須): 公開ランキングID
 - `name` (必須): プレイヤー名（最大20文字）
 - `score` (必須): スコア値（整数）
 
@@ -72,9 +71,9 @@ const response = await fetch('/api/ranking?action=create&url=https://mygame.com&
 const data = await response.json()
 console.log('ランキングID:', data.id)
 
-// 2. スコア送信
-await fetch('/api/ranking?action=submit&url=https://mygame.com&token=game-secret&name=Alice&score=1000')
-await fetch('/api/ranking?action=submit&url=https://mygame.com&token=game-secret&name=Bob&score=1200')
+// 2. スコア送信（公開IDを使用）
+await fetch('/api/ranking?action=submit&id=' + data.id + '&name=Alice&score=1000')
+await fetch('/api/ranking?action=submit&id=' + data.id + '&name=Bob&score=1200')
 
 // 3. リーダーボード取得
 const ranking = await fetch('/api/ranking?action=get&id=mygame-a7b9c3d4&limit=10')

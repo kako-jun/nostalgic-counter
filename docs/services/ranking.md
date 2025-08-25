@@ -30,15 +30,14 @@ GET /api/ranking?action=create&url={URL}&token={TOKEN}&max={MAX_ENTRIES}
 ```
 
 ### submit
-Submit a new score to the ranking.
+Submit a new score to the ranking (public access).
 
 ```
-GET /api/ranking?action=submit&url={URL}&token={TOKEN}&name={PLAYER_NAME}&score={SCORE}
+GET /api/ranking?action=submit&id={ID}&name={PLAYER_NAME}&score={SCORE}
 ```
 
 **Parameters:**
-- `url` (required): Target URL
-- `token` (required): Owner token
+- `id` (required): Public ranking ID
 - `name` (required): Player name (max 20 characters)
 - `score` (required): Score value (integer)
 
@@ -163,9 +162,9 @@ const response = await fetch('/api/ranking?action=create&url=https://mygame.com&
 const data = await response.json()
 console.log('Ranking ID:', data.id)
 
-// 2. Submit scores
-await fetch('/api/ranking?action=submit&url=https://mygame.com&token=game-secret&name=Alice&score=1000')
-await fetch('/api/ranking?action=submit&url=https://mygame.com&token=game-secret&name=Bob&score=1200')
+// 2. Submit scores (using public ID)
+await fetch('/api/ranking?action=submit&id=' + data.id + '&name=Alice&score=1000')
+await fetch('/api/ranking?action=submit&id=' + data.id + '&name=Bob&score=1200')
 
 // 3. Get leaderboard
 const ranking = await fetch('/api/ranking?action=get&id=mygame-a7b9c3d4&limit=10')

@@ -246,20 +246,21 @@ export default function BBSPage() {
                 {`<script src="https://nostalgic.llll-ll.com/components/bbs.js"></script>
 <nostalgic-bbs id="`}
                 <span style={{ color: "#008000" }}>公開ID</span>
+                {`" theme="`}
+                <span style={{ color: "#008000" }}>classic</span>
                 {`"></nostalgic-bbs>`}
               </pre>
               
               <div className="nostalgic-section">
                 <p>
                   <span className="nostalgic-section-title">
-                    <b>◆動作仕様◆</b>
+                    <b>◆theme デザインテーマ◆</b>
                   </span>
                 </p>
                 <p>
-                  • 作者名とメッセージを入力して投稿
-                  <br />• アイコン選択機能（3つのドロップダウン）
-                  <br />• 投稿者による自分の投稿編集・削除
-                  <br />• ページネーション機能
+                  • <span style={{ color: "#008000" }}>classic</span> - クラシック（グレー系）
+                  <br />• <span style={{ color: "#008000" }}>modern</span> - モダン（青系）
+                  <br />• <span style={{ color: "#008000" }}>retro</span> - レトロ（黄系）
                 </p>
               </div>
 
@@ -336,12 +337,141 @@ export default function BBSPage() {
                   </div>
                 </div>
               )}
+
+              {publicId && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆このように表示されます◆</b>
+                    </span>
+                  </p>
+                  <div style={{ textAlign: "center", margin: "20px 0" }}>
+                    <div style={{ backgroundColor: "#fffacd", border: "2px solid #ffa500", padding: "20px", borderRadius: "4px" }}>
+                      <p style={{ fontSize: "16px", fontWeight: "bold", marginBottom: "15px" }}>◆デモ用BBS◆</p>
+                      <p style={{ marginBottom: "15px" }}>このデモページのBBS（実際に動作します）：</p>
+                      
+                      <div style={{ display: "flex", justifyContent: "center", gap: "20px", flexWrap: "wrap" }}>
+                        <div>
+                          <p style={{ fontSize: "14px", marginBottom: "10px", fontWeight: "bold" }}>Classic</p>
+                          <nostalgic-bbs id={publicId} theme="classic" />
+                        </div>
+                        
+                        <div>
+                          <p style={{ fontSize: "14px", marginBottom: "10px", fontWeight: "bold" }}>Modern</p>
+                          <nostalgic-bbs id={publicId} theme="modern" />
+                        </div>
+                        
+                        <div>
+                          <p style={{ fontSize: "14px", marginBottom: "10px", fontWeight: "bold" }}>Retro</p>
+                          <nostalgic-bbs id={publicId} theme="retro" />
+                        </div>
+                      </div>
+                      
+                      <p style={{ fontSize: "12px", color: "#666", marginTop: "15px" }}>
+                        ※投稿フォームから実際にメッセージを投稿してください！
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆STEP 3: メッセージ投稿テスト◆</b>
+                  <b>◆公開IDを再確認したいときは？◆</b>
+                </span>
+              </p>
+              <p>ブラウザのアドレスバーに以下のURLを入力してアクセスしてください。</p>
+              <p
+                style={{
+                  backgroundColor: "#f0f0f0",
+                  padding: "10px",
+                  fontFamily: "monospace",
+                  fontSize: "14px",
+                  wordBreak: "break-all",
+                }}
+              >
+                https://nostalgic.llll-ll.com/api/bbs?action=create&url=<span style={{ color: "#008000" }}>サイトURL</span>
+                &token=<span style={{ color: "#008000" }}>オーナートークン</span>
+              </p>
+              <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
+              
+              <p>または、以下のフォームで確認できます。</p>
+              
+              <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
+                <p>
+                  <b>サイトURL：</b>
+                  <input
+                    ref={urlRef}
+                    type="url"
+                    placeholder="https://example.com"
+                    style={{
+                      marginLeft: "10px",
+                      width: "60%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                </p>
+
+                <p>
+                  <b>オーナートークン：</b>
+                  <input
+                    ref={tokenRef}
+                    type="text"
+                    placeholder="8-16文字"
+                    style={{
+                      marginLeft: "10px",
+                      width: "30%",
+                      padding: "4px",
+                      border: "1px solid #666",
+                      fontFamily: "inherit",
+                      fontSize: "16px"
+                    }}
+                    required
+                  />
+                  <button
+                    type="submit"
+                    style={{
+                      marginLeft: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "2px outset #4CAF50",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                    onClick={() => setMode("create")}
+                  >
+                    確認
+                  </button>
+                </p>
+              </form>
+
+              {response && (
+                <div className="nostalgic-section">
+                  <p>
+                    <span className="nostalgic-section-title">
+                      <b>◆APIレスポンス◆</b>
+                    </span>
+                  </p>
+                  <pre style={{ backgroundColor: "#000000", color: "#00ff00", padding: "10px", overflow: "auto", fontSize: "14px" }}>
+                    {response}
+                  </pre>
+                </div>
+              )}
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆メッセージを投稿したいときは？◆</b>
                 </span>
               </p>
               <p>作成したBBSにテストメッセージを投稿できます。</p>
