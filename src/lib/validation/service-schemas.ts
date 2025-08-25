@@ -56,6 +56,7 @@ export const CounterSchemas = {
 
   // データ形式
   data: z.object({
+    id: CommonSchemas.publicId,
     url: CommonSchemas.url,
     total: CommonSchemas.nonNegativeInt,
     today: CommonSchemas.nonNegativeInt,
@@ -112,6 +113,7 @@ export const LikeSchemas = {
 
   // データ形式
   data: z.object({
+    id: CommonSchemas.publicId,
     url: CommonSchemas.url,
     total: CommonSchemas.nonNegativeInt,
     userLiked: LikeFieldSchemas.userLiked,
@@ -194,6 +196,7 @@ export const RankingSchemas = {
 
   // データ形式
   data: z.object({
+    id: CommonSchemas.publicId,
     url: CommonSchemas.url,
     title: CommonSchemas.title.optional(),
     entries: z.array(z.object({
@@ -442,30 +445,11 @@ export const UnifiedAPISchemas = {
     message: BBSFieldSchemas.selectOption.optional()
   }),
 
-  // 更新成功レスポンス
-  updateSuccess: z.object({
-    success: z.literal(true)
-  }),
-
-  // 削除成功レスポンス  
+  // 削除成功レスポンス（完全削除時のみ使用）
   deleteSuccess: z.object({
     success: z.literal(true),
-    message: z.string()
-  }),
-
-  // SET成功レスポンス
-  setSuccess: z.object({
-    success: z.literal(true)
-  }),
-
-  // REMOVE成功レスポンス
-  removeSuccess: z.object({
-    success: z.literal(true)
-  }),
-
-  // CLEAR成功レスポンス
-  clearSuccess: z.object({
-    success: z.literal(true)
+    message: z.string(),
+    id: CommonSchemas.publicId
   })
 } as const
 

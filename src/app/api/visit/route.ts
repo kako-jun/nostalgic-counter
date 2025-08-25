@@ -58,7 +58,16 @@ const incrementHandler = ApiHandler.create({
     const userAgent = getUserAgent(request)
     const userHash = counterService.generateUserHash(clientIP, userAgent)
 
-    return await counterService.incrementCounter(id, userHash)
+    const result = await counterService.incrementCounter(id, userHash)
+    
+    if (!result.success) {
+      return result
+    }
+
+    return map(result, data => ({
+      ...data,
+      id
+    }))
   }
 })
 
@@ -67,15 +76,9 @@ const incrementHandler = ApiHandler.create({
  */
 const setHandler = ApiHandler.create({
   paramsSchema: CounterSchemas.set,
-  resultSchema: UnifiedAPISchemas.setSuccess,
+  resultSchema: CounterSchemas.data,
   handler: async ({ url, token, total }) => {
-    const setResult = await counterService.setCounterValue(url, token, total)
-    
-    if (!setResult.success) {
-      return setResult
-    }
-
-    return map(setResult, () => ({ success: true as const }))
+    return await counterService.setCounterValue(url, token, total)
   }
 })
 
@@ -167,7 +170,11 @@ const deleteHandler = ApiHandler.create({
       return deleteResult
     }
 
-    return Ok({ success: true as const, message: 'Counter deleted successfully' })
+    return map(deleteResult, result => ({ 
+      success: true as const, 
+      message: 'Counter deleted successfully',
+      id: result.id 
+    }))
   }
 })
 

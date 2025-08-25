@@ -93,7 +93,7 @@ const postHandler = ApiHandler.create({
  */
 const editMessageHandler = ApiHandler.create({
   paramsSchema: BBSSchemas.editMessage,
-  resultSchema: UnifiedAPISchemas.updateSuccess,
+  resultSchema: BBSSchemas.data,
   handler: async ({ url, token, messageId, author, message, icon, select1, select2, select3 }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
@@ -104,7 +104,7 @@ const editMessageHandler = ApiHandler.create({
     if (select2) selects.push(select2)
     if (select3) selects.push(select3)
 
-    const editResult = await bbsService.updateMessage(url, token, {
+    return await bbsService.updateMessage(url, token, {
       messageId,
       author,
       message,
@@ -112,12 +112,6 @@ const editMessageHandler = ApiHandler.create({
       selects: selects.length > 0 ? selects : undefined,
       authorHash
     })
-    
-    if (!editResult.success) {
-      return editResult
-    }
-
-    return map(editResult, () => ({ success: true as const }))
   }
 })
 
@@ -126,25 +120,19 @@ const editMessageHandler = ApiHandler.create({
  */
 const editMessageByIdHandler = ApiHandler.create({
   paramsSchema: BBSSchemas.editMessageById,
-  resultSchema: UnifiedAPISchemas.updateSuccess,
+  resultSchema: BBSSchemas.data,
   handler: async ({ id, messageId, editToken, author, message, icon, select1, select2, select3 }, request) => {
     const selects: string[] = []
     if (select1) selects.push(select1)
     if (select2) selects.push(select2)
     if (select3) selects.push(select3)
 
-    const editResult = await bbsService.editMessageByIdWithToken(id, messageId, editToken, {
+    return await bbsService.editMessageByIdWithToken(id, messageId, editToken, {
       author,
       message,
       icon,
       selects: selects.length > 0 ? selects : undefined
     })
-    
-    if (!editResult.success) {
-      return editResult
-    }
-
-    return map(editResult, () => ({ success: true as const }))
   }
 })
 
@@ -153,15 +141,9 @@ const editMessageByIdHandler = ApiHandler.create({
  */
 const deleteMessageByIdHandler = ApiHandler.create({
   paramsSchema: BBSSchemas.deleteMessageById,
-  resultSchema: UnifiedAPISchemas.deleteSuccess,
+  resultSchema: BBSSchemas.data,
   handler: async ({ id, messageId, editToken }, request) => {
-    const deleteResult = await bbsService.deleteMessageByIdWithToken(id, messageId, editToken)
-    
-    if (!deleteResult.success) {
-      return deleteResult
-    }
-
-    return map(deleteResult, () => ({ success: true as const }))
+    return await bbsService.deleteMessageByIdWithToken(id, messageId, editToken)
   }
 })
 
@@ -170,22 +152,16 @@ const deleteMessageByIdHandler = ApiHandler.create({
  */
 const deleteMessageHandler = ApiHandler.create({
   paramsSchema: BBSSchemas.deleteMessage,
-  resultSchema: UnifiedAPISchemas.deleteSuccess,
+  resultSchema: BBSSchemas.data,
   handler: async ({ url, token, messageId }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = getUserAgent(request)
     const authorHash = bbsService.generateUserHash(clientIP, userAgent)
     
-    const deleteResult = await bbsService.removeMessage(url, token, {
+    return await bbsService.removeMessage(url, token, {
       messageId,
       authorHash
     })
-    
-    if (!deleteResult.success) {
-      return deleteResult
-    }
-
-    return map(deleteResult, () => ({ success: true as const }))
   }
 })
 
@@ -194,15 +170,9 @@ const deleteMessageHandler = ApiHandler.create({
  */
 const clearHandler = ApiHandler.create({
   paramsSchema: BBSSchemas.clear,
-  resultSchema: UnifiedAPISchemas.clearSuccess,
+  resultSchema: BBSSchemas.data,
   handler: async ({ url, token }) => {
-    const clearResult = await bbsService.clearBBS(url, token)
-    
-    if (!clearResult.success) {
-      return clearResult
-    }
-
-    return map(clearResult, () => ({ success: true as const }))
+    return await bbsService.clearBBS(url, token)
   }
 })
 

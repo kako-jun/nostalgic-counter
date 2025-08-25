@@ -38,6 +38,7 @@ GET /api/visit?action=increment&id={ID}
 **Response:**
 ```json
 {
+  "id": "yoursite-a7b9c3d4",
   "url": "https://yoursite.com",
   "total": 2,
   "today": 2,

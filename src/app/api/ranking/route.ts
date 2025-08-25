@@ -59,15 +59,9 @@ const submitHandler = ApiHandler.create({
  */
 const updateHandler = ApiHandler.create({
   paramsSchema: RankingSchemas.update,
-  resultSchema: UnifiedAPISchemas.updateSuccess,
+  resultSchema: RankingSchemas.data,
   handler: async ({ url, token, name, score }) => {
-    const updateResult = await rankingService.updateScore(url, token, { name, score })
-    
-    if (!updateResult.success) {
-      return updateResult
-    }
-
-    return map(updateResult, () => ({ success: true as const }))
+    return await rankingService.updateScore(url, token, { name, score })
   }
 })
 
@@ -76,15 +70,9 @@ const updateHandler = ApiHandler.create({
  */
 const removeHandler = ApiHandler.create({
   paramsSchema: RankingSchemas.remove,
-  resultSchema: UnifiedAPISchemas.removeSuccess,
+  resultSchema: RankingSchemas.data,
   handler: async ({ url, token, name }) => {
-    const removeResult = await rankingService.removeEntry(url, token, { name })
-    
-    if (!removeResult.success) {
-      return removeResult
-    }
-
-    return map(removeResult, () => ({ success: true as const }))
+    return await rankingService.removeEntry(url, token, { name })
   }
 })
 
@@ -93,15 +81,9 @@ const removeHandler = ApiHandler.create({
  */
 const clearHandler = ApiHandler.create({
   paramsSchema: RankingSchemas.clear,
-  resultSchema: UnifiedAPISchemas.clearSuccess,
+  resultSchema: RankingSchemas.data,
   handler: async ({ url, token }) => {
-    const clearResult = await rankingService.clearRanking(url, token)
-    
-    if (!clearResult.success) {
-      return clearResult
-    }
-
-    return map(clearResult, () => ({ success: true as const }))
+    return await rankingService.clearRanking(url, token)
   }
 })
 

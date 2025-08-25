@@ -42,6 +42,7 @@ GET /api/like?action=toggle&url={URL}&token={TOKEN}
 **Response:**
 ```json
 {
+  "id": "yoursite-a7b9c3d4",
   "url": "https://yoursite.com",
   "total": 1,
   "userLiked": true,
@@ -62,6 +63,7 @@ GET /api/like?action=get&id={ID}
 **Response:**
 ```json
 {
+  "id": "yoursite-a7b9c3d4",
   "url": "https://yoursite.com",
   "total": 5,
   "userLiked": false

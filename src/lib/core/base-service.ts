@@ -200,7 +200,7 @@ export abstract class BaseService<TEntity extends BaseEntity, TData, TCreatePara
   /**
    * エンティティの削除（オーナーのみ）
    */
-  async delete(url: string, token: string): Promise<Result<void, ValidationError | UnauthorizedError | NotFoundError>> {
+  async delete(url: string, token: string): Promise<Result<{ id: string }, ValidationError | UnauthorizedError | NotFoundError>> {
     const ownershipResult = await this.verifyOwnership(url, token)
     if (!ownershipResult.success) {
       return ownershipResult
@@ -236,7 +236,7 @@ export abstract class BaseService<TEntity extends BaseEntity, TData, TCreatePara
       return Err(new ValidationError('Failed to delete URL mapping', { error: deleteMappingResult.error }))
     }
 
-    return Ok(undefined)
+    return Ok({ id: entity.id })
   }
 
   /**
