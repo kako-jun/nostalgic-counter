@@ -178,8 +178,8 @@ class NostalgicBBS extends HTMLElement {
     };
 
     const style = themeStyles[theme] || themeStyles.classic;
-    // メッセージを逆順ソート（新しいものが下に表示される）
-    const messages = (this.bbsData.messages || []).slice().reverse();
+    // サーバーから取得したメッセージをそのまま表示（新しいものが下に表示される）
+    const messages = (this.bbsData.messages || []);
     const pagination = this.bbsData.pagination || {};
     
     // 連番計算：現在のページの開始番号を計算

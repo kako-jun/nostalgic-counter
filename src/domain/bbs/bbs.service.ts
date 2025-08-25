@@ -407,9 +407,9 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
       return Err(new ValidationError('Failed to clear messages'))
     }
 
-    // 新しいメッセージを追加（逆順で追加してRedis内で正順になるようにする）
+    // 新しいメッセージを追加（Redis lpushの特性により逆順で追加）
     if (messages.length > 0) {
-      const addResult = await this.listRepository.push(`${id}:messages`, messages.reverse())
+      const addResult = await this.listRepository.push(`${id}:messages`, messages.slice().reverse())
       if (!addResult.success) {
         return Err(new ValidationError('Failed to add messages'))
       }
