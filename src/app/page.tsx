@@ -141,12 +141,12 @@ export default function HomePage() {
             <div className="nostalgic-section">
               <p style={{ textAlign: "center" }}>
                 <span style={{ color: "#ff8c00" }}>
-                  <b>◆訪問者ランキング◆</b>
+                  <b>◆4サービス人気ランキング◆</b>
                 </span>
               </p>
               <div style={{ margin: "20px 0" }}>
-                <p style={{ marginBottom: "10px", textAlign: "center" }}>このサイトへの訪問回数ランキングです！あなたも参加してみませんか？</p>
-                <nostalgic-ranking id="nostalgic-b89803bb" theme="classic" />
+                <p style={{ marginBottom: "10px", textAlign: "center" }}>どのサービスが一番人気でしょうか？<a href="/ranking" className="nostalgic-old-link">ランキングページ</a>で投票できます！</p>
+                <nostalgic-ranking id="ranking-xxxxxxxx" theme="classic" />
               </div>
             </div>
 

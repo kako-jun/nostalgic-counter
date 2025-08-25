@@ -127,7 +127,7 @@ export const RankingSchemas = {
     url: CommonSchemas.url,
     token: CommonSchemas.token,
     title: CommonSchemas.shortText.optional(),
-    max: RankingFieldSchemas.limit.default(RANKING.LIMIT.DEFAULT)
+    max: RankingFieldSchemas.maxEntries.default(RANKING.LIMIT.DEFAULT)
   }),
 
   // スコア送信用パラメータ
