@@ -23,8 +23,8 @@ export const RANKING_LIMITS = {
 export const RankingFieldSchemas = {
   playerName: z.string().min(RANKING_LIMITS.PLAYER_NAME_MIN).max(RANKING_LIMITS.PLAYER_NAME_MAX),
   score: CommonSchemas.nonNegativeInt,
-  maxEntries: z.number().int().min(RANKING_LIMITS.MAX_ENTRIES_MIN).max(RANKING_LIMITS.MAX_ENTRIES_MAX),
-  limit: z.number().int().min(RANKING_LIMITS.LIMIT_MIN).max(RANKING_LIMITS.LIMIT_MAX),
+  maxEntries: z.coerce.number().int().min(RANKING_LIMITS.MAX_ENTRIES_MIN).max(RANKING_LIMITS.MAX_ENTRIES_MAX),
+  limit: z.coerce.number().int().min(RANKING_LIMITS.LIMIT_MIN).max(RANKING_LIMITS.LIMIT_MAX),
   format: z.enum(['interactive'])
 } as const
 

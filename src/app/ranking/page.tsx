@@ -351,9 +351,10 @@ export default function RankingPage() {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆スコア送信テスト◆</b>
+                  <b>◆STEP 3: スコア送信テスト◆</b>
                 </span>
               </p>
+              <p>作成したランキングにテストスコアを送信できます。</p>
               <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
                 <input type="hidden" name="mode" value="submit" />
                 <p>

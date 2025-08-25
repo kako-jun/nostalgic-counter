@@ -96,7 +96,7 @@ export const LikeToggleParamsSchema = z.object({
 
 export const LikeIncrementParamsSchema = z.object({
   userHash: z.string().min(1),
-  incrementBy: z.number().int().min(1).default(1)
+  incrementBy: z.coerce.number().int().min(1).default(1)
 })
 
 export const LikeDisplayParamsSchema = z.object({

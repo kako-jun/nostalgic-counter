@@ -215,8 +215,8 @@ export class ValidationFramework {
 export const CommonSchemas = {
   // === 基本型 ===
   nonEmptyString: z.string().min(1),
-  positiveInt: z.number().int().positive(),
-  nonNegativeInt: z.number().int().min(0),
+  positiveInt: z.coerce.number().int().positive(),
+  nonNegativeInt: z.coerce.number().int().min(0),
   url: z.string().url().refine(url => url.startsWith(URL.REQUIRED_PROTOCOL), {
     message: `URL must start with '${URL.REQUIRED_PROTOCOL}'`
   }),

@@ -144,30 +144,6 @@ export default function LikePage() {
                     }}
                     required
                   />
-                </p>
-
-                {mode === "set" && (
-                  <p>
-                    <b>いいね数：</b>
-                    <input
-                      ref={valueRef}
-                      type="number"
-                      min="0"
-                      placeholder="100"
-                      style={{
-                        marginLeft: "10px",
-                        width: "20%",
-                        padding: "4px",
-                        border: "1px solid #666",
-                        fontFamily: "inherit",
-                        fontSize: "16px"
-                      }}
-                      required
-                    />
-                  </p>
-                )}
-
-                <p>
                   <button
                     type="submit"
                     style={{
@@ -184,40 +160,6 @@ export default function LikePage() {
                     onClick={() => setMode("create")}
                   >
                     作成
-                  </button>
-                  <button
-                    type="submit"
-                    style={{
-                      marginLeft: "10px",
-                      padding: "4px 12px",
-                      backgroundColor: "#2196F3",
-                      color: "white",
-                      border: "2px outset #2196F3",
-                      fontSize: "16px",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                      fontFamily: "inherit"
-                    }}
-                    onClick={() => setMode("set")}
-                  >
-                    値設定
-                  </button>
-                  <button
-                    type="submit"
-                    style={{
-                      marginLeft: "10px",
-                      padding: "4px 12px",
-                      backgroundColor: "#f44336",
-                      color: "white",
-                      border: "2px outset #f44336",
-                      fontSize: "16px",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                      fontFamily: "inherit"
-                    }}
-                    onClick={() => setMode("delete")}
-                  >
-                    削除
                   </button>
                 </p>
               </form>
@@ -408,6 +350,151 @@ export default function LikePage() {
               <p style={{ textAlign: "center", marginTop: "10px", fontSize: "14px", color: "#666" }}>
                 ※クリックしてお試しください！状態が即座に切り替わります
               </p>
+            </div>
+
+            <div className="nostalgic-section">
+              <p>
+                <span className="nostalgic-section-title">
+                  <b>◆STEP 3: 管理操作（オーナー限定）◆</b>
+                </span>
+              </p>
+              <p>作成済みのいいねボタンの管理操作を行えます。</p>
+              
+              <div style={{ marginTop: "15px" }}>
+                <p><b>いいね数を設定：</b></p>
+                <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
+                  <input type="hidden" name="mode" value="set" />
+                  <p>
+                    <b>サイトURL：</b>
+                    <input
+                      ref={urlRef}
+                      type="url"
+                      placeholder="https://example.com"
+                      style={{
+                        marginLeft: "10px",
+                        width: "50%",
+                        padding: "4px",
+                        border: "1px solid #666",
+                        fontFamily: "inherit",
+                        fontSize: "16px"
+                      }}
+                      required
+                    />
+                  </p>
+                  <p>
+                    <b>オーナートークン：</b>
+                    <input
+                      ref={tokenRef}
+                      type="text"
+                      placeholder="8-16文字"
+                      style={{
+                        marginLeft: "10px",
+                        width: "30%",
+                        padding: "4px",
+                        border: "1px solid #666",
+                        fontFamily: "inherit",
+                        fontSize: "16px"
+                      }}
+                      required
+                    />
+                  </p>
+                  <p>
+                    <b>いいね数：</b>
+                    <input
+                      ref={valueRef}
+                      type="number"
+                      min="0"
+                      placeholder="100"
+                      style={{
+                        marginLeft: "10px",
+                        width: "20%",
+                        padding: "4px",
+                        border: "1px solid #666",
+                        fontFamily: "inherit",
+                        fontSize: "16px"
+                      }}
+                      required
+                    />
+                    <button
+                      type="submit"
+                      style={{
+                        marginLeft: "10px",
+                        padding: "4px 12px",
+                        backgroundColor: "#2196F3",
+                        color: "white",
+                        border: "2px outset #2196F3",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        fontFamily: "inherit"
+                      }}
+                      onClick={() => setMode("set")}
+                    >
+                      値設定
+                    </button>
+                  </p>
+                </form>
+              </div>
+
+              <hr style={{ margin: "20px 0", border: "1px dashed #ccc" }} />
+
+              <div style={{ marginTop: "15px" }}>
+                <p><b>いいねボタンを削除：</b></p>
+                <form onSubmit={handleSubmit} style={{ marginTop: "5px" }}>
+                  <input type="hidden" name="mode" value="delete" />
+                  <p>
+                    <b>サイトURL：</b>
+                    <input
+                      ref={urlRef}
+                      type="url"
+                      placeholder="https://example.com"
+                      style={{
+                        marginLeft: "10px",
+                        width: "50%",
+                        padding: "4px",
+                        border: "1px solid #666",
+                        fontFamily: "inherit",
+                        fontSize: "16px"
+                      }}
+                      required
+                    />
+                  </p>
+                  <p>
+                    <b>オーナートークン：</b>
+                    <input
+                      ref={tokenRef}
+                      type="text"
+                      placeholder="8-16文字"
+                      style={{
+                        marginLeft: "10px",
+                        width: "30%",
+                        padding: "4px",
+                        border: "1px solid #666",
+                        fontFamily: "inherit",
+                        fontSize: "16px"
+                      }}
+                      required
+                    />
+                    <button
+                      type="submit"
+                      style={{
+                        marginLeft: "10px",
+                        padding: "4px 12px",
+                        backgroundColor: "#f44336",
+                        color: "white",
+                        border: "2px outset #f44336",
+                        fontSize: "16px",
+                        fontWeight: "bold",
+                        cursor: "pointer",
+                        fontFamily: "inherit"
+                      }}
+                      onClick={() => setMode("delete")}
+                    >
+                      削除
+                    </button>
+                  </p>
+                </form>
+              </div>
             </div>
           </>
         );

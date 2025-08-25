@@ -165,6 +165,23 @@ export default function BBSPage() {
                     }}
                     required
                   />
+                  <button
+                    type="submit"
+                    style={{
+                      marginLeft: "10px",
+                      padding: "4px 12px",
+                      backgroundColor: "#4CAF50",
+                      color: "white",
+                      border: "2px outset #4CAF50",
+                      fontSize: "16px",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      fontFamily: "inherit"
+                    }}
+                    onClick={() => setMode("create")}
+                  >
+                    作成
+                  </button>
                 </p>
 
                 <p>
@@ -184,23 +201,6 @@ export default function BBSPage() {
                       fontSize: "16px"
                     }}
                   />
-                  <button
-                    type="submit"
-                    style={{
-                      marginLeft: "10px",
-                      padding: "4px 12px",
-                      backgroundColor: "#4CAF50",
-                      color: "white",
-                      border: "2px outset #4CAF50",
-                      fontSize: "16px",
-                      fontWeight: "bold",
-                      cursor: "pointer",
-                      fontFamily: "inherit"
-                    }}
-                    onClick={() => setMode("create")}
-                  >
-                    作成
-                  </button>
                 </p>
               </form>
 
@@ -341,9 +341,10 @@ export default function BBSPage() {
             <div className="nostalgic-section">
               <p>
                 <span className="nostalgic-section-title">
-                  <b>◆メッセージ投稿テスト◆</b>
+                  <b>◆STEP 3: メッセージ投稿テスト◆</b>
                 </span>
               </p>
+              <p>作成したBBSにテストメッセージを投稿できます。</p>
               <form onSubmit={handleSubmit} style={{ marginTop: "10px" }}>
                 <input type="hidden" name="mode" value="post" />
                 <p>
