@@ -1,5 +1,15 @@
 import 'react'
 
+interface NostalgicRankingElement extends HTMLElement {
+  loadRankingData(): void;
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'nostalgic-ranking': NostalgicRankingElement;
+  }
+}
+
 declare module 'react' {
   namespace JSX {
     interface IntrinsicElements {
@@ -19,6 +29,7 @@ declare module 'react' {
         max?: string;
         theme?: 'classic' | 'modern' | 'retro';
         limit?: string;
+        loadRankingData?: () => void;
       };
       'nostalgic-bbs': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
         id?: string;
