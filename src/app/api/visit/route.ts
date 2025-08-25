@@ -40,6 +40,7 @@ const createHandler = ApiHandler.create({
     }
 
     return map(createResult, result => ({
+      success: true as const,
       id: result.id,
       url: result.data.url
     }))
