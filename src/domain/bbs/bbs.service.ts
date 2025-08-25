@@ -255,14 +255,14 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
       return Err(new ValidationError('Only the author can edit this message'))
     }
 
-    // メッセージを更新
+    // メッセージを更新（timestampは元のまま維持して順序を保持）
     messages[messageIndex] = {
       ...messages[messageIndex],
       author: params.author,
       message: params.message,
       icon: params.icon,
-      selects: params.selects,
-      timestamp: new Date() // 更新時刻を記録
+      selects: params.selects
+      // timestamp は更新しない（投稿順序を維持）
     }
 
     // メッセージリストを更新
@@ -407,9 +407,9 @@ export class BBSService extends BaseService<BBSEntity, BBSData, BBSCreateParams>
       return Err(new ValidationError('Failed to clear messages'))
     }
 
-    // 新しいメッセージを追加
+    // 新しいメッセージを追加（逆順で追加してRedis内で正順になるようにする）
     if (messages.length > 0) {
-      const addResult = await this.listRepository.push(`${id}:messages`, messages)
+      const addResult = await this.listRepository.push(`${id}:messages`, messages.reverse())
       if (!addResult.success) {
         return Err(new ValidationError('Failed to add messages'))
       }
