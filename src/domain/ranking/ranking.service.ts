@@ -107,7 +107,7 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
     userHash?: string
   ): Promise<Result<RankingData, ValidationError | NotFoundError>> {
     // エンティティ取得
-    const entityResult = await this.entityRepository.find(publicId)
+    const entityResult = await this.entityRepository.get(publicId)
     if (!entityResult.success) {
       return Err(new NotFoundError('Ranking not found'))
     }

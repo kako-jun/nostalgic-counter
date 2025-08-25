@@ -18,6 +18,7 @@ declare module 'react' {
         id?: string;
         max?: string;
         theme?: 'classic' | 'modern' | 'retro';
+        limit?: string;
       };
       'nostalgic-bbs': React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement> & {
         id?: string;

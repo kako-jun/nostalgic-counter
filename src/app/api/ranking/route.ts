@@ -8,7 +8,8 @@ import { ApiHandler } from '@/lib/core/api-handler'
 import { Ok, map } from '@/lib/core/result'
 import { rankingService } from '@/domain/ranking/ranking.service'
 import { maybeRunAutoCleanup } from '@/lib/core/auto-cleanup'
-import { getClientIP, createUserHash } from '@/lib/core/client-info'
+import { getClientIP } from '@/lib/utils/api'
+import { createHash } from 'crypto'
 import {
   RankingSchemas,
   UnifiedAPISchemas,
@@ -47,7 +48,7 @@ const submitHandler = ApiHandler.create({
   handler: async ({ id, name, score }, request) => {
     const clientIP = getClientIP(request)
     const userAgent = request.headers.get('user-agent') || ''
-    const userHash = createUserHash(clientIP, userAgent)
+    const userHash = createHash('sha256').update(`${clientIP}:${userAgent}:${new Date().toDateString()}`).digest('hex').slice(0, 8)
     
     return await rankingService.submitScoreById(id, { name, score }, userHash)
   }
