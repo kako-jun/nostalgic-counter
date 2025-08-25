@@ -145,6 +145,25 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
       }
     }
 
+    // スコア更新可否チェック（ユーザー用：より高いスコアのみ）
+    const shouldUpdateResult = await this.shouldUpdateScore(entity.id, params.name, params.score, true)
+    if (!shouldUpdateResult.success) {
+      // ロールバック: 連投防止マークを削除
+      if (userHash) {
+        await this.removeSubmitMark(entity.id, userHash)
+      }
+      return shouldUpdateResult
+    }
+
+    if (!shouldUpdateResult.data) {
+      // ロールバック: 連投防止マークを削除（スコア改善なし）
+      if (userHash) {
+        await this.removeSubmitMark(entity.id, userHash)
+      }
+      // スコアが改善されていないので更新しない（エラーではない）
+      return await this.transformEntityToData(entity)
+    }
+
     // スコアを追加（数値でソート用）
     const addResult = await this.sortedSetRepository.add(`${entity.id}:scores`, params.name, params.score)
     if (!addResult.success) {
@@ -242,7 +261,26 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
       }
     }
 
-    // スコアを追加
+    // スコア更新可否チェック（管理者用：常に更新可能）
+    const shouldUpdateResult = await this.shouldUpdateScore(entity.id, params.name, params.score, false)
+    if (!shouldUpdateResult.success) {
+      // ロールバック: 連投防止マークを削除
+      if (userHash) {
+        await this.removeSubmitMark(entity.id, userHash)
+      }
+      return shouldUpdateResult
+    }
+
+    // 管理者用は常に更新されるはずだが、念のためチェック
+    if (!shouldUpdateResult.data) {
+      // ロールバック: 連投防止マークを削除
+      if (userHash) {
+        await this.removeSubmitMark(entity.id, userHash)
+      }
+      return Err(new ValidationError('Unexpected: admin update was blocked'))
+    }
+
+    // スコアを追加（更新）
     const addResult = await this.sortedSetRepository.add(`${entity.id}:scores`, params.name, params.score)
     if (!addResult.success) {
       // ロールバック: 連投防止マークを削除
@@ -511,6 +549,35 @@ export class RankingService extends BaseService<RankingEntity, RankingData, Rank
     }
 
     return Ok(undefined)
+  }
+
+  /**
+   * スコア更新可否チェック（共通ロジック）
+   */
+  private async shouldUpdateScore(
+    entityId: string, 
+    playerName: string, 
+    newScore: number,
+    onlyHigherScore: boolean = false
+  ): Promise<Result<boolean, ValidationError>> {
+    if (!onlyHigherScore) {
+      return Ok(true) // 管理者用：常に更新可能
+    }
+
+    // ユーザー用：既存スコアをチェック
+    const existingScoreResult = await this.sortedSetRepository.getScore(`${entityId}:scores`, playerName)
+    
+    if (!existingScoreResult.success) {
+      return Err(new ValidationError('Failed to check existing score', { error: existingScoreResult.error }))
+    }
+
+    // 既存スコアがない場合は更新可能
+    if (existingScoreResult.data === null) {
+      return Ok(true)
+    }
+
+    // 新しいスコアが既存スコアより高い場合のみ更新可能
+    return Ok(newScore > existingScoreResult.data)
   }
 
   /**
